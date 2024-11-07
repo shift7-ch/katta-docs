@@ -182,7 +182,7 @@ aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam:
 
 #### Setup AWS: roles
 
-Add role for creating buckets with prefix `cipherduck` and uploading `vault.cryptomator`, adapt OIDC provider in trust
+Add role for creating buckets with prefix `cipherduck` and uploading `vault.uvf`, adapt OIDC provider in trust
 policy and bucket prefix in permission policy:
 
 * [aws/createbuckettrustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup/aws/createbuckettrustpolicy.json)
