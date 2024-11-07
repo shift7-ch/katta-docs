@@ -36,7 +36,7 @@ see [MinIO - Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operati
 Add role for creating buckets with prefix `cipherduck` and uploading `vault.cryptomator`, as well as RW to access to
 buckets through `client_id` claim in JWT token. Adapt bucket prefix in
 
-* [setup/minio_sts/createbucketpolicy.json](setup%2Fminio_sts%2Fcreatebucketpolicy.json)
+* [setup/minio_sts/createbucketpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup/minio_sts/createbucketpolicy.json)
 
 Side-note: MinIO does not allow for multiple OIDC providers with the same client ID:
 
@@ -100,7 +100,7 @@ mc idp openid ls myminio
 
 ### Hub configuration
 
-See [application.properties](config%2Fapplication.properties)
+See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
 
 AWS
 ---
@@ -185,15 +185,15 @@ aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam:
 Add role for creating buckets with prefix `cipherduck` and uploading `vault.cryptomator`, adapt OIDC provider in trust
 policy and bucket prefix in permission policy:
 
-* [aws/createbuckettrustpolicy.json](./setup%2Faws%2Fcreatebuckettrustpolicy.json)
-* [aws/createbucketpermissionpolicy.json](setup%2Faws%2Fcreatebucketpermissionpolicy.json)
+* [aws/createbuckettrustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup/aws/createbuckettrustpolicy.json)
+* [aws/createbucketpermissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/createbucketpermissionpolicy.json)
 
 Add roles for role chaining, adapt OIDC provider in trust policy and bucket prefix in permission policy:
 
-* [aws/cipherduck_chain_01_trustpolicy.json](setup%2Faws%2Fcipherduck_chain_01_trustpolicy.json)
-* [aws/cipherduck_chain_01_permissionpolicy.json](setup%2Faws%2Fcipherduck_chain_01_permissionpolicy.json)
-* [aws/cipherduck_chain_02_trustpolicy.json](setup%2Faws%2Fcipherduck_chain_02_trustpolicy.json)
-* [aws/cipherduck_chain_02_permissionpolicy.json](setup%2Faws%2Fcipherduck_chain_02_permissionpolicy.json)
+* [aws/cipherduck_chain_01_trustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_01_trustpolicy.json)
+* [aws/cipherduck_chain_01_permissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_01_permissionpolicy.json)
+* [aws/cipherduck_chain_02_trustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_02_trustpolicy.json)
+* [aws/cipherduck_chain_02_permissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_02_permissionpolicy.json)
 
 ```shell
 aws iam create-role --role-name cipherduck-createbucket --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_stscreatebuckettrustpolicy.json
@@ -231,7 +231,7 @@ aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::930717317329:role
 
 ### Hub configuration
 
-See [application.properties](config%2Fapplication.properties). The configured prefix must match the ones configured in
+See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The configured prefix must match the ones configured in
 the AWS/MinIO setup. Take the role arns from the AWS/MinIO setup.
 
 ### AWS cleanup
@@ -254,10 +254,10 @@ See http://localhost:8080/q/openapi?format=json or http://localhost:8080/q/swagg
 
 ### Examples
 
-* [aws_sts_profile.json](setup%2Faws_sts%2Faws_sts_profile.json)
-* [minio_sts_profile.json](setup%2Fminio_sts%2Fminio_sts_profile.json)
-* [aws_static_profile.json](setup%2Faws_static%2Faws_static_profile.json)
-* [minio_static_profile.json](setup%2Fminio_static%2Fminio_static_profile.json)
+* [aws_sts_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws_sts/aws_sts_profile.json)
+* [minio_sts_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//minio_sts/minio_sts_profile.json)
+* [aws_static_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws_static/aws_static_profile.json)
+* [minio_static_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//minio_static/minio_static_profile.json)
 
 ### Upload storage profiles
 
