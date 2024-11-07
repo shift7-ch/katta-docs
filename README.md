@@ -15,7 +15,8 @@ Katta consists of Katta Server and Katta Client:
 ## Contents
 
 * [Get an Overview](OVERVIEW.md)
-* [Setup Katta Server](OVERVIEW.md)
+* [Setup Katta Server](SETUP_KATTA_SERVER.md)
+* [Katta Token Management](TOKENS.md)
 
 ## Comparison with Cryptomator Hub
 
