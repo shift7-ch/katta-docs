@@ -104,6 +104,13 @@ The following diagram shows the data model used in Keycloak:
 
 ![KeycloakSyncDataModel.drawio.png](img/KeycloakSyncDataModel.drawio.png)
 
+This means that only users with both
+
+- the client-level role `<vaultId>`
+- requesting the scope `<vaultId>`
+
+get the claims mapped in by the vault-specific (hard-coded) protocol mapper.
+
 The following table lists the events that sync data to Keycloak in line with this data model:
 
 | Vault Server Backend Event    | Sync to Keycloak                                                                                                                            |
@@ -114,7 +121,16 @@ The following table lists the events that sync data to Keycloak in line with thi
 
 ### Token Exchange
 
-TODO spi implementation
+We add a custom [oidc token exchange provider](https://www.keycloak.org/securing-apps/token-exchange) by implementing a
+Keycloak [service provider interface](https://www.keycloak.org/server/configuration-provider):
+
+- if both
+    - if there is exactly one requested `scope`
+    - if there is exactly one value in the requested `audience` and it correspond to a `client`
+- then return a token from the target client, with the `aud` claim filled by the target client
+- else default behaviour
+
+In this way, only users with the corresponding client role get the claims required to access the vault's data.
 
 ### Keycloak Realm Diff to Cryptomator Hub (aka. Upstream)
 
@@ -130,10 +146,12 @@ corresponding [upstream Keycloak realm definition](https://github.com/cryptomato
 | remove `oidc-usermodel-client-role-mapper` from `cryptomator` and `cryptomatorhub` clients | Client roles must not be added by default to access tokens for `cryptomator` client. As we add one client role per vault, the token would grow with the amount of vaults and quickly hit token size limits at AWS. |
 | add `x-katta-action:oauth` to `redirectUris` of `cryptomator`client                        | Support for                                                                                                                                                                                                        |
 | add `oidc-audience-mapper`                                                                 | `aud` claim is required for STS                                                                                                                                                                                    |
-| remove `roles` scope from default client scopes in `cryptomator` client                    | ?? See above regarding client roles.                                                                                                                                                                               |
+| remove `roles` scope from default client scopes in `cryptomator` client                    | `roles` scope adds client roles under `realm_access.cryptomator_vaults.roles`                                                                                                                                      |
 | add `basic` scope to default client scopes in `cryptomator` client                         | `sub` claim is required for STS [^3]                                                                                                                                                                               |
 | add `cryptomatorvaults` client                                                             | We use separate client for vault-specific client scopes and roles to keep these data separate from the data as used upstream.                                                                                      |
 | add `realm-management` client                                                              | Allowing token exchange from `cryptomator` to `cryptomatorvaults` client needs to be defined in the `realm-management` client.                                                                                     |
+
+For more details, see the tests in the `keycloak` module of Katta Server.
 
 The following diagram shows the wiring of the Keycloak realm to allow token exchange:
 
