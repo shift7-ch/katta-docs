@@ -21,10 +21,6 @@ Therefore, we use [RFC 8693 token exchange](https://www.rfc-editor.org/rfc/rfc86
 
 [^2]: https://docs.amazonaws.cn/en_us/AmazonS3/latest/API/ErrorResponses.html#S3AccessGrantsErrorCodeList &rarr; `Serialized token too large for session`
 
-### Overview
-
-![Tokens.drawio.png](img/Tokens.drawio.png)
-
 ### High-Level Description
 
 Katta S3 STS is based on the following components and their responsibilities:
@@ -46,7 +42,8 @@ Katta S3 STS combines the following standard APIs:
 
 ### Intermediate-Level Description
 
-At an intermediate Level:
+At an intermediate Level, the following diagram shows
+![Tokens.drawio.png](img/Tokens.drawio.png)
 
 1. User opens vault in Katta client, client opens browser.
 2. Keycloak redirects user to login and authorization prompt.
@@ -95,14 +92,54 @@ TODO describe refresh at multiple levels activity diagram
 
 ## Keycloak Architecture
 
+### Keycloak Data Model and Katta Server Backend to Keycloak Sync
+
+Upstream (Cryptomator Hub) uses realm roles for controlling access to backend services. Currently, there are `user`, `admin` , `create-vault` and `syncer`
+roles.
+These roles must be in the `realm_access.roles` claim of the access token issued by the `cryptomator` and `cryptomatorhub` clients, as it is used to call the
+backend API.
+Therefore, we use client roles added to client scopes instead of realm roles to control storage access to vaults.
+
+The following diagram shows the data model used in Keycloak:
+
+![KeycloakSyncDataModel.drawio.png](img/KeycloakSyncDataModel.drawio.png)
+
+The following table lists the events that sync data to Keycloak in line with this data model:
+
+| Vault Server Backend Event    | Sync to Keycloak                                                                                                                            |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Create vault                  | Create optional client scope and client role in `cryptomatorvaults` both with name `<vaultId>` and add protocol mapper to the client scope. |
+| Share vault access with user  | Add client role `<vaultId>` in `cryptomatorvaults` client to user.                                                                          |
+| Remove vault access from user | Remove client role `<vaultId>` in `cryptomatorvaults` client from user.                                                                     |
+
 ### Token Exchange
 
 TODO spi implementation
 
-### Roles/Scopes etc.
+### Keycloak Realm Diff to Cryptomator Hub (aka. Upstream)
 
-TODO class diagram
+The
+[baseline Katta Keycloak realm definition](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/dev-realm.json)
+has several differences to the
+corresponding [upstream Keycloak realm definition](https://github.com/cryptomator/hub/blob/main/backend/src/main/resources/dev-realm.json).
 
-### Realm Diff to Hub
+| Diff                                                                                       | Motivation                                                                                                                                                                                                         |
+|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| additional permissions `manage-users` and `manage-clients` for `syncer` role               | Required for Katta Server Backend to Keycloak synchronization                                                                                                                                                      |
+| add client roles for `realm-management` client                                             | Needs to be present if `realm-mangement` client is re-defined, although the Keycloak defaults are used.                                                                                                            |
+| remove `oidc-usermodel-client-role-mapper` from `cryptomator` and `cryptomatorhub` clients | Client roles must not be added by default to access tokens for `cryptomator` client. As we add one client role per vault, the token would grow with the amount of vaults and quickly hit token size limits at AWS. |
+| add `x-katta-action:oauth` to `redirectUris` of `cryptomator`client                        | Support for                                                                                                                                                                                                        |
+| add `oidc-audience-mapper`                                                                 | `aud` claim is required for STS                                                                                                                                                                                    |
+| remove `roles` scope from default client scopes in `cryptomator` client                    | ?? See above regarding client roles.                                                                                                                                                                               |
+| add `basic` scope to default client scopes in `cryptomator` client                         | `sub` claim is required for STS [^3]                                                                                                                                                                               |
+| add `cryptomatorvaults` client                                                             | We use separate client for vault-specific client scopes and roles to keep these data separate from the data as used upstream.                                                                                      |
+| add `realm-management` client                                                              | Allowing token exchange from `cryptomator` to `cryptomatorvaults` client needs to be defined in the `realm-management` client.                                                                                     |
 
-explain all differences
+The following diagram shows the wiring of the Keycloak realm to allow token exchange:
+
+![RealmDataModel.drawio.png](img/RealmDataModel.drawio.png)
+
+[^3]:  Keycloak 25 introduces mapper for `sub` claim in scope `basic`, the scope needs to added explicitly to the default scopes list as we override the
+list (in order to remove the `roles` scope),
+see  [Migrating to Keycloak 25.0.0](https://www.keycloak.org/docs/latest/upgrading/index.html#new-default-client-scope-basic)
+and [Release Notes Keycloak 25.0.0](https://www.keycloak.org/docs/latest/release_notes/#keycloak-25-0-0)
