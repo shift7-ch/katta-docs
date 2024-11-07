@@ -101,4 +101,8 @@ TODO spi implementation
 
 ### Roles/Scopes etc.
 
-TODO class diagram 
+TODO class diagram
+
+### Realm Diff to Hub
+
+explain all differences
