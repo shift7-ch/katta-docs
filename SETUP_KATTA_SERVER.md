@@ -1,6 +1,8 @@
 Setup Katta Server
 ==================
 
+> [!NOTE]  
+> This document describes how to setup Katta server integration with a storage provider (MinIO or AWS, static or STS).
 
 MinIO
 -----
@@ -245,18 +247,6 @@ aws iam delete-role --role-name cipherduck_chain_02
 
 Storage Profiles
 ----------------------------------------------------------
-
-### Introduction
-
-| Term                                                                | Description                                                    | Usage in Cipherdu^ck                                                                                      |
-|---------------------------------------------------------------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| [Bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)          | Refers to connection profile/profile and adds properties like. | For hubs and vaults.                                                                                      |
-| [Protocol](https://docs.cyberduck.io/protocols/)                    |                                                                | `hub` and `s3-sts`                                                                                        |
-| [Connection Profile](https://docs.cyberduck.io/protocols/profiles/) | Refers to protocol and overrides properties                    | Used internally.                                                                                          |
-| Vault [JWE](https://datatracker.ietf.org/doc/html/rfc7516)          | JSON Web Encryption for encrypted JSON-based data structures   | Contains the vault masterkey for decrypting data plus all information required to create vault bookmarks. |
-
-Note that properties in `application.properties` use dashed notation instead of Camel Case in JWE and Java Dtos,
-see [Quarkus Config Reference Guide](https://quarkus.io/guides/config-reference) for details.
 
 ### API documentation
 
