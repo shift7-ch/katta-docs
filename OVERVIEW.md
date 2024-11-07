@@ -21,11 +21,12 @@ Katta currently supports two modes for both S3 providers:
 
 ## Katta Setup
 
-TODO steps in setup
+The following diagram illustrates the setup Katta Server in the two modes:
+![ServerSetup.drawio.png](img/ServerSetup.drawio.png)
 
 ## Vault Creation
 
-The following diagram illustrates vault creation in the two modes:
+The following diagram illustrates the steps to create a vault creation in the two modes:
 
 ![VaultCreation.drawio.png](img/VaultCreation.drawio.png)
 
