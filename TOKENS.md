@@ -65,14 +65,60 @@ At an intermediate Level, the following diagram shows
 
 ### Detailed Description
 
-TODO example JSONs/tokens for the steps above
+TODO sequence diagram with example JSONs/tokens for the steps above, maybe add cli calls?
 
 * AWS: token contains `https://aws.amazon.com/tags` claim
 * MinIO: token contains `client_id` claim
 
-## AWS/MinIO IAM Integration
+## IAM Data Model
 
-TODO conceptual description of role chaining etc. Differences MinIO/AWS.
+### MinIO IAM Data Model
+
+The following diagram shows the data model we use
+for [Policy-Based Access Control](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html) with MinIO STS:
+
+![MinIOSetup.drawio.png](img/MinIOSetup.drawio.png)
+
+OpenID Identities and Policies are installed once during Katta Server Setup (or before the corresponding storage profile(s) for a new storage location are
+uploaded).
+
+An STS request with a token issued by a configured OpenID Identity (defined by `config_url`, `client_id`, `client_secret`) returns credentials giving access to
+the linked
+`role_policy`, i.e.
+
+* *Bucket creation:* allows to create a new bucket within a certain prefix and to upload the vault template incl. the `vault.uvf` file, and to set bucket
+  versioning.
+* *Vault access:* allows reading and writing operations in the bucket as specified by the `client_id` claim in the JWT access token.
+
+MinIO has only a limited list
+of [OpenID Policy Variables](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html#minio-policy-variables-oidc)
+that can be evaluated
+in [Policy-Based Access Control](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html).
+
+See below on how Keycloak adds the corresponding claim only to the access tokens of users which have access to the corresponding vault.
+
+### AWS IAM Data Model
+
+The following diagram show the data model we use for [OIDC Federation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html)
+to request [temporary security credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_control-access_assumerole.html)
+in [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html):
+
+![AWSSetup.drawio.png](img/AWSSetup.drawio.png)
+
+An STS request with token issued by a configured OpenID Connect Provider (defined by `url`, `client_id`, `thumbprint`) returns credentials from Role Policies
+attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
+
+* *Bucket creation*: allows to create a new bucket within a certain prefix and to upload the vault template incl. the `vault.uvf` file, and to set bucket
+  versioning.
+* *Vault Access*:
+    * First call in chain: credentials allow to assume second role and
+      to [tag the session](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html) with a tag from the `https://aws.amazon.com/tags` claim in the
+      OIDC token.
+    * Second call in chain: allows reading and writing operations in the bucket
+      by [passing session tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html#id_session-tags_role-chaining) in the session of the
+      credentials from the first call.
+
+TODO add FAQ stuff
 
 ## Tokens with Inline-Policy for S3 Bucket Creation and Template Upload
 
