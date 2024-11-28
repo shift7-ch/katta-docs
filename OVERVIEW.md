@@ -3,21 +3,32 @@
 > [!NOTE]  
 > This document gives an overview over Katta usage scenarios.
 
-## Katta Storage Providers
+## Katta Vaults
 
-Katta currently supports two S3 storage providers:
+In Katta, data is shared in units called vaults. Only members of the vault have access to the key material that allows to decrypt the data.
 
-* AWS
-* MinIO
+* The vault keys are uploaded to Katta Server only after encryption on your machine.
+* Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
+
+> [!IMPORTANT]  
+> One vault corresponds to one bucket.
 
 ## Katta S3 Modes
 
 Katta currently supports two modes for both S3 providers:
 
 * static: use an existing S3 bucket and share the static credentials among vault users
-* STS: use STS to have have fine-grained permissions
+* STS: use STS to have fine-grained permissions
     * vault creation: the new bucket is created in Katta Server backend, the user passes a temporary token with limited permissions to the backend
     * storage access: only vault users can access storage
+
+If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
+
+Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html).
+If you want to use Katta STS mode, Katta currently supports two S3 object storage services :
+
+* [AWS](https://aws.amazon.com/s3/)
+* [MinIO](https://min.io/)
 
 ## Katta Setup
 
@@ -36,6 +47,18 @@ The following diagram illustrates the flow of actions to create a vault in the t
 The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
 
 ![DataAccess.drawio.png](img/DataAccess.drawio.png)
+
+## Comparison Katta Client and Katta Server Frontend
+
+| Feature                   | Web | Client |
+|---------------------------|-----|--------|
+| create vault static       | ✅   | ✅      |
+| create vault STS          | ✅   | ✅      |
+| list vaults               | ✅   | ✅      |
+| decrypt vault data        | ❌   | ✅      |
+| automatic access grant    | ❌   | ✅      |
+| details storage profiles  | ✅   | ❌      |
+| initial setup (user keys) | ✅   | ✅      |
 
 ## Glossary
 
