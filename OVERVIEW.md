@@ -21,7 +21,7 @@ Katta currently supports two modes for both S3 providers:
 
 ## Katta Setup
 
-The following diagram illustrates the flow of actions to setup Katta Server in the two modes:
+The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
 ![ServerSetup.drawio.png](img/ServerSetup.drawio.png)
 
