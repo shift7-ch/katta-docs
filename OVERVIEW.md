@@ -15,7 +15,7 @@ Katta currently supports two S3 storage providers:
 Katta currently supports two modes for both S3 providers:
 
 * static: use an existing S3 bucket and share the static credentials among vault users
-* STS: use STS to do have fine-grained permissions
+* STS: use STS to have have fine-grained permissions
     * vault creation: the new bucket is created in Katta Server backend, the user passes a temporary token with limited permissions to the backend
     * storage access: only vault users can access storage
 
