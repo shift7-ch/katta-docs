@@ -27,7 +27,7 @@ The following diagram illustrates the flow of actions to setup Katta Server in b
 
 ## Vault Creation
 
-The following diagram illustrates the flow of actions to create a vault creation in the two modes:
+The following diagram illustrates the flow of actions to create a vault in the two modes:
 
 ![VaultCreation.drawio.png](img/VaultCreation.drawio.png)
 
