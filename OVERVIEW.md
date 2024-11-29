@@ -18,8 +18,10 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 Katta currently supports two modes for both S3 providers:
 
 * static: use an existing S3 bucket and share the static credentials among vault users
+    * the vault template is uploaded with static credentials
 * STS: use STS to have fine-grained permissions
-    * vault creation: the new bucket is created in Katta Server backend, the user passes a temporary token with limited permissions to the backend
+    * vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server backend creates the bucket and uploads the vault
+      template
     * storage access: only vault users can access storage
 
 If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
@@ -29,6 +31,22 @@ If you want to use Katta STS mode, Katta currently supports two S3 object storag
 
 * [AWS](https://aws.amazon.com/s3/)
 * [MinIO](https://min.io/)
+
+### E2E-Encyrpted Data Sync in Static and STS mode
+
+The following diagram illustrates data sync in Static Mode:
+![StaticModeAccess.drawio.png](img/StaticModeAccess.drawio.png)
+
+The following diagram illustrates data sync in STS Mode:
+![STSModeAccess.drawio.png](img/STSModeAccess.drawio.png)
+
+### Vault Creation in Static and STS mode
+
+The following diagram illustrates vault creation in Static mode:
+![StaticMode.drawio.png](img/StaticMode.drawio.png)
+
+The following diagram illustrates vault creation in STS mode:
+![STSMode.drawio.png](img/STSMode.drawio.png)
 
 ## Katta Setup
 
