@@ -50,15 +50,16 @@ The following diagram illustrates the flow of actions to sync data in an end-to-
 
 ## Comparison Katta Client and Katta Server Frontend
 
-| Feature                   | Web | Client |
-|---------------------------|-----|--------|
-| create vault static       | ✅   | ✅      |
-| create vault STS          | ✅   | ✅      |
-| list vaults               | ✅   | ✅      |
-| decrypt vault data        | ❌   | ✅      |
-| automatic access grant    | ❌   | ✅      |
-| details storage profiles  | ✅   | ❌      |
-| initial setup (user keys) | ✅   | ✅      |
+| Feature                       | Katta Server Frontend | Katta Client |
+|-------------------------------|-----------------------|--------------|
+| create vault static           | ✅                     | ✅            |
+| create vault STS              | ✅                     | ✅            |
+| list vaults                   | ✅                     | ✅            |
+| decrypt vault data            | ❌                     | ✅            |
+| automatic access grant        | ❌                     | ✅            |
+| view details storage profiles | ✅                     | ❌            |
+| initial setup (user keys)     | ✅                     | ✅            |
+| View/reset setup code         | ✅                     | ❌            |
 
 ## Glossary
 
