@@ -19,10 +19,10 @@ Katta consists of Katta Server and Katta Client:
 
 ## Comparison with Cryptomator Hub
 
-The following table gives an overview of what Katta adds to Cryptomator Hub:
+While sharing Zero-Trust key management, Katta adds the following features to Cryptomator and Cryptomator Hub ecosystem:
 
-| Feature                             | Cryptomator Hub | Katta |
-|-------------------------------------|-----------------|-------|
-| Zero-Trust key management           | ✅               | ✅     |
-| Storage configuration and data sync | ❌               | ✅     |
-| Automatic access grant              | ❌               | ✅     |
+* Management of Storage Profiles in Katta Server
+* Data Sync in Katta Client
+* Automatic Access Grant in Katta Client
+
+
