@@ -34,18 +34,20 @@ If you want to use Katta STS mode, Katta currently supports two S3 object storag
 
 ### E2E-Encyrpted Data Sync in Static and STS mode
 
-The following diagram illustrates data sync in Static Mode:
+The following diagram illustrates the interactions when Katta Client syncs data in vault in *Static Mode*:
 ![StaticModeAccess.drawio.png](img/StaticModeAccess.drawio.png)
 
-The following diagram illustrates data sync in STS Mode:
+The following diagram illustrates the interactions when Katta Client syncs data in a vault in *STS Mode*:
 ![STSModeAccess.drawio.png](img/STSModeAccess.drawio.png)
 
 ### Vault Creation in Static and STS mode
 
-The following diagram illustrates vault creation in Static mode:
+The following diagram illustrates the interactions when a user
+creates a vault in *Static Mode*:
 ![StaticMode.drawio.png](img/StaticMode.drawio.png)
 
-The following diagram illustrates vault creation in STS mode:
+The following diagram illustrates the interactions when a user creates a
+vault in *STS Mode*:
 ![STSMode.drawio.png](img/STSMode.drawio.png)
 
 ## Katta Setup
