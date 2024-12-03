@@ -2,7 +2,11 @@ Setup Katta Server
 ==================
 
 > [!NOTE]  
-> This document describes how to setup Katta server integration with a storage provider (MinIO or AWS, static or STS).
+> This document describes how to setup Katta Server integration with a storage provider, covering:
+> * Storage providers: MinIO and AWS
+> * Mode: Static and STS.
+>
+> See [README.md](README.md) for an overview.
 
 MinIO
 -----
@@ -231,7 +235,8 @@ aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::930717317329:role
 
 ### Hub configuration
 
-See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The configured prefix must match the ones configured in
+See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The
+configured prefix must match the ones configured in
 the AWS/MinIO setup. Take the role arns from the AWS/MinIO setup.
 
 ### AWS cleanup
