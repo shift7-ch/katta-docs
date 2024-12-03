@@ -21,7 +21,11 @@ Katta consists of Katta Server and Katta Client:
 
 While sharing Zero-Trust key management, Katta adds the following features to Cryptomator and Cryptomator Hub ecosystem:
 
-* Management of Storage Profiles in Katta Server
+* The data location is managed by Katta Server:
+  * Katta Vault Creators can create vaults and
+    * Katta Static Mode: the vault template (data to initialize the vault) is uploaded upon vault creation
+    * Katta STS Mode: a bucket is created on behalf of the user
+  * Katta Server Admins can manage the Storage Profiles in Katta Server
 * Data Sync in Katta Client
 * Automatic Access Grant in Katta Client
 

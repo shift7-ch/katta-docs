@@ -3,7 +3,9 @@
 > [!NOTE]  
 > This document gives an overview over Katta usage scenarios.
 
-## Katta Vaults
+## Concepts
+
+### Katta Vaults
 
 In Katta, data is shared in units called vaults. Only members of the vault have access to the key material that allows to decrypt the data.
 
@@ -13,13 +15,13 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 > [!IMPORTANT]  
 > One vault corresponds to one bucket.
 
-## Katta S3 Modes
+### Katta S3 Modes
 
 Katta currently supports two modes for both S3 providers:
 
-* static: use an existing S3 bucket and share the static credentials among vault users
+* *Static Mode*: use an existing S3 bucket and share the static credentials among vault users
     * the vault template is uploaded with static credentials
-* STS: use STS to have fine-grained permissions
+* *STS Mode*: use STS to have fine-grained permissions
     * vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server backend creates the bucket and uploads the vault
       template
     * storage access: only vault users can access storage
@@ -32,23 +34,72 @@ If you want to use Katta STS mode, Katta currently supports two S3 object storag
 * [AWS](https://aws.amazon.com/s3/)
 * [MinIO](https://min.io/)
 
-### E2E-Encyrpted Data Sync in Static and STS mode
+### Katta Storage Profiles
+
+Katta Storage Profiles define the possible storage locations where users can create vaults. E.g.
+there may be multiple storage profiles for different S3 endpoints, different Katta Modes, different default regions.
+See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
+
+### Universal Vault Form and Vault Metadata `vault.uvf`
+
+The [Universal Vault Format](https://github.com/encryption-alliance/unified-vault-format) defines a common vendor-independent standard for encrypted directories
+on a per-file basis. It is based on year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/en/latest/misc/vault-format-history/).
+It will allow in the future for implementation
+of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/key-rotation.md)
+(see also [Security Architecture](https://github.com/cryptomator/docs/pull/55/files)).
+
+[Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
+https://github.com/cryptomator/docs/pull/55)
+contains the key material to decrypt and encrypt data. uvf allows for vendor-specific extension points:
+
+* `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enable for this vault and defines the maximum length (
+  see [Web of Trust](https://github.com/cryptomator/hub/pull/281)).
+* `cloud.katta.storage` (Katta only): defines the bucket location and further storage settings
+  like [S3 Versioning](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html); the user will have access to their vaults in Katta Client
+  by [Bookmarks](https://docs.cyberduck.io/cyberduck/bookmarks/). So the information required to create such bookmarks is contained in this section of the
+  encrypted `vault.uvf` file (which is also stored encrypted in the Katta Server for convenience).
+
+### Katta Roles
+
+* Katta User: the `user` role allows to login to Katta Server Frontend
+* Katta Vault Creator: users allowed to create vault
+* Katta Admin: users with administrative permissions in the Katta Server Frontend / Katta Server Backend API, they can configure the Katta Server and they can
+  upload storage profiles.
+* Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members.
+* Katta Vault Admin: the vault creator is by default the first vault admin; the vault admin has access to the
+  vault's [recovery code](https://docs.cryptomator.org/en/latest/hub/vault-recovery/#hub-vault-recovery)
+* Katta Server Admin: technical administrator of the databases and; zero-trust means the data can never be decrypted by a person having access to the database
+  or the server running the Katta Server or to the physical storage (unless the Katta Server admin is also a Vault Member, of course).
+
+## E2E-Encyrpted Data Sync in Static and STS mode
 
 The following diagram illustrates the interactions when Katta Client syncs data in vault in *Static Mode*:
+
 ![StaticModeAccess.drawio.png](img/StaticModeAccess.drawio.png)
 
 The following diagram illustrates the interactions when Katta Client syncs data in a vault in *STS Mode*:
+
 ![STSModeAccess.drawio.png](img/STSModeAccess.drawio.png)
 
-### Vault Creation in Static and STS mode
+The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
+
+![DataAccess.drawio.png](img/DataAccess.drawio.png)
+
+## Vault Creation in Static and STS mode
 
 The following diagram illustrates the interactions when a user
 creates a vault in *Static Mode*:
+
 ![StaticMode.drawio.png](img/StaticMode.drawio.png)
 
 The following diagram illustrates the interactions when a user creates a
 vault in *STS Mode*:
+
 ![STSMode.drawio.png](img/STSMode.drawio.png)
+
+The following diagram illustrates the flow of actions to create a vault in the two modes:
+
+![VaultCreation.drawio.png](img/VaultCreation.drawio.png)
 
 ## Katta Setup
 
@@ -56,30 +107,19 @@ The following diagram illustrates the flow of actions to setup Katta Server in b
 
 ![ServerSetup.drawio.png](img/ServerSetup.drawio.png)
 
-## Vault Creation
-
-The following diagram illustrates the flow of actions to create a vault in the two modes:
-
-![VaultCreation.drawio.png](img/VaultCreation.drawio.png)
-
-## E2EE Data Sync
-
-The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
-
-![DataAccess.drawio.png](img/DataAccess.drawio.png)
-
 ## Comparison Katta Client and Katta Server Frontend
 
-| Feature                       | Katta Server Frontend | Katta Client |
-|-------------------------------|-----------------------|--------------|
-| create vault static           | ✅                     | ✅            |
-| create vault STS              | ✅                     | ✅            |
-| list vaults                   | ✅                     | ✅            |
-| decrypt vault data            | ❌                     | ✅            |
-| automatic access grant        | ❌                     | ✅            |
-| view details storage profiles | ✅                     | ❌            |
-| initial setup (user keys)     | ✅                     | ✅            |
-| View/reset setup code         | ✅                     | ❌            |
+| Feature                                | Katta Server Frontend | Katta Client |
+|----------------------------------------|-----------------------|--------------|
+| create vault static                    | ✅                     | ✅            |
+| create vault STS                       | ✅                     | ✅            |
+| list vaults                            | ✅                     | ✅            |
+| decrypt vault data                     | ❌                     | ✅            |
+| automatic access grant                 | ❌                     | ✅            |
+| view details storage profiles          | ✅                     | ❌            |
+| initial setup (user keys)              | ✅                     | ✅            |
+| View/reset setup code                  | ✅                     | ❌            |
+| Manage Signature Chains (Web of Trust) | ✅                     | ❌            |
 
 ## Glossary
 
