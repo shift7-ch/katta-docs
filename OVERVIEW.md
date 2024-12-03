@@ -3,6 +3,18 @@
 > [!NOTE]  
 > This document gives an overview over Katta usage scenarios.
 
+Katta consists of the following components:
+
+* Katta Clients:
+  * Katta Desktop (Client)
+  * Katta Web (Client)
+* Katta Server:
+  * Katta (Server) Backend
+  * Keycloak
+
+Katta Desktop Client is based on [Mountain Duck](https://mountainduck.io/),
+Katta Web Client and Katta Server is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).
+
 ## Concepts
 
 ### Katta Vaults
