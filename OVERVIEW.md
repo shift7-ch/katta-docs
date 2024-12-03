@@ -40,7 +40,7 @@ Katta Storage Profiles define the possible storage locations where users can cre
 there may be multiple storage profiles for different S3 endpoints, different Katta Modes, different default regions.
 See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
 
-### Universal Vault Form and Vault Metadata `vault.uvf`
+### Universal Vault Format and Vault Metadata `vault.uvf`
 
 The [Universal Vault Format](https://github.com/encryption-alliance/unified-vault-format) defines a common vendor-independent standard for encrypted directories
 on a per-file basis. It is based on year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/en/latest/misc/vault-format-history/).
