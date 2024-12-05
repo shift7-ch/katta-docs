@@ -19,14 +19,25 @@ Katta consists of Katta Server and Katta Client:
 
 ## Comparison with Cryptomator Hub
 
-While sharing Zero-Trust key management, Katta adds the following features to Cryptomator and Cryptomator Hub ecosystem:
+Cryptomator and Cryptomator Hub ecosystem provides
 
-* The data location is managed by Katta Server:
-    * Katta Vault Creators can create vaults and
+* *End-to-end Data Encryption*: data is encrypted in the client only, never on the server; data is always encrypted before it leaves the local machine.
+  Event with access to the stored encrypted data, a penetrator cannot decrypt the plaintext without access to the data keys.
+* *Zero-Trust Key Management*: key material is uploaded to hub only in end-to-end-encrypted fashion.
+  Event with access to the stored encrypted keys, a penetrator cannot decrypt the data keys without access to the key encryption keys.
+
+While sharing End-to-end Data Encryption and Zero-Trust Key Management, Katta adds the following features:
+
+* The storage location and storage access is managed by Katta Server:
+    * Vault metadata contains the location where data is stored:
+        * Katta Server Admins can manage the Storage Profiles to define where new vaults can be created
         * Katta Static Mode: the vault template (data to initialize the vault) is uploaded upon vault creation
         * Katta STS Mode: a bucket is created on behalf of the user
-    * Katta Server Admins can manage the Storage Profiles in Katta Server
-* Data Sync in Katta Client
-* Automatic Access Grant in Katta Client
+    * Vault membership defines storage access:
+        * Katta Static Mode: the key material is shared among Vault Members in end-to-end encrypted way and zero-trust in Katta Server
+        * Katta STS Mode: vault membership is mirrored in Keycloak, and the access tokens issued by Keycloak are evaluated by STS for fine-grained storage
+          access control.
+* Data Sync in Katta Client. No third-party sync client (like Dropbox) is required.
+* Automatic Access Grant in Katta Client (not support by Cryptomator Hub yet)
 
 
