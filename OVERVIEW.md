@@ -87,37 +87,37 @@ contains the key material to decrypt and encrypt data. uvf allows for vendor-spe
 
 The following diagram illustrates the interactions when Katta Client syncs data in vault in *Static Mode*:
 
-![StaticModeAccess.drawio.png](img/StaticModeAccess.drawio.png)
+![DataAccessStatic_Interaction.drawio.png](img/overview/DataAccessStatic_Interaction.drawio.png)
 
 The following diagram illustrates the interactions when Katta Client syncs data in a vault in *STS Mode*:
 
-![STSModeAccess.drawio.png](img/STSModeAccess.drawio.png)
+![DataAccessSTS_Interaction.drawio.png](img/overview/DataAccessSTS_Interaction.drawio.png)
 
 The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
 
-![DataAccess.drawio.png](img/DataAccess.drawio.png)
+![DataAccess_Activity.drawio.png](img/overview/DataAccess_Activity.drawio.png)
 
 ## Vault Creation in Static and STS mode
 
 The following diagram illustrates the interactions when a user
 creates a vault in *Static Mode*:
 
-![StaticMode.drawio.png](img/StaticMode.drawio.png)
+![VaultCreationStatic_Interaction.drawio.png](img/overview/VaultCreationStatic_Interaction.drawio.png)
 
 The following diagram illustrates the interactions when a user creates a
 vault in *STS Mode*:
 
-![STSMode.drawio.png](img/STSMode.drawio.png)
+![VaultCreationSTS_Interaction.drawio.png](img/overview/VaultCreationSTS_Interaction.drawio.png)
 
 The following diagram illustrates the flow of actions to create a vault in the two modes:
 
-![VaultCreation.drawio.png](img/VaultCreation.drawio.png)
+![VaultCreation_Activity.drawio.png](img/overview/VaultCreation_Activity.drawio.png)
 
 ## Katta Setup
 
 The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
-![ServerSetup.drawio.png](img/ServerSetup.drawio.png)
+![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
 
 ## Comparison Katta Client and Katta Server Frontend
 
