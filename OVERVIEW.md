@@ -142,3 +142,9 @@ The following diagram illustrates the flow of actions to setup Katta Server in b
 | Client [Connection Profile](https://docs.cyberduck.io/protocols/profiles/)                                                                                                                  | Used internally in Client for the two modes and for storage profiles.                                                                   |
 | Katta Storage Profile                                                                                                                                                                       | Uploaded by a Katta Server admin initially for each storage provider endpoint and mode.                                                 |
 | [uvf vault metadata](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md) `vault.uvf`  [JWE](https://datatracker.ietf.org/doc/html/rfc7516) | Contains all the information required to create a vault bookmark in the client (reference to storage profile, static credentials etc.). |
+
+## Key Overview
+
+The following diagram shows the cryptographic keys used in Katta, where they are stored and how they are encrypted/signed:
+![key-overview.drawio.png](img/overview/key-overview.drawio.png)
+For more details, refer to [Cryptomator Docs](https://github.com/cryptomator/docs/pull/55/files).
