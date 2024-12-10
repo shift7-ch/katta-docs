@@ -1,7 +1,7 @@
 # Katta Overview
 
 > [!NOTE]  
-> This document gives an overview over Katta usage scenarios.
+> This document gives a high-level technical overview over Katta usage scenarios.
 
 Katta consists of the following components and sub-components:
 
