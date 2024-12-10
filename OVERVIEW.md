@@ -3,7 +3,7 @@
 > [!NOTE]  
 > This document gives an overview over Katta usage scenarios.
 
-Katta consists of the following components:
+Katta consists of the following components and sub-components:
 
 * Katta Clients:
   * Katta Desktop (Client)
@@ -83,7 +83,7 @@ contains the key material to decrypt and encrypt data. uvf allows for vendor-spe
 * Katta Server Admin: technical administrator of the databases and; zero-trust means the data can never be decrypted by a person having access to the database
   or the server running the Katta Server or to the physical storage (unless the Katta Server admin is also a Vault Member, of course).
 
-## E2E-Encyrpted Data Sync in Static and STS mode
+## E2E-Encrypted Data Sync in Static and STS mode
 
 The following diagram illustrates the interactions when Katta Client syncs data in vault in *Static Mode*:
 
