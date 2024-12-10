@@ -89,13 +89,38 @@ The following diagram illustrates the interactions when Katta Client syncs data 
 
 ![DataAccessStatic_Interaction.drawio.png](img/overview/DataAccessStatic_Interaction.drawio.png)
 
+In words:
+
+* The `vault.uvf` metadata contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint
+  etc.)), as well as the encryption keys; it is stored encrypted in Katta Server Backend.
+* With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
+
 The following diagram illustrates the interactions when Katta Client syncs data in a vault in *STS Mode*:
 
 ![DataAccessSTS_Interaction.drawio.png](img/overview/DataAccessSTS_Interaction.drawio.png)
 
+In words:
+
+* The `vault.uvf` metadata contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom endpoint), as
+  well as the encryption keys; it is stored encrypted in Katta Server.
+* The OIDC access token that is used to communicate with Katta Server is exchanged for a token with vault-specific claims
+* When sent to STS, the vault-specific claims will be evaluated to issue temporary fine-grained S3 credentials giving access to the vault's bucket only
+* With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
+
 The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
 
 ![DataAccess_Activity.drawio.png](img/overview/DataAccess_Activity.drawio.png)
+
+In words:
+
+* A user opens the vault in [Mountain Duck User Interface](https://docs.mountainduck.io/mountainduck/interface/)
+* If Katta Client does not have a valid OIDC access token, it refreshes it or starts
+  an [OIDC Authorization Code Grant Flow](https://www.rfc-editor.org/rfc/rfc6749#page-24), asking the user to authenticate in the browser against Keycloak to
+  issue a new access token.
+* The `vault.uvf` metadata JWE is fetched from Katta Server Backend and
+* decrypted with Vault Member Key, the keys for data encryption/decryption are extracted; the access configuration is extracted and stored in
+  a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)
+  The other actions directly correspond to the interactions described above.
 
 ## Vault Creation in Static and STS mode
 
@@ -104,10 +129,29 @@ creates a vault in *Static Mode*:
 
 ![VaultCreationStatic_Interaction.drawio.png](img/overview/VaultCreationStatic_Interaction.drawio.png)
 
+In words:
+
+* A Katta Server admin (role `admin`) needs to define the possible S3 endpoints for Katta S3 Static Mode where users can create vaults.
+  Admins can upload storage profiles can be uploaded via the backend API and inspect in the Web Client.
+* In order to create vault in Static Mode, first a bucket needs to be created manually ([AWS console](https://aws.amazon.com/console/)
+  or [AWS cli](https://aws.amazon.com/cli/)) and set the correct bucket CORS settings.
+* A Katta user (role `create-vault`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
+  Vault Admin.
+* Finally, Katta Client verifies the configuration and uploads the `vault.uvf` metadata to the S3 bucket and to Katta Server.
+
 The following diagram illustrates the interactions when a user creates a
 vault in *STS Mode*:
 
 ![VaultCreationSTS_Interaction.drawio.png](img/overview/VaultCreationSTS_Interaction.drawio.png)
+
+In words:
+
+* A technical admin needs to prepare OIDC trust and roles in AWS or MinIO IAM and define an STS Mode storage profile in Katta Server.
+* Katta Client refreshes (triggering OAuth Authorization Code Flow in browser) the user's access token
+* The access token is sent to STS with an inline policy in order to issue temporary credentials that allow for the creation of a specific bucket.
+* The temporary S3 credentials are sent to Katta Server which calls S3 to create the corresponding bucket. Due to CORS restrictions, this allows the creation of
+  STS vaults both in Web and Desktop Client in the same way.
+* Finally, Katta Client then uploads the `vault.uvf` with the access configuration, and the vault members are synced to Keycloak.
 
 The following diagram illustrates the flow of actions to create a vault in the two modes:
 
@@ -118,6 +162,12 @@ The following diagram illustrates the flow of actions to create a vault in the t
 The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
 ![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
+
+In words: in order to be able to upload storage profiles, the following actions need to be taken:
+
+* for Static Mode, we do S3 calls from the Web Client, hence CSP settings need to be set correctly matching the endpoints of the storage profile. Contact your
+  Katta Server admin running Katta Web.
+* for STS, the trust and roles need to be configure in IAM of the S3 provider. See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for details.
 
 ## Comparison Katta Client and Katta Server Frontend
 
