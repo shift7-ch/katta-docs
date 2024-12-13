@@ -1,7 +1,7 @@
 # Katta Overview
 
 > [!NOTE]  
-> This document gives a high-level technical overview over Katta usage scenarios.
+> This document gives a mid-level technical overview over Katta usage scenarios.
 
 Katta consists of the following components and sub-components:
 
@@ -27,15 +27,30 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 > [!IMPORTANT]  
 > One vault corresponds to one bucket.
 
+A vault is initialized with a *vault template* consisting of the vault metadata file (`vault.uvf`) and the the representation of the root folder under the data
+directory `d`:
+
+```text
+.
+├─ vault.uvf
+└─ d
+   └── BZ
+      └── R4VZSS5PEF7TU3PMFIMON5GJRNBDWA     # Root Directory
+         └── dir.uvf                         # Root Directory's metadata
+```
+
+For more details,
+see [example directory structure](https://github.com/encryption-alliance/unified-vault-format/blob/develop/file%20name%20encryption/AES-SIV-512-B64URL.md#example-directory-structure).
+
 ### Katta S3 Modes
 
 Katta currently supports two modes for both S3 providers:
 
 * *Static Mode*: use an existing S3 bucket and share the static credentials among vault users
-    * the vault template is uploaded with static credentials
+  * the *vault template* is uploaded with static credentials
 * *STS Mode*: use STS to have fine-grained permissions
-    * vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server backend creates the bucket and uploads the vault
-      template
+  * vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server backend creates the bucket and uploads the *vault
+    template*
     * storage access: only vault users can access storage
 
 If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
@@ -52,9 +67,10 @@ Katta Storage Profiles define the possible storage locations where users can cre
 there may be multiple storage profiles for different S3 endpoints, different Katta Modes, different default regions.
 See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
 
-### Universal Vault Format and Vault Metadata `vault.uvf`
+### Unified Vault Format (UVF) and `vault.uvf` (Vault Metadata)
 
-The [Universal Vault Format](https://github.com/encryption-alliance/unified-vault-format) defines a common vendor-independent standard for encrypted directories
+The [Universal Vault Format (UVF)](https://github.com/encryption-alliance/unified-vault-format) defines a common vendor-independent standard for encrypted
+directories
 on a per-file basis. It is based on year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/en/latest/misc/vault-format-history/).
 It will allow in the future for implementation
 of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/key-rotation.md)
@@ -62,7 +78,7 @@ of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/bl
 
 [Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
 https://github.com/cryptomator/docs/pull/55)
-contains the key material to decrypt and encrypt data. uvf allows for vendor-specific extension points:
+contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
 
 * `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enable for this vault and defines the maximum length (
   see [Web of Trust](https://github.com/cryptomator/hub/pull/281)).
@@ -91,7 +107,7 @@ The following diagram illustrates the interactions when Katta Client syncs data 
 
 In words:
 
-* The `vault.uvf` metadata contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint
+* `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint
   etc.)), as well as the encryption keys; it is stored encrypted in Katta Server Backend.
 * With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
@@ -101,7 +117,8 @@ The following diagram illustrates the interactions when Katta Client syncs data 
 
 In words:
 
-* The `vault.uvf` metadata contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom endpoint), as
+* `vault.uvf` (vault metadata)  contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom
+  endpoint), as
   well as the encryption keys; it is stored encrypted in Katta Server.
 * The OIDC access token that is used to communicate with Katta Server is exchanged for a token with vault-specific claims
 * When sent to STS, the vault-specific claims will be evaluated to issue temporary fine-grained S3 credentials giving access to the vault's bucket only
@@ -117,7 +134,7 @@ In words:
 * If Katta Client does not have a valid OIDC access token, it refreshes it or starts
   an [OIDC Authorization Code Grant Flow](https://www.rfc-editor.org/rfc/rfc6749#page-24), asking the user to authenticate in the browser against Keycloak to
   issue a new access token.
-* The `vault.uvf` metadata JWE is fetched from Katta Server Backend and
+* `vault.uvf` (vault metadata) JWE is fetched from Katta Server Backend and
 * decrypted with Vault Member Key, the keys for data encryption/decryption are extracted; the access configuration is extracted and stored in
   a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)
   The other actions directly correspond to the interactions described above.
@@ -137,7 +154,7 @@ In words:
   or [AWS cli](https://aws.amazon.com/cli/)) and set the correct bucket CORS settings.
 * A Katta user (role `create-vault`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
   Vault Admin.
-* Finally, Katta Client verifies the configuration and uploads the `vault.uvf` metadata to the S3 bucket and to Katta Server.
+* Finally, Katta Client verifies the configuration and uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
 
 The following diagram illustrates the interactions when a user creates a
 vault in *STS Mode*:
@@ -185,13 +202,14 @@ In words: in order to be able to upload storage profiles, the following actions 
 
 ## Glossary
 
-| Term                                                                                                                                                                                        | Description                                                                                                                             |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| Client [Bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)                                                                                                                           | Defines a sync endpoint in Katta client at two levels: Katta servers and vaults.                                                        |
-| Client [Protocol](https://docs.cyberduck.io/protocols/)                                                                                                                                     | The two Katta modes are defined in two Cyberduck protocols.                                                                             |
-| Client [Connection Profile](https://docs.cyberduck.io/protocols/profiles/)                                                                                                                  | Used internally in Client for the two modes and for storage profiles.                                                                   |
-| Katta Storage Profile                                                                                                                                                                       | Uploaded by a Katta Server admin initially for each storage provider endpoint and mode.                                                 |
-| [uvf vault metadata](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md) `vault.uvf`  [JWE](https://datatracker.ietf.org/doc/html/rfc7516) | Contains all the information required to create a vault bookmark in the client (reference to storage profile, static credentials etc.). |
+| Term                                                                                                               | Description                                                                                                                                                                                         |
+|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Client [Bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)                                                  | Defines a sync endpoint in Katta client at two levels: Katta servers and vaults.                                                                                                                    |
+| Client [Protocol](https://docs.cyberduck.io/protocols/)                                                            | The two Katta modes are defined in two Cyberduck protocols.                                                                                                                                         |
+| Client [Connection Profile](https://docs.cyberduck.io/protocols/profiles/)                                         | Used internally in Client for the two modes and for storage profiles.                                                                                                                               |
+| Katta Storage Profile                                                                                              | Uploaded by a Katta Server admin initially for each storage provider endpoint and mode.                                                                                                             |
+| [`vault.uvf`](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md) | A [JWE](https://datatracker.ietf.org/doc/html/rfc7516) containing all the vault metadata required to create a vault bookmark in the client (reference to storage profile, static credentials etc.). |
+| vault template                                                                                                     | Initial encrypted vault content consisting of `vault.uvf` file and representation of root folder.                                                                                                   |
 
 ## Key Overview
 
