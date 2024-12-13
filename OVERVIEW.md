@@ -46,12 +46,10 @@ see [example directory structure](https://github.com/encryption-alliance/unified
 
 Katta currently supports two modes for both S3 providers:
 
-* *Static Mode*: use an existing S3 bucket and share the static credentials among vault users
-  * the *vault template* is uploaded with static credentials
-* *STS Mode*: use STS to have fine-grained permissions
-  * vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server backend creates the bucket and uploads the *vault
-    template*
-    * storage access: only vault users can access storage
+* Static Mode: use an existing S3 bucket and share the static credentials among vault users the vault template is uploaded with static credentials
+* STS Mode: use STS to have fine-grained permissions
+  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server creates the bucket and uploads the vault template
+  - storage access: only vault users can access storage.
 
 If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
 
