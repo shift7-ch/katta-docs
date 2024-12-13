@@ -112,8 +112,9 @@ The contents of `vault.uvf` comes from the following sources:
 * Katta Admin: users with administrative permissions in the Katta Server Frontend / Katta Server Backend API, they can configure the Katta Server and they can
   upload storage profiles.
 * Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members.
-* Katta Vault Admin: the vault creator is by default the first vault admin; the vault admin has access to the
-  vault's [recovery code](https://docs.cryptomator.org/en/latest/hub/vault-recovery/#hub-vault-recovery)
+* Katta Vault Owner: the vault creator is by default the first vault owner; vault owners have access to the
+  vault's [recovery code](https://docs.cryptomator.org/en/latest/hub/vault-recovery/#hub-vault-recovery);
+  in addition, only vault owner can grant access to vault i.e. share the vault member key with new vault members.
 * Katta Server Admin: technical administrator of the databases and; zero-trust means the data can never be decrypted by a person having access to the database
   or the server running the Katta Server or to the physical storage (unless the Katta Server admin is also a Vault Member, of course).
 
@@ -171,7 +172,7 @@ In words:
 * In order to create vault in Static Mode, first a bucket needs to be created manually ([AWS console](https://aws.amazon.com/console/)
   or [AWS cli](https://aws.amazon.com/cli/)) and set the correct bucket CORS settings.
 * A Katta user (role `create-vault`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
-  Vault Admin.
+  Vault Owner.
 * Finally, Katta Client verifies the configuration and uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
 
 The following diagram illustrates the interactions when a user creates a
