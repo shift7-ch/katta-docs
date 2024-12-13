@@ -63,8 +63,18 @@ If you want to use Katta STS mode, Katta currently supports two S3 object storag
 
 ### Katta Storage Profiles
 
-Katta Storage Profiles define the possible storage locations where users can create vaults. E.g.
-there may be multiple storage profiles for different S3 endpoints, different Katta Modes, different default regions.
+Katta Storage Profiles are created by Katta Server Admins to define the available storage locations where users can create vaults, e.g.
+
+* Katta mode (static or STS)
+* S3 endpoint
+* default region
+* available region
+* storage-provider specific settings (e.g. [path-style-requests](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#path-style-access),
+  see also [path-style-requests](https://docs.cyberduck.io/protocols/s3/#connecting-using-deprecated-path-style-requests))
+  Katta Server Admins can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restrict vault creation to some zones,
+  another company uses a low-cost S3 provider supporting only Static Mode,
+  and yet another company has their own MinIO instance.
+
 See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
 
 ### Unified Vault Format (UVF) and `vault.uvf` (Vault Metadata)
@@ -86,6 +96,14 @@ contains the key material to decrypt and encrypt data. UVF allows for vendor-spe
   like [S3 Versioning](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html); the user will have access to their vaults in Katta Client
   by [Bookmarks](https://docs.cyberduck.io/cyberduck/bookmarks/). So the information required to create such bookmarks is contained in this section of the
   encrypted `vault.uvf` file (which is also stored encrypted in the Katta Server for convenience).
+
+The contents of `vault.vuf` contain the information required to create a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)
+for the vault in the Katta Client.
+The contents of `vault.uvf` comes from the following sources:
+
+* storage profile (value or allowed values for user selection)
+* user input (e.g. vault name) or user selection (e.g. S3 region or automatic access grant) at vault creation
+* generated (key material)
 
 ### Katta Roles
 
