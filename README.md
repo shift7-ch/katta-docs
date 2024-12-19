@@ -21,12 +21,12 @@ Katta consists of Katta Server and Katta Client:
 
 Cryptomator and Cryptomator Hub ecosystem provides
 
-* *End-to-end Data Encryption*: data is encrypted in the client only, never on the server; data is always encrypted before it leaves the local machine.
+* *Client-side Data Encryption*: data is encrypted in the client only, never on the server; data is always encrypted before it leaves the local machine.
   Event with access to the stored encrypted data, a penetrator cannot decrypt the plaintext without access to the data keys.
-* *Zero-Trust Key Management*: key material is uploaded to hub only in end-to-end-encrypted fashion.
+* *Zero-Knowledge Key Management*: key material is uploaded to hub only in end-to-end-encrypted fashion.
   Event with access to the stored encrypted keys, a penetrator cannot decrypt the data keys without access to the key encryption keys.
 
-While sharing End-to-end Data Encryption and Zero-Trust Key Management, Katta adds the following features:
+While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Katta adds the following features:
 
 * The storage location and storage access is managed by Katta Server:
     * Vault metadata contains the location where data is stored:
