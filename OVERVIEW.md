@@ -69,9 +69,10 @@ Katta Storage Profiles are created by Katta Server Admins to define the availabl
 * available region
 * storage-provider specific settings (e.g. [path-style-requests](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#path-style-access),
   see also [path-style-requests](https://docs.cyberduck.io/protocols/s3/#connecting-using-deprecated-path-style-requests))
-  Katta Server Admins can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restrict vault creation to some zones,
-  another company uses a low-cost S3 provider supporting only Static Mode,
-  and yet another company has their own MinIO instance.
+
+Katta Server Admins can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restrict vault creation to some zones,
+another company uses a low-cost S3 provider supporting only Static Mode,
+and yet another company has their own MinIO instance.
 
 See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
 
