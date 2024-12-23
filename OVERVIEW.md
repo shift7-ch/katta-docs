@@ -212,6 +212,7 @@ In words: in order to be able to upload storage profiles, the following actions 
 | create vault STS                       | ✅                     | ✅            |
 | list vaults                            | ✅                     | ✅            |
 | decrypt vault data                     | ❌                     | ✅            |
+| manual access grant                    | ✅                     | ❌            |
 | automatic access grant                 | ❌                     | ✅            |
 | view details storage profiles          | ✅                     | ❌            |
 | initial setup (user keys)              | ✅                     | ✅            |
