@@ -12,8 +12,14 @@ Katta consists of the following components and sub-components:
     * Katta (Server) Backend
     * Keycloak
 
-Katta Desktop Client is based on [Mountain Duck](https://mountainduck.io/),
-Katta Web Client and Katta Server is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).
+Katta Desktop Client is based on
+
+* [Mountain Duck](https://mountainduck.io/) (macOS and Windows native parts, closed source),
+* [Katta Client Library](https://github.com/shift7-ch/katta-clientlib) (open source), which is based on [Cyberduck](https://cyberduck.io/) (open source),
+
+and Katta Web Client and Katta Server is based on
+
+* [Cryptomator Hub](https://github.com/cryptomator/hub/) (open source).
 
 ## Concepts
 
