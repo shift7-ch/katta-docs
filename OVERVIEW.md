@@ -17,7 +17,7 @@ Katta Desktop Client is based on
 * [Mountain Duck](https://mountainduck.io/) (macOS and Windows native parts, closed source),
 * [Katta Client Library](https://github.com/shift7-ch/katta-clientlib) (open source), which is based on [Cyberduck](https://cyberduck.io/) (open source),
 
-and Katta Web Client and Katta Server is based on
+and Katta Web Client and Katta Server are based on
 
 * [Cryptomator Hub](https://github.com/cryptomator/hub/) (open source).
 
