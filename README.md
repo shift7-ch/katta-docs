@@ -41,3 +41,4 @@ While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Kat
 * Automatic Access Grant in Katta Client (not support by Cryptomator Hub yet)
 
 
+
