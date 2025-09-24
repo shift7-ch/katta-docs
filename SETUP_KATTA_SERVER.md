@@ -200,17 +200,17 @@ Add roles for role chaining, adapt OIDC provider in trust policy and bucket pref
 * [aws/cipherduck_chain_02_permissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_02_permissionpolicy.json)
 
 ```shell
-aws iam create-role --role-name cipherduck-createbucket --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_stscreatebuckettrustpolicy.json
-aws iam put-role-policy --role-name cipherduck-createbucket --policy-name cipherduck-createbucket --policy-document file://src/main/resources/cipherduck/setup/aws_stscreatebucketpermissionpolicy.json
+aws iam create-role --role-name cipherduck-createbucket --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_sts/createbuckettrustpolicy.json
+aws iam put-role-policy --role-name cipherduck-createbucket --policy-name cipherduck-createbucket --policy-document file://src/main/resources/cipherduck/setup/aws_sts/createbucketpermissionpolicy.json
 
 
-aws iam create-role --role-name cipherduck_chain_01 --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_stscipherduck_chain_01_trustpolicy.json
-aws iam put-role-policy --role-name cipherduck_chain_01 --policy-name cipherduck_chain_01 --policy-document file://src/main/resources/cipherduck/setup/aws_stscipherduck_chain_01_permissionpolicy.json
+aws iam create-role --role-name cipherduck_chain_01 --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_01_trustpolicy.json
+aws iam put-role-policy --role-name cipherduck_chain_01 --policy-name cipherduck_chain_01 --policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_01_permissionpolicy.json
 
 sleep 10;
 
-aws iam create-role --role-name cipherduck_chain_02 --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_stscipherduck_chain_02_trustpolicy.json
-aws iam put-role-policy --role-name cipherduck_chain_02 --policy-name cipherduck_chain_02 --policy-document file://src/main/resources/cipherduck/setup/aws_stscipherduck_chain_02_permissionpolicy.json
+aws iam create-role --role-name cipherduck_chain_02 --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_02_trustpolicy.json
+aws iam put-role-policy --role-name cipherduck_chain_02 --policy-name cipherduck_chain_02 --policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_02_permissionpolicy.json
 ```
 
 Checking roles:
