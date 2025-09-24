@@ -1,6 +1,6 @@
 # Katta Documentation
 
-Katta bring zero-config storage management and zero-knowledge key management for teams and organizations.
+Katta brings zero-config storage management and zero-knowledge key management for teams and organizations.
 
 It easily integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
 As usual, your favorite cloud service remains your free choice [^1].
