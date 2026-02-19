@@ -5,6 +5,9 @@
 >
 > See [OVERVIEW.md](OVERVIEW.md) for a mid-level conceptual overview of Katta.
 
+> [!CAUTION]
+> This document has missing parts and needs double-checking whether it reflects the latest code version.
+
 ## Scoped Tokens for Katta S3 STS Storage Access Control
 
 ### Motivation

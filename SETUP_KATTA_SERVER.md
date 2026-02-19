@@ -7,6 +7,13 @@ Setup Katta Server
 > * Mode: Static and STS.
 >
 > See [OVERVIEW.md](OVERVIEW.md) for a conceptual overview.
+>
+
+
+> [!CAUTION]
+> The hands-on instructions of this document will be superseded by [Admin CLI](https://github.com/shift7-ch/katta-clientlib/pull/139).
+> Move its README here for the conceptual level and add some snippets illustrating the uploaded policy/profiles.
+
 
 MinIO
 -----
