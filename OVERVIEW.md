@@ -92,7 +92,7 @@ of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/bl
 (see also [Security Architecture](https://github.com/cryptomator/docs/pull/55/files)).
 
 [Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
-https://github.com/cryptomator/docs/pull/55)
+(see also [Security Architecture](https://github.com/cryptomator/docs/pull/55/files))
 contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
 
 * `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enable for this vault and defines the maximum length (
