@@ -112,14 +112,17 @@ The contents of `vault.uvf` comes from the following sources:
 
 ### Katta Roles
 
-* Katta User: the `user` role allows to login to Katta Server Frontend
-* Katta Vault Creator: users allowed to create vault
-* Katta Admin: users with administrative permissions in the Katta Server Frontend / Katta Server Backend API, they can configure the Katta Server and they can
+* Katta User: the [`user`](https://docs.cryptomator.org/hub/user-group-management/#roles) role allows to login to Katta Server Frontend
+* Katta Vault Creator: [`create-vault`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users allowed to create vault in Katta Server
+* Katta Admin: [`admin`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users have administrative permissions in the Katta Server Frontend /
+  Katta Server Backend API, they can configure the Katta Server and they can
   upload storage profiles.
-* Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members.
+* Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members. See
+  also [Vault Details](https://docs.cryptomator.org/hub/vault-management/#vault-details).
 * Katta Vault Owner: the vault creator is by default the first vault owner; vault owners have access to the
   vault's [recovery code](https://docs.cryptomator.org/en/latest/hub/vault-recovery/#hub-vault-recovery);
-  in addition, only vault owner can grant access to vault i.e. share the vault member key with new vault members.
+  in addition, only vault owner can grant access to vault i.e. share the vault member key with new vault members. See
+  also [Vault Details](https://docs.cryptomator.org/hub/vault-management/#vault-details).
 * Katta Server Admin: technical administrator of the databases and; zero-trust means the data can never be decrypted by a person having access to the database
   or the server running the Katta Server or to the physical storage (unless the Katta Server admin is also a Vault Member, of course).
 
