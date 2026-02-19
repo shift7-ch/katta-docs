@@ -14,7 +14,10 @@ Katta consists of Katta Server and Katta Client:
 
 ## Contents
 
+In increasing level of technical depth:
+
 * [Get an Overview](OVERVIEW.md)
+* [Architecture](ARCHITECTURE.md)* [Get an Overview](OVERVIEW.md)
 * [Setup Katta Server](SETUP_KATTA_SERVER.md)
 * [Katta Token Management](TOKENS.md)
 
