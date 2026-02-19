@@ -1,5 +1,10 @@
 # Katta Token Management
 
+> [!NOTE]  
+> This document describes the use of scoped tokens for storage access on an in-depth conceptual level.
+>
+> See [OVERVIEW.md](OVERVIEW.md) for a mid-level conceptual overview of Katta.
+
 ## Scoped Tokens for Katta S3 STS Storage Access Control
 
 ### Motivation
