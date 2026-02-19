@@ -14,7 +14,12 @@ Katta consists of Katta Server and Katta Client:
 
 ## Contents
 
-In increasing level of technical depth:
+This documentation only covers the Katta-specific parts going beyond the upstream documentations:
+
+* [Cryptomator Documentation](https://docs.cryptomator.org/)
+* [Mountain Duck Help](https://docs.mountainduck.io/mountainduck/)
+
+This documentation contains, in increasing level of technical depth:
 
 * [Get an Overview](OVERVIEW.md)
 * [Architecture](ARCHITECTURE.md)* [Get an Overview](OVERVIEW.md)
