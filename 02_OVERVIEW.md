@@ -213,6 +213,7 @@ In words: in order to be able to use the uploaded storage profiles, the followin
   storage profile. Contact your
   Katta Server admin running Katta Web.
 * for STS, the trust and roles need to be configure in IAM of the S3 provider. See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for details.
+  See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
 
 ## Comparison Katta Client and Katta Server Frontend
 
