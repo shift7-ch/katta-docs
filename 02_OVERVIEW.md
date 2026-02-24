@@ -31,7 +31,7 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 * Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
 
 > [!IMPORTANT]  
-> One vault corresponds to one bucket.
+> One vault corresponds to one bucket (root directory).
 
 A vault is initialized with a *vault template* consisting of the vault metadata file (`vault.uvf`) and the the representation of the root folder under the data
 directory `d`:
@@ -52,9 +52,10 @@ see [example directory structure](https://github.com/encryption-alliance/unified
 
 Katta currently supports two modes for both S3 providers:
 
-* Static Mode: use an existing S3 bucket and share the static credentials among vault users the vault template is uploaded with static credentials
-* STS Mode: use STS to have fine-grained permissions
-  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server creates the bucket and uploads the vault template
+* Static Mode: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
+  the frontend.
+* STS Mode: use STS to have fine-grained permissions;
+  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server creates the bucket and uploads the vault template;
   - storage access: only vault users can access storage.
 
 If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
