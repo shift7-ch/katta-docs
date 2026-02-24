@@ -207,9 +207,10 @@ The following diagram illustrates the flow of actions to setup Katta Server in b
 
 ![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
 
-In words: in order to be able to upload storage profiles, the following actions need to be taken:
+In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
 
-* for Static Mode, we do S3 calls from the Web Client, hence CSP settings need to be set correctly matching the endpoints of the storage profile. Contact your
+* for Static Mode, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
+  storage profile. Contact your
   Katta Server admin running Katta Web.
 * for STS, the trust and roles need to be configure in IAM of the S3 provider. See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for details.
 
