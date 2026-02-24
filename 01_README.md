@@ -1,6 +1,6 @@
 # Katta Documentation
 
-Katta bring zero-config storage management and zero-knowledge key management for teams and organizations.
+Katta brings zero-config storage management and zero-knowledge key management for teams and organizations.
 
 It easily integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
 As usual, your favorite cloud service remains your free choice [^1].
@@ -14,9 +14,17 @@ Katta consists of Katta Server and Katta Client:
 
 ## Contents
 
-* [Get an Overview](OVERVIEW.md)
-* [Setup Katta Server](SETUP_KATTA_SERVER.md)
-* [Katta Token Management](TOKENS.md)
+This documentation only covers the Katta-specific parts going beyond the upstream documentations:
+
+* [Cryptomator Documentation](https://docs.cryptomator.org/)
+* [Mountain Duck Help](https://docs.mountainduck.io/mountainduck/)
+
+This documentation contains, in increasing level of technical depth:
+
+* [Get an Overview](02_OVERVIEW.md)
+* [Architecture](03_ARCHITECTURE.md)
+* [Setup Katta Server](04_SETUP_KATTA_SERVER.md)
+* [Katta Token Management](05_TOKENS.md)
 
 ## Comparison with Cryptomator Hub
 
@@ -40,5 +48,6 @@ While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Kat
           access control.
 * Data Sync in Katta Client. No third-party sync client (like Dropbox) is required.
 * Automatic Access Grant in Katta Client (not support by Cryptomator Hub yet)
+
 
 

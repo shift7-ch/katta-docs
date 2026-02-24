@@ -31,7 +31,7 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 * Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
 
 > [!IMPORTANT]  
-> One vault corresponds to one bucket.
+> One vault corresponds to one bucket (root directory).
 
 A vault is initialized with a *vault template* consisting of the vault metadata file (`vault.uvf`) and the the representation of the root folder under the data
 directory `d`:
@@ -52,9 +52,10 @@ see [example directory structure](https://github.com/encryption-alliance/unified
 
 Katta currently supports two modes for both S3 providers:
 
-* Static Mode: use an existing S3 bucket and share the static credentials among vault users the vault template is uploaded with static credentials
-* STS Mode: use STS to have fine-grained permissions
-  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server creates the bucket and uploads the vault template
+* Static Mode: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
+  the frontend.
+* STS Mode: use STS to have fine-grained permissions;
+  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server creates the bucket and uploads the vault template;
   - storage access: only vault users can access storage.
 
 If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
@@ -80,7 +81,7 @@ Katta Server Admins can define the storage profiles according to their infrastru
 another company uses a low-cost S3 provider supporting only Static Mode,
 and yet another company has their own MinIO instance.
 
-See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
+See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for the configuration options.
 
 ### Unified Vault Format (UVF) and `vault.uvf` (Vault Metadata)
 
@@ -92,7 +93,7 @@ of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/bl
 (see also [Security Architecture](https://github.com/cryptomator/docs/pull/55/files)).
 
 [Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
-https://github.com/cryptomator/docs/pull/55)
+(see also [Security Architecture](https://github.com/cryptomator/docs/pull/55/files))
 contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
 
 * `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enable for this vault and defines the maximum length (
@@ -112,14 +113,17 @@ The contents of `vault.uvf` comes from the following sources:
 
 ### Katta Roles
 
-* Katta User: the `user` role allows to login to Katta Server Frontend
-* Katta Vault Creator: users allowed to create vault
-* Katta Admin: users with administrative permissions in the Katta Server Frontend / Katta Server Backend API, they can configure the Katta Server and they can
+* Katta User: the [`user`](https://docs.cryptomator.org/hub/user-group-management/#roles) role allows to login to Katta Server Frontend
+* Katta Vault Creator: [`create-vault`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users allowed to create vault in Katta Server
+* Katta Admin: [`admin`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users have administrative permissions in the Katta Server Frontend /
+  Katta Server Backend API, they can configure the Katta Server and they can
   upload storage profiles.
-* Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members.
+* Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members. See
+  also [Vault Details](https://docs.cryptomator.org/hub/vault-management/#vault-details).
 * Katta Vault Owner: the vault creator is by default the first vault owner; vault owners have access to the
   vault's [recovery code](https://docs.cryptomator.org/en/latest/hub/vault-recovery/#hub-vault-recovery);
-  in addition, only vault owner can grant access to vault i.e. share the vault member key with new vault members.
+  in addition, only vault owner can grant access to vault i.e. share the vault member key with new vault members. See
+  also [Vault Details](https://docs.cryptomator.org/hub/vault-management/#vault-details).
 * Katta Server Admin: technical administrator of the databases and; zero-trust means the data can never be decrypted by a person having access to the database
   or the server running the Katta Server or to the physical storage (unless the Katta Server admin is also a Vault Member, of course).
 
@@ -204,26 +208,33 @@ The following diagram illustrates the flow of actions to setup Katta Server in b
 
 ![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
 
-In words: in order to be able to upload storage profiles, the following actions need to be taken:
+In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
 
-* for Static Mode, we do S3 calls from the Web Client, hence CSP settings need to be set correctly matching the endpoints of the storage profile. Contact your
+* for Static Mode, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
+  storage profile. Contact your
   Katta Server admin running Katta Web.
-* for STS, the trust and roles need to be configure in IAM of the S3 provider. See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for details.
+* for STS, the trust and roles need to be configure in IAM of the S3 provider. See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for details.
+  See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
 
-## Comparison Katta Client and Katta Server Frontend
+## Comparison Katta Web Client and Katta Desktop Client
 
-| Feature                                | Katta Server Frontend | Katta Client |
-|----------------------------------------|-----------------------|--------------|
-| create vault static                    | ✅                     | ✅            |
-| create vault STS                       | ✅                     | ✅            |
-| list vaults                            | ✅                     | ✅            |
-| decrypt vault data                     | ❌                     | ✅            |
-| manual access grant                    | ✅                     | ❌            |
-| automatic access grant                 | ❌                     | ✅            |
-| view details storage profiles          | ✅                     | ❌            |
-| initial setup (user keys)              | ✅                     | ✅            |
-| View/reset setup code                  | ✅                     | ❌            |
-| Manage Signature Chains (Web of Trust) | ✅                     | ❌            |
+The following table captures the current state of implemented features[^1]:
+
+| Feature                                | Katta Web Client | Katta Desktop Client |
+|----------------------------------------|------------------|----------------------|
+| create vault static                    | ✅                | ✅                    |
+| create vault STS                       | ✅                | ✅                    |
+| list vaults                            | ✅                | ✅                    |
+| decrypt vault data                     | ❌                | ✅                    |
+| manual access grant                    | ✅                | ❌                    |
+| automatic access grant                 | ❌                | ✅                    |
+| view details storage profiles          | ✅                | ❌                    |
+| initial setup (user keys)              | ✅                | ✅                    |
+| View/reset setup code                  | ✅                | ❌                    |
+| Manage Signature Chains (Web of Trust) | ✅                | ❌                    |
+
+[^1]: Conceptually, the only limitation is that S3 does not offer bucket creation and setting CORS as a joint operation, hence Web Clients can only use existing
+buckets.
 
 ## Glossary
 
