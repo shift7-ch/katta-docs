@@ -80,7 +80,7 @@ Katta Server Admins can define the storage profiles according to their infrastru
 another company uses a low-cost S3 provider supporting only Static Mode,
 and yet another company has their own MinIO instance.
 
-See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for the configuration options.
+See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for the configuration options.
 
 ### Unified Vault Format (UVF) and `vault.uvf` (Vault Metadata)
 
@@ -211,7 +211,7 @@ In words: in order to be able to upload storage profiles, the following actions 
 
 * for Static Mode, we do S3 calls from the Web Client, hence CSP settings need to be set correctly matching the endpoints of the storage profile. Contact your
   Katta Server admin running Katta Web.
-* for STS, the trust and roles need to be configure in IAM of the S3 provider. See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for details.
+* for STS, the trust and roles need to be configure in IAM of the S3 provider. See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for details.
 
 ## Comparison Katta Client and Katta Server Frontend
 

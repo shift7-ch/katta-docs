@@ -21,11 +21,10 @@ This documentation only covers the Katta-specific parts going beyond the upstrea
 
 This documentation contains, in increasing level of technical depth:
 
-* [Get an Overview](OVERVIEW.md)
-* [Architecture](ARCHITECTURE.md)
-* [Get an Overview](OVERVIEW.md)
-* [Setup Katta Server](SETUP_KATTA_SERVER.md)
-* [Katta Token Management](TOKENS.md)
+* [Get an Overview](02_OVERVIEW.md)
+* [Architecture](03_ARCHITECTURE.md)
+* [Setup Katta Server](04_SETUP_KATTA_SERVER.md)
+* [Katta Token Management](05_TOKENS.md)
 
 ## Comparison with Cryptomator Hub
 
