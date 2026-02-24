@@ -215,20 +215,25 @@ In words: in order to be able to use the uploaded storage profiles, the followin
 * for STS, the trust and roles need to be configure in IAM of the S3 provider. See [04_SETUP_KATTA_SERVER.md](04_SETUP_KATTA_SERVER.md) for details.
   See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
 
-## Comparison Katta Client and Katta Server Frontend
+## Comparison Katta Web Client and Katta Desktop Client
 
-| Feature                                | Katta Server Frontend | Katta Client |
-|----------------------------------------|-----------------------|--------------|
-| create vault static                    | ✅                     | ✅            |
-| create vault STS                       | ✅                     | ✅            |
-| list vaults                            | ✅                     | ✅            |
-| decrypt vault data                     | ❌                     | ✅            |
-| manual access grant                    | ✅                     | ❌            |
-| automatic access grant                 | ❌                     | ✅            |
-| view details storage profiles          | ✅                     | ❌            |
-| initial setup (user keys)              | ✅                     | ✅            |
-| View/reset setup code                  | ✅                     | ❌            |
-| Manage Signature Chains (Web of Trust) | ✅                     | ❌            |
+The following table captures the current state of implemented features[^1]:
+
+| Feature                                | Katta Web Client | Katta Desktop Client |
+|----------------------------------------|------------------|----------------------|
+| create vault static                    | ✅                | ✅                    |
+| create vault STS                       | ✅                | ✅                    |
+| list vaults                            | ✅                | ✅                    |
+| decrypt vault data                     | ❌                | ✅                    |
+| manual access grant                    | ✅                | ❌                    |
+| automatic access grant                 | ❌                | ✅                    |
+| view details storage profiles          | ✅                | ❌                    |
+| initial setup (user keys)              | ✅                | ✅                    |
+| View/reset setup code                  | ✅                | ❌                    |
+| Manage Signature Chains (Web of Trust) | ✅                | ❌                    |
+
+[^1]: Conceptually, the only limitation is that S3 does not offer bucket creation and setting CORS as a joint operation, hence Web Clients can only use existing
+buckets.
 
 ## Glossary
 
