@@ -112,8 +112,10 @@ sequenceDiagram
     end
 
     opt : Exchange OIDC token to scoped token using OAuth 2.0 Token Exchange
-        vault ->> keycloak: Exchange OIDC Access Token
-        keycloak ->> vault: Return Scoped Access Token
+        vault ->> katta: Exchange OIDC Access Token
+        katta ->> keycloak: Exchange OIDC Access Token
+        keycloak ->> katta: Return Scoped Access Token
+        katta ->> vault: Return Scoped Access Token
     end
     deactivate keycloak
 
