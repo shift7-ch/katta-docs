@@ -58,23 +58,23 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor User
-    participant session as HubSession
+    participant client as Desktop Client
     participant katta as Katta API Server
-    Note right of session: client_id=cryptomator
-    activate session
-    User ->> session: Open Connection
+    Note right of client: client_id=cryptomator
+    activate client
+    User ->> client: Open Connection
     activate katta
-    session ->> katta: GET /api/config
-    Note over session, katta: Retrieve Public Discovery Configuration
-    katta ->> session: application/json
+    client ->> katta: GET /api/config
+    Note over client, katta: Retrieve Public Discovery Configuration
+    katta ->> client: application/json
     participant keycloak as Keycloak Server
     activate keycloak
-    session ->>+ keycloak: POST /realms/cryptomator/protocol/openid-connect/token
-    Note over session, keycloak: OpenID Connect Token Exchange
-    keycloak ->>- session: OIDC Tokens
+    client ->>+ keycloak: POST /realms/cryptomator/protocol/openid-connect/token
+    Note over client, keycloak: OpenID Connect Token Exchange
+    keycloak ->>- client: OIDC Tokens
     participant keychain as Password Store
     activate keychain
-    session ->> keychain: Save OIDC Tokens
+    client ->> keychain: Save OIDC Tokens
     Note over User, keychain: Flow to retrieve user keys
     alt
         opt
@@ -90,60 +90,57 @@ sequenceDiagram
     end
 
     loop Storage Profile Sync
-        session ->> katta: GET /api/storageprofile
-        Note over session, katta: Retrieve storage configurations
-        katta ->> session: application/json
+        client ->> katta: GET /api/storageprofile
+        Note over client, katta: Retrieve storage configurations
+        katta ->> client: application/json
     end
     loop Storage Vault Sync
-        session ->> katta: GET /api/vaults/accessible
-        katta ->> session: application/json
+        client ->> katta: GET /api/vaults/accessible
+        katta ->> client: application/json
     end
     deactivate katta
-    participant vault as S3AssumeRoleSession
-    activate vault
-    vault ->> keychain: Lookup OIDC tokens
-    keychain ->> vault: Return OIDC tokens
+    client ->> keychain: Lookup OIDC tokens
+    keychain ->> client: Return OIDC tokens
     deactivate keychain
     activate keycloak
 
     opt : Expired OIDC Tokens
-        vault ->>+ katta: Refresh OIDC Tokens
-        katta ->>- vault: OIDC Tokens
+        client ->>+ katta: Refresh OIDC Tokens
+        katta ->>- client: OIDC Tokens
     end
 
     opt : Exchange OIDC token to scoped token using OAuth 2.0 Token Exchange
-        vault ->> katta: Exchange OIDC Access Token
+        client ->> katta: Exchange OIDC Access Token
         katta ->> keycloak: Exchange OIDC Access Token
         keycloak ->> katta: Return Scoped Access Token
-        katta ->> vault: Return Scoped Access Token
+        katta ->> client: Return Scoped Access Token
     end
     deactivate keycloak
 
     opt : AssumeRoleWithWebIdentity
         participant sts as STS API Server
-        vault ->>+ sts: Retrieve Temporary Tokens
-        Note over vault, sts: Assume role with OIDC Id token
-        sts ->>- vault: STS Tokens
+        client ->>+ sts: Retrieve Temporary Tokens
+        Note over client, sts: Assume role with OIDC Id token
+        sts ->>- client: STS Tokens
         opt : AssumeRole
-            vault ->>+ sts: Retrieve Temporary Tokens
-            Note over vault, sts: Assume role with previously obtained temporary access token
-            sts ->>- vault: STS Tokens
+            client ->>+ sts: Retrieve Temporary Tokens
+            Note over client, sts: Assume role with previously obtained temporary access token
+            sts ->>- client: STS Tokens
         end
     end
 
     participant s3 as S3 API Server
-    vault ->>+ s3: GET /bucket
-    Note over vault, s3: Access vault with AWS4-HMAC-SHA256 authorization
-    s3 ->>- vault: ListBucketResult
-    vault ->>+ katta: GET /api/vaults/c62d1ffe-7bab-4ec9-a36a-327f9b7b8f9e/access-token
-    Note over vault, katta: Retrieve vault access token
-    katta ->>- vault: JWE
-    vault ->>+ katta: GET /api/vaults/c62d1ffe-7bab-4ec9-a36a-327f9b7b8f9e
-    Note over vault, katta: Retrieve vault UVF metadata
-    katta ->>- vault: UVF Payload
-    vault ->> vault: Unlock Vault
-    vault ->>+ User: Display Vault
-    deactivate vault
-    deactivate session
+    client ->>+ s3: GET /bucket
+    Note over client, s3: Access vault with AWS4-HMAC-SHA256 authorization
+    s3 ->>- client: ListBucketResult
+    client ->>+ katta: GET /api/vaults/c62d1ffe-7bab-4ec9-a36a-327f9b7b8f9e/access-token
+    Note over client, katta: Retrieve vault access token
+    katta ->>- client: JWE
+    client ->>+ katta: GET /api/vaults/c62d1ffe-7bab-4ec9-a36a-327f9b7b8f9e
+    Note over client, katta: Retrieve vault UVF metadata
+    katta ->>- client: UVF Payload
+    client ->> client: Unlock Vault
+    client ->>+ User: Display Vault
+    deactivate client
 ```
 
