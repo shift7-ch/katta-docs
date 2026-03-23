@@ -6,7 +6,7 @@ Setup Katta Server
 > * Storage providers: MinIO and AWS
 > * Mode: Static and STS.
 >
-> See [02_OVERVIEW.md](02_OVERVIEW.md) for a conceptual overview.
+> See [OVERVIEW.md](OVERVIEW.md) for a conceptual overview.
 >
 
 

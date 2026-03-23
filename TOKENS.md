@@ -3,7 +3,7 @@
 > [!NOTE]  
 > This document describes the use of scoped tokens for storage access on an in-depth conceptual level.
 >
-> See [02_OVERVIEW.md](02_OVERVIEW.md) for a mid-level conceptual overview of Katta.
+> See [OVERVIEW.md](OVERVIEW.md) for a mid-level conceptual overview of Katta.
 
 > [!CAUTION]
 > This document has missing parts and needs double-checking whether it reflects the latest code version.
