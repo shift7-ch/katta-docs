@@ -46,10 +46,11 @@ In words: in order to be able to use the uploaded storage profiles, the followin
 export AWS_ACCESS_KEY_ID=[your aws credentials]
 export AWS_SECRET_ACCESS_KEY=[your aws credentials]
 export AWS_SESSION_TOKEN=[your aws credentials]
-katta "setup" "aws" "--realmUrl" "https://keycloak.che.catta.cloud/realms/cryptomator" "--roleNamePrefix" "katta" "--clientId" "cryptomator" "--clientId" "cryptomatorhub" "--clientId" "cryptomatorvaults" "--bucketPrefix" "katta"
+export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud/realms/cryptomator]
+katta "setup" "aws" "--realmUrl" "${REALM_URL}" "--roleNamePrefix" "katta-" "--clientId" "cryptomator" "--clientId" "cryptomatorhub" "--clientId" "cryptomatorvaults" "--bucketPrefix" "katta-"
 #Trying environment credentials providerListOpenIdConnectProvidersResponse(OpenIDConnectProviderList=[OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/chipotle), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/tamarind)])
 #arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator
-#aws iam update-role --role-name kattacreate-bucket --assume-role-policy-document file://...
+#aws iam create-role --role-name katta-create-bucket --assume-role-policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : {
@@ -60,20 +61,20 @@ katta "setup" "aws" "--realmUrl" "https://keycloak.che.catta.cloud/realms/crypto
 #    "Action" : "sts:AssumeRoleWithWebIdentity"
 #  }
 #}
-#aws iam put-role-policy --role-name kattacreate-bucket --policy-name kattacreate-bucket --policy-document file://...
+#aws iam put-role-policy --role-name katta-create-bucket --policy-name katta-create-bucket --policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : [ {
 #    "Effect" : "Allow",
 #    "Action" : [ "s3:CreateBucket", "s3:GetBucketPolicy", "s3:PutBucketVersioning", "s3:GetBucketVersioning", "s3:GetAccelerateConfiguration", "s3:PutAccelerateConfiguration", "s3:GetEncryptionConfiguration", "s3:PutEncryptionConfiguration" ],
-#    "Resource" : "arn:aws:s3:::katta*"
+#    "Resource" : "arn:aws:s3:::katta-*"
 #  }, {
 #    "Effect" : "Allow",
 #    "Action" : "s3:PutObject",
-#    "Resource" : [ "arn:aws:s3:::katta*/*/", "arn:aws:s3:::katta*/*.uvf" ]
+#    "Resource" : [ "arn:aws:s3:::katta-*/*/", "arn:aws:s3:::katta-*/*.uvf" ]
 #  } ]
 #}
-#aws iam update-role --role-name kattaaccess-bucket-web-identity-role --assume-role-policy-document file://...
+#aws iam create-role --role-name katta-access-bucket-web-identity-role --assume-role-policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : {
@@ -84,22 +85,22 @@ katta "setup" "aws" "--realmUrl" "https://keycloak.che.catta.cloud/realms/crypto
 #    "Action" : [ "sts:AssumeRoleWithWebIdentity", "sts:TagSession" ]
 #  }
 #}
-#aws iam put-role-policy --role-name kattaaccess-bucket-web-identity-role --policy-name kattaaccess-bucket-web-identity-role --policy-document file://...
+#aws iam put-role-policy --role-name katta-access-bucket-web-identity-role --policy-name katta-access-bucket-web-identity-role --policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : {
 #    "Effect" : "Allow",
 #    "Action" : [ "sts:AssumeRole", "sts:TagSession" ],
-#    "Resource" : "arn:aws:iam::**************:role/kattaaccess-bucket-tagged-session-role"
+#    "Resource" : "arn:aws:iam::**************:role/katta-access-bucket-tagged-session-role"
 #  }
 #}
-#aws iam update-role --role-name kattaaccess-bucket-tagged-session-role --assume-role-policy-document file://...
+#aws iam create-role --role-name katta-access-bucket-tagged-session-role --assume-role-policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : {
 #    "Effect" : "Allow",
 #    "Principal" : {
-#      "AWS" : "arn:aws:iam::**************:role/kattaaccess-bucket-web-identity-role"
+#      "AWS" : "arn:aws:iam::**************:role/katta-access-bucket-web-identity-role"
 #    },
 #    "Action" : [ "sts:AssumeRole", "sts:TagSession" ],
 #    "Condition" : {
@@ -109,17 +110,17 @@ katta "setup" "aws" "--realmUrl" "https://keycloak.che.catta.cloud/realms/crypto
 #    }
 #  }
 #}
-#aws iam put-role-policy --role-name kattaaccess-bucket-tagged-session-role --policy-name kattaaccess-bucket-tagged-session-role --policy-document file://...
+#aws iam put-role-policy --role-name katta-access-bucket-tagged-session-role --policy-name katta-access-bucket-tagged-session-role --policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : [ {
 #    "Effect" : "Allow",
 #    "Action" : [ "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads", "s3:GetBucketVersioning", "s3:ListBucketVersions" ],
-#    "Resource" : "arn:aws:s3:::katta${aws:PrincipalTag/Vault}"
+#    "Resource" : "arn:aws:s3:::katta-${aws:PrincipalTag/Vault}"
 #  }, {
 #    "Effect" : "Allow",
 #    "Action" : [ "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListMultipartUploadParts", "s3:AbortMultipartUpload" ],
-#    "Resource" : "arn:aws:s3:::katta${aws:PrincipalTag/Vault}/*"
+#    "Resource" : "arn:aws:s3:::katta-${aws:PrincipalTag/Vault}/*"
 #  } ]
 #}
 ```
@@ -127,11 +128,12 @@ katta "setup" "aws" "--realmUrl" "https://keycloak.che.catta.cloud/realms/crypto
 ### Setup AWS: STS storage profile
 
 ```bash
-export TOKEN_URL=https://keycloak.che.catta.cloud/realms/cryptomator/protocol/openid-connect/token
-export AUTH_URL=https://keycloak.che.catta.cloud/realms/cryptomator/protocol/openid-connect/auth
-export HUB_URL=https://hub.che.catta.cloud
-katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--bucketPrefix" "katta" "--rolePrefix" "arn:aws:iam::**************:role/katta" "--region" "eu-central-1" "--regions" "eu-central-1"
-#Please login on ${AUTH_URL}?code_challenge=zIvvFLhEW2AIs_l0AHDMOEy4xHUvc43elMDWJwlzYlo&code_challenge_method=S256&client_id=cryptomator&state=088lLFmFkgi7PTrv&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65290%2F2cT_U8GAPj9XdgFf
+export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud/realms/cryptomator]
+export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
+export AUTH_URL=${REALM_URL}/protocol/openid-connect/auth
+export HUB_URL=[your hub URL e.g. https://hub.che.catta.cloud]
+katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--bucketPrefix" "katta-" "--rolePrefix" "arn:aws:iam::**************:role/katta-" "--region" "eu-central-1" "--regions" "eu-central-1"
+#Please login on REALM_URL/protocol/openid-connect/auth?response_type=code&state=RpFS8LGiFNcERvJ_&client_id=cryptomator&code_challenge_method=S256&code_challenge=wco4JVUg6pA-BMV_PFEJu7Xb1LgglADHUPP3VLb2rIc&redirect_uri=http%3A%2F%2F127.0.0.1%3A59468%2F6cn7pzR43drFgn-r
 #class class cloud.katta.client.model.StorageProfileDto {
 #    instance: class StorageProfileS3STSDto {
 #        id: 29109070-8807-470c-8f28-61ac3eece4ca
@@ -145,15 +147,15 @@ katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AU
 #        storageClass: STANDARD
 #        region: eu-central-1
 #        regions: [eu-central-1]
-#        bucketPrefix: katta
-#        stsRoleCreateBucketClient: arn:aws:iam::**************:role/kattacreate-bucket
-#        stsRoleCreateBucketHub: arn:aws:iam::**************:role/kattacreate-bucket
+#        bucketPrefix: katta-
+#        stsRoleCreateBucketClient: arn:aws:iam::**************:role/katta-create-bucket
+#        stsRoleCreateBucketHub: arn:aws:iam::**************:role/katta-create-bucket
 #        stsEndpoint: JsonNullable[null]
 #        bucketVersioning: true
 #        bucketAcceleration: JsonNullable[null]
 #        bucketEncryption: NONE
-#        stsRoleAccessBucketAssumeRoleWithWebIdentity: arn:aws:iam::**************:role/kattaaccess-bucket-web-identity-role
-#        stsRoleAccessBucketAssumeRoleTaggedSession: JsonNullable[arn:aws:iam::**************:role/kattaaccess-bucket-tagged-session-role]
+#        stsRoleAccessBucketAssumeRoleWithWebIdentity: arn:aws:iam::**************:role/katta-access-bucket-web-identity-role
+#        stsRoleAccessBucketAssumeRoleTaggedSession: JsonNullable[arn:aws:iam::**************:role/katta-access-bucket-tagged-session-role]
 #        stsDurationSeconds: JsonNullable[null]
 #        stsSessionTag: Vault
 #    }
