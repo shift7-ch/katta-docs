@@ -18,7 +18,7 @@ katta --help                                                                    
 #  -V, --version   Print version information and exit.
 #Commands:
 #  setup           Setup Storage Provider Integration
-#  storageprofile  Setup Storage Provider Integration
+#  storageprofile  Configure Storage Location
 #  accesstoken     Get access token using authorization code flow.
 #  help            Display help information about the specified command.
 ```
