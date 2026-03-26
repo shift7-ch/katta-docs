@@ -132,7 +132,7 @@ export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud
 export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
 export AUTH_URL=${REALM_URL}/protocol/openid-connect/auth
 export HUB_URL=[your hub URL e.g. https://hub.che.catta.cloud]
-katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--bucketPrefix" "katta-" --awsAccountId "**************" "--roleNamePrefix " "katta-" "--region" "eu-central-1" "--regions" "eu-central-1"
+katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--bucketPrefix" "katta-" --awsAccountId "**************" "--roleNamePrefix" "katta-" "--region" "eu-central-1" "--regions" "eu-central-1"
 #Please login on REALM_URL/protocol/openid-connect/auth?response_type=code&state=RpFS8LGiFNcERvJ_&client_id=cryptomator&code_challenge_method=S256&code_challenge=wco4JVUg6pA-BMV_PFEJu7Xb1LgglADHUPP3VLb2rIc&redirect_uri=http%3A%2F%2F127.0.0.1%3A59468%2F6cn7pzR43drFgn-r
 #class class cloud.katta.client.model.StorageProfileDto {
 #    instance: class StorageProfileS3STSDto {
