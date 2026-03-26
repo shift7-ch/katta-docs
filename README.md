@@ -23,7 +23,6 @@ This documentation contains, in increasing level of technical depth:
 
 * [Get an Overview](OVERVIEW.md)
 * [Architecture](ARCHITECTURE.md)
-* [Get an Overview](OVERVIEW.md)
 * [Setup Katta Server](SETUP_KATTA_SERVER.md)
 * [Katta Token Management](TOKENS.md)
 
@@ -32,9 +31,9 @@ This documentation contains, in increasing level of technical depth:
 Cryptomator and Cryptomator Hub ecosystem provides
 
 * *Client-side Data Encryption*: data is encrypted in the client only, never on the server; data is always encrypted before it leaves the local machine.
-  Event with access to the stored encrypted data, a penetrator cannot decrypt the plaintext without access to the data keys.
+  Even with access to the stored encrypted data, a penetrator cannot decrypt the plaintext without access to the data keys.
 * *Zero-Knowledge Key Management*: key material is uploaded to hub only in end-to-end-encrypted fashion.
-  Event with access to the stored encrypted keys, a penetrator cannot decrypt the data keys without access to the key encryption keys.
+  Even with access to the stored encrypted keys, a penetrator cannot decrypt the data keys without access to the key encryption keys.
 
 While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Katta adds the following features:
 
