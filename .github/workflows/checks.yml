@@ -1,0 +1,27 @@
+name: Check npm build
+
+on:
+  workflow_dispatch:
+  pull_request:
+  schedule:
+    - cron: '30 5 * * *'
+
+jobs:
+  # BUILD
+  build:
+    name: Build Site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build production
+        run: npm run build
