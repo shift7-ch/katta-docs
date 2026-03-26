@@ -1,22 +1,207 @@
-Setup Katta Server
-==================
+# Setup Katta Server
 
 > [!NOTE]  
 > This document describes step-by-step how to set up Katta Server integration with a storage provider, covering:
 > * Storage providers: MinIO and AWS
 > * Mode: Static and STS.
 >
-> See [OVERVIEW.md](OVERVIEW.md) for a conceptual overview.
->
+
+## TL;DR;
+
+Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme)
+
+```bash
+export PATH=$PATH:[your location of katta cli executable]
+katta --help                                                                                                                                                                                                                                              feature/katta-server-update
+#Usage: katta [-h] [-V] [COMMAND]
+#  -h, --help      Show this help message and exit.
+#  -V, --version   Print version information and exit.
+#Commands:
+#  setup           Setup Storage Provider Integration
+#  storageprofile  Setup Storage Provider Integration
+#  accesstoken     Get access token using authorization code flow.
+#  help            Display help information about the specified command.
+```
+
+## Overview
+
+The following diagram illustrates the flow of actions to setup Katta Server in both modes:
+
+![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
+
+In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
+
+* for Static Mode, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
+  storage profile. Contact your Katta Server admin running Katta Web. The configuration options can be found
+  in [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). See
+  also [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for full examples.
+* for STS, the trust and roles need to be configured in IAM of the S3 provider. See below for details.
+  See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
+
+## Setup AWS with Katta Admin CLI
+
+### Setup AWS: OIDC provider and roles
+
+```bash
+export AWS_ACCESS_KEY_ID=[your aws credentials]
+export AWS_SECRET_ACCESS_KEY=[your aws credentials]
+export AWS_SESSION_TOKEN=[your aws credentials]
+katta "setup" "aws" "--realmUrl" "https://keycloak.che.catta.cloud/realms/cryptomator" "--roleNamePrefix" "katta" "--clientId" "cryptomator" "--clientId" "cryptomatorhub" "--clientId" "cryptomatorvaults" "--bucketPrefix" "katta"
+#Trying environment credentials providerListOpenIdConnectProvidersResponse(OpenIDConnectProviderList=[OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/chipotle), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/tamarind)])
+#arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator
+#aws iam update-role --role-name kattacreate-bucket --assume-role-policy-document file://...
+#{
+#  "Version" : "2012-10-17",
+#  "Statement" : {
+#    "Effect" : "Allow",
+#    "Principal" : {
+#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator"
+#    },
+#    "Action" : "sts:AssumeRoleWithWebIdentity"
+#  }
+#}
+#aws iam put-role-policy --role-name kattacreate-bucket --policy-name kattacreate-bucket --policy-document file://...
+#{
+#  "Version" : "2012-10-17",
+#  "Statement" : [ {
+#    "Effect" : "Allow",
+#    "Action" : [ "s3:CreateBucket", "s3:GetBucketPolicy", "s3:PutBucketVersioning", "s3:GetBucketVersioning", "s3:GetAccelerateConfiguration", "s3:PutAccelerateConfiguration", "s3:GetEncryptionConfiguration", "s3:PutEncryptionConfiguration" ],
+#    "Resource" : "arn:aws:s3:::katta*"
+#  }, {
+#    "Effect" : "Allow",
+#    "Action" : "s3:PutObject",
+#    "Resource" : [ "arn:aws:s3:::katta*/*/", "arn:aws:s3:::katta*/*.uvf" ]
+#  } ]
+#}
+#aws iam update-role --role-name kattaaccess-bucket-web-identity-role --assume-role-policy-document file://...
+#{
+#  "Version" : "2012-10-17",
+#  "Statement" : {
+#    "Effect" : "Allow",
+#    "Principal" : {
+#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator"
+#    },
+#    "Action" : [ "sts:AssumeRoleWithWebIdentity", "sts:TagSession" ]
+#  }
+#}
+#aws iam put-role-policy --role-name kattaaccess-bucket-web-identity-role --policy-name kattaaccess-bucket-web-identity-role --policy-document file://...
+#{
+#  "Version" : "2012-10-17",
+#  "Statement" : {
+#    "Effect" : "Allow",
+#    "Action" : [ "sts:AssumeRole", "sts:TagSession" ],
+#    "Resource" : "arn:aws:iam::**************:role/kattaaccess-bucket-tagged-session-role"
+#  }
+#}
+#aws iam update-role --role-name kattaaccess-bucket-tagged-session-role --assume-role-policy-document file://...
+#{
+#  "Version" : "2012-10-17",
+#  "Statement" : {
+#    "Effect" : "Allow",
+#    "Principal" : {
+#      "AWS" : "arn:aws:iam::**************:role/kattaaccess-bucket-web-identity-role"
+#    },
+#    "Action" : [ "sts:AssumeRole", "sts:TagSession" ],
+#    "Condition" : {
+#      "ForAnyValue:StringEquals" : {
+#        "sts:TransitiveTagKeys" : "${aws:RequestTag/Vault}"
+#      }
+#    }
+#  }
+#}
+#aws iam put-role-policy --role-name kattaaccess-bucket-tagged-session-role --policy-name kattaaccess-bucket-tagged-session-role --policy-document file://...
+#{
+#  "Version" : "2012-10-17",
+#  "Statement" : [ {
+#    "Effect" : "Allow",
+#    "Action" : [ "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads", "s3:GetBucketVersioning", "s3:ListBucketVersions" ],
+#    "Resource" : "arn:aws:s3:::katta${aws:PrincipalTag/Vault}"
+#  }, {
+#    "Effect" : "Allow",
+#    "Action" : [ "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListMultipartUploadParts", "s3:AbortMultipartUpload" ],
+#    "Resource" : "arn:aws:s3:::katta${aws:PrincipalTag/Vault}/*"
+#  } ]
+#}
+```
+
+### Setup AWS: STS storage profile
+
+```bash
+export TOKEN_URL=https://keycloak.che.catta.cloud/realms/cryptomator/protocol/openid-connect/token
+export AUTH_URL=https://keycloak.che.catta.cloud/realms/cryptomator/protocol/openid-connect/auth
+export HUB_URL=https://hub.che.catta.cloud
+katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--bucketPrefix" "katta" "--rolePrefix" "arn:aws:iam::**************:role/katta" "--region" "eu-central-1" "--regions" "eu-central-1"
+#Please login on ${AUTH_URL}?code_challenge=zIvvFLhEW2AIs_l0AHDMOEy4xHUvc43elMDWJwlzYlo&code_challenge_method=S256&client_id=cryptomator&state=088lLFmFkgi7PTrv&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65290%2F2cT_U8GAPj9XdgFf
+#class class cloud.katta.client.model.StorageProfileDto {
+#    instance: class StorageProfileS3STSDto {
+#        id: 29109070-8807-470c-8f28-61ac3eece4ca
+#        name: AWS S3 STS
+#        protocol: S3STS
+#        archived: false
+#        scheme: JsonNullable[https]
+#        hostname: JsonNullable[null]
+#        port: JsonNullable[443]
+#        withPathStyleAccessEnabled: false
+#        storageClass: STANDARD
+#        region: eu-central-1
+#        regions: [eu-central-1]
+#        bucketPrefix: katta
+#        stsRoleCreateBucketClient: arn:aws:iam::**************:role/kattacreate-bucket
+#        stsRoleCreateBucketHub: arn:aws:iam::**************:role/kattacreate-bucket
+#        stsEndpoint: JsonNullable[null]
+#        bucketVersioning: true
+#        bucketAcceleration: JsonNullable[null]
+#        bucketEncryption: NONE
+#        stsRoleAccessBucketAssumeRoleWithWebIdentity: arn:aws:iam::**************:role/kattaaccess-bucket-web-identity-role
+#        stsRoleAccessBucketAssumeRoleTaggedSession: JsonNullable[arn:aws:iam::**************:role/kattaaccess-bucket-tagged-session-role]
+#        stsDurationSeconds: JsonNullable[null]
+#        stsSessionTag: Vault
+#    }
+#    isNullable: false
+#    schemaType: oneOf
+#}
+````
+
+### Setup AWS: static storage profile
+
+```bash
+katta "storageprofile" "aws" "static" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "5755b607-373c-44af-af7d-63f6776bb8f0" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
+#Please login on ${AUTH_URL}?code_challenge=kD0HEjaJ-epu_GN7-Pf6NE6f7EDvTl1vvt77cFulssM&code_challenge_method=S256&client_id=cryptomator&state=DgHh0TPhlQtge0gb&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65298%2F_joIZopLjbkANf-F
+#class class cloud.katta.client.model.StorageProfileDto {
+#    instance: class StorageProfileS3StaticDto {
+#        id: 5755b607-373c-44af-af7d-63f6776bb8f0
+#        name: AWS S3 Static
+#        protocol: S3STATIC
+#        archived: false
+#        scheme: JsonNullable[https]
+#        hostname: JsonNullable[null]
+#        port: JsonNullable[443]
+#        withPathStyleAccessEnabled: false
+#        storageClass: STANDARD
+#        region: eu-west-1
+#        regions: [eu-west-1, eu-west-2, eu-west-3]
+#        bucketPrefix: katta-
+#        stsRoleCreateBucketClient: 
+#        stsRoleCreateBucketHub: 
+#        stsEndpoint: JsonNullable[null]
+#        bucketVersioning: true
+#        bucketAcceleration: JsonNullable[null]
+#        bucketEncryption: NONE
+#    }
+#    isNullable: false
+#    schemaType: oneOf
+#}
+```
+
+## Setup MinIO without Katta Admin CLI
+
+> [!NOTE]  
+> Katta Addmin CLI has limited support for MinIO.
 
 
-> [!CAUTION]
-> The hands-on instructions of this document will be superseded by [Admin CLI](https://github.com/shift7-ch/katta-clientlib/pull/139).
-> Move its README here for the conceptual level and add some snippets illustrating the uploaded policy/profiles.
-
-
-MinIO
------
+A full working example with MinIO can be found
+in [docker-compose-minio-localhost-hub.yml](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-minio-localhost-hub.yml).
+The json files can be found under [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/)
 
 ### Setup MinIO
 
@@ -44,10 +229,8 @@ see [MinIO - Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operati
 
 #### Policy and OIDC provider for MinIO
 
-Add role for creating buckets with prefix `cipherduck` and uploading `vault.cryptomator`, as well as RW to access to
-buckets through `client_id` claim in JWT token. Adapt bucket prefix in
-
-* [setup/minio_sts/createbucketpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup/minio_sts/createbucketpolicy.json)
+Add role for creating buckets with prefix `katta` and uploading `vault.cryptomator`, as well as RW to access to
+buckets through `client_id` claim in JWT token.
 
 Side-note: MinIO does not allow for multiple OIDC providers with the same client ID:
 
@@ -57,30 +240,30 @@ This is not a problem as we leave the claim specifying the vault unset or pointi
 
 ```shell
 mc alias set myminio http://127.0.0.1:9000 minioadmin minioadmin
-mc admin policy create myminio cipherduckcreatebucket setup/minio_sts/createbucketpolicy.json
-mc admin policy create myminio cipherduckaccessbucket setup/minio_sts/accessbucketpolicy.json
+mc admin policy create myminio kattacreatebucket setup/local/minio_sts/create_bucket_policy.json
+mc admin policy create myminio kattaaccessbucket setup/local/minio_sts/access_bucket_policy.json
 ```
 
 Add a new OIDC provider, vault creation and vault access policy in MinIO:
 
 ```shell
-WELL_KNOWN=https://testing.hub.cryptomator.org/kc/realms/cipherduck/.well-known/openid-configuration
+WELL_KNOWN=https://testing.hub.cryptomator.org/kc/realms/katta/.well-known/openid-configuration
 #WELL_KNOWN=http://localhost:8180/realms/cryptomator/.well-known/openid-configuration
 mc idp openid add myminio cryptomator \
     config_url="$WELL_KNOWN" \
     client_id="cryptomator" \
     client_secret="ignore-me" \
-    role_policy="cipherduckcreatebucket"
+    role_policy="kattacreatebucket"
 mc idp openid add myminio cryptomatorhub \
     config_url="$WELL_KNOWN" \
     client_id="cryptomatorhub" \
     client_secret="ignore-me" \
-    role_policy="cipherduckcreatebucket"    
+    role_policy="kattacreatebucket"    
 mc idp openid add myminio cryptomatorvaults \
     config_url="$WELL_KNOWN" \
     client_id="cryptomatorvaults" \
     client_secret="ignore-me" \
-    role_policy="cipherduckaccessbucket"    
+    role_policy="kattaaccessbucket"    
 mc admin service restart myminio
 ```
 
@@ -101,10 +284,10 @@ mc idp openid ls myminio
 ╭─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │    client_id: cryptomator                                                                               │
 │client_secret: ignore-me                                                                                 │
-│   config_url: https://testing.hub.cryptomator.org/kc/realms/cipherduck/.well-known/openid-configuration │
+│   config_url: https://testing.hub.cryptomator.org/kc/realms/katta/.well-known/openid-configuration │
 │       enable: on                                                                                        │
 │      roleARN: arn:minio:iam:::role/IqZpDC5ahW_DCAvZPZA4ACjEnDE                                          │
-│  role_policy: cipherduckcreatebucket                                                                    │
+│  role_policy: kattacreatebucket                                                                    │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
@@ -113,12 +296,9 @@ mc idp openid ls myminio
 
 See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
 
-AWS
----
+## Setup AWS without Katta AdminCLI (deprecated)
 
-### Setup AWS
-
-#### Setup AWS: OIDC provider
+### Setup AWS: OIDC provider
 
 Documentation: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html
 
@@ -169,16 +349,16 @@ u3AvSS5HW70=
 openssl x509 -in testing.hub.cryptomator.org.crt -fingerprint -sha1 -noout | sed -e 's/://g' | sed -e 's/[Ss][Hh][Aa]1 [Ff]ingerprint=//'
 BE21B29075BF9F3265353F8B85208A8981DAEC2A
 
-aws iam create-open-id-connect-provider --url https://testing.hub.cryptomator.org/kc/realms/cipherduck --client-id-list cryptomator cryptomatorhub  --thumbprint-list BE21B29075BF9F3265353F8B85208A8981DAEC2A
+aws iam create-open-id-connect-provider --url https://testing.hub.cryptomator.org/kc/realms/katta --client-id-list cryptomator cryptomatorhub  --thumbprint-list BE21B29075BF9F3265353F8B85208A8981DAEC2A
 {
-    "OpenIDConnectProviderArn": "arn:aws:iam::930717317329:oidc-provider/testing.hub.cryptomator.org/kc/realms/cipherduck1"
+    "OpenIDConnectProviderArn": "arn:aws:iam::930717317329:oidc-provider/testing.hub.cryptomator.org/kc/realms/katta1"
 }
 
 aws iam list-open-id-connect-providers
 
-aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::930717317329:oidc-provider/testing.hub.cryptomator.org/kc/realms/cipherduck
+aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::930717317329:oidc-provider/testing.hub.cryptomator.org/kc/realms/katta
 {
-    "Url": "testing.hub.cryptomator.org/kc/realms/cipherduck",
+    "Url": "testing.hub.cryptomator.org/kc/realms/katta",
     "ClientIDList": [
         "cryptomatorhub",
         "cryptomator"
@@ -191,44 +371,34 @@ aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam:
 }
 ```
 
-#### Setup AWS: roles
+### Setup AWS: roles
 
-Add role for creating buckets with prefix `cipherduck` and uploading `vault.uvf`, adapt OIDC provider in trust
-policy and bucket prefix in permission policy:
-
-* [aws/createbuckettrustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup/aws/createbuckettrustpolicy.json)
-* [aws/createbucketpermissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/createbucketpermissionpolicy.json)
-
-Add roles for role chaining, adapt OIDC provider in trust policy and bucket prefix in permission policy:
-
-* [aws/cipherduck_chain_01_trustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_01_trustpolicy.json)
-* [aws/cipherduck_chain_01_permissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_01_permissionpolicy.json)
-* [aws/cipherduck_chain_02_trustpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_02_trustpolicy.json)
-* [aws/cipherduck_chain_02_permissionpolicy.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws/cipherduck_chain_02_permissionpolicy.json)
+Add role for creating buckets with prefix `katta` and uploading `vault.uvf`, adapt OIDC provider in trust
+policy and bucket prefix in permission policy. Add roles for role chaining, adapt OIDC provider in trust policy and bucket prefix in permission policy.
 
 ```shell
-aws iam create-role --role-name cipherduck-createbucket --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_sts/createbuckettrustpolicy.json
-aws iam put-role-policy --role-name cipherduck-createbucket --policy-name cipherduck-createbucket --policy-document file://src/main/resources/cipherduck/setup/aws_sts/createbucketpermissionpolicy.json
+aws iam create-role --role-name katta-createbucket --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/createbuckettrustpolicy.json
+aws iam put-role-policy --role-name katta-createbucket --policy-name katta-createbucket --policy-document file://src/main/resources/katta/setup/aws_sts/createbucketpermissionpolicy.json
 
 
-aws iam create-role --role-name cipherduck_chain_01 --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_01_trustpolicy.json
-aws iam put-role-policy --role-name cipherduck_chain_01 --policy-name cipherduck_chain_01 --policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_01_permissionpolicy.json
+aws iam create-role --role-name katta_chain_01 --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_01_trustpolicy.json
+aws iam put-role-policy --role-name katta_chain_01 --policy-name katta_chain_01 --policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_01_permissionpolicy.json
 
 sleep 10;
 
-aws iam create-role --role-name cipherduck_chain_02 --assume-role-policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_02_trustpolicy.json
-aws iam put-role-policy --role-name cipherduck_chain_02 --policy-name cipherduck_chain_02 --policy-document file://src/main/resources/cipherduck/setup/aws_sts/cipherduck_chain_02_permissionpolicy.json
+aws iam create-role --role-name katta_chain_02 --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_02_trustpolicy.json
+aws iam put-role-policy --role-name katta_chain_02 --policy-name katta_chain_02 --policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_02_permissionpolicy.json
 ```
 
 Checking roles:
 
 ```shell
-aws iam get-role --role-name cipherduck-createbucket
-aws iam get-role-policy --role-name cipherduck-createbucket --policy-name cipherduck-createbucket
+aws iam get-role --role-name katta-createbucket
+aws iam get-role-policy --role-name katta-createbucket --policy-name katta-createbucket
 ```
 
 ```shell
-TOKEN=`curl -v -X POST https://testing.hub.cryptomator.org/kc/realms/cipherduck/protocol/openid-connect/token \
+TOKEN=`curl -v -X POST https://testing.hub.cryptomator.org/kc/realms/katta/protocol/openid-connect/token \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "client_id=cryptomator" \
      -d "scope=openid" \
@@ -237,7 +407,7 @@ TOKEN=`curl -v -X POST https://testing.hub.cryptomator.org/kc/realms/cipherduck/
      -d "password=$PASSWORD"    | jq ".id_token" | tr -d '"'`
 
 jwtd $TOKEN
-aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::930717317329:role/cipherduck-createbucket" --role-session-name="blabla" --web-identity-token $TOKEN
+aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::930717317329:role/katta-createbucket" --role-session-name="blabla" --web-identity-token $TOKEN
 ```
 
 ### Hub configuration
@@ -249,16 +419,15 @@ the AWS/MinIO setup. Take the role arns from the AWS/MinIO setup.
 ### AWS cleanup
 
 ```shell
-aws iam delete-role-policy --role-name cipherduck-createbucket --policy-name cipherduck-createbucket
-aws iam delete-role --role-name cipherduck-createbucket 
-aws iam delete-role-policy --role-name cipherduck_chain_01 --policy-name cipherduck_chain_01
-aws iam delete-role --role-name cipherduck_chain_01
-aws iam delete-role-policy --role-name cipherduck_chain_02 --policy-name cipherduck_chain_02
-aws iam delete-role --role-name cipherduck_chain_02
+aws iam delete-role-policy --role-name katta-createbucket --policy-name katta-createbucket
+aws iam delete-role --role-name katta-createbucket 
+aws iam delete-role-policy --role-name katta_chain_01 --policy-name katta_chain_01
+aws iam delete-role --role-name katta_chain_01
+aws iam delete-role-policy --role-name katta_chain_02 --policy-name katta_chain_02
+aws iam delete-role --role-name katta_chain_02
 ```
 
-Storage Profiles
-----------------------------------------------------------
+## Storage Profiles without Katta Admin CLI (deprecated)
 
 ### API documentation
 
@@ -266,10 +435,7 @@ See http://localhost:8080/q/openapi?format=json or http://localhost:8080/q/swagg
 
 ### Examples
 
-* [aws_sts_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws_sts/aws_sts_profile.json)
-* [minio_sts_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//minio_sts/minio_sts_profile.json)
-* [aws_static_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//aws_static/aws_static_profile.json)
-* [minio_static_profile.json](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/setup//minio_static/minio_static_profile.json)
+See [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup).
 
 ### Upload storage profiles
 

@@ -202,19 +202,7 @@ The following diagram illustrates the flow of actions to create a vault in the t
 
 ![VaultCreation_Activity.drawio.png](img/overview/VaultCreation_Activity.drawio.png)
 
-## Katta Setup
 
-The following diagram illustrates the flow of actions to setup Katta Server in both modes:
-
-![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
-
-In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
-
-* for Static Mode, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
-  storage profile. Contact your
-  Katta Server admin running Katta Web.
-* for STS, the trust and roles need to be configure in IAM of the S3 provider. See [SETUP_KATTA_SERVER.md](SETUP_KATTA_SERVER.md) for details.
-  See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
 
 ## Comparison Katta Web Client and Katta Desktop Client
 
