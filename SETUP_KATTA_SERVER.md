@@ -196,6 +196,17 @@ katta "storageprofile" "s3" "static" "--hubUrl" "${HUB_URL}" "--uuid" "5755b607-
 #}
 ```
 
+## Setup MinIO storage profile with Katta Admin CLI
+
+Use
+
+```shell
+katta storageprofile minio sts --help
+katta storage profile s3 static --help
+```
+
+see also [README](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme).
+
 ## Setup MinIO without Katta Admin CLI
 
 > [!NOTE]  
