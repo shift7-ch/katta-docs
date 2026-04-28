@@ -47,7 +47,7 @@ export AWS_ACCESS_KEY_ID=[your aws credentials]
 export AWS_SECRET_ACCESS_KEY=[your aws credentials]
 export AWS_SESSION_TOKEN=[your aws credentials]
 export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud/realms/cryptomator]
-katta "setup" "aws" "--realmUrl" "${REALM_URL}" "--roleNamePrefix" "katta-" "--clientId" "cryptomator" "--clientId" "cryptomatorhub" "--clientId" "cryptomatorvaults" "--bucketPrefix" "katta-"
+katta "setup" "aws" "--realmUrl" "${REALM_URL}"
 #Trying environment credentials providerListOpenIdConnectProvidersResponse(OpenIDConnectProviderList=[OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/chipotle), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/tamarind)])
 #arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator
 #aws iam create-role --role-name katta-create-bucket --assume-role-policy-document file://...
@@ -132,7 +132,8 @@ export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud
 export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
 export AUTH_URL=${REALM_URL}/protocol/openid-connect/auth
 export HUB_URL=[your hub URL e.g. https://hub.che.catta.cloud]
-katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--bucketPrefix" "katta-" --awsAccountId "**************" "--roleNamePrefix" "katta-" "--region" "eu-central-1" "--regions" "eu-central-1"
+export AWS_ACCOUNT_ID=[your AWS Account ID]
+katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--awsAccountId" "${AWS_ACCOUNT_ID}" "--region" "eu-central-1" "--regions" "eu-central-1"
 #Please login on REALM_URL/protocol/openid-connect/auth?response_type=code&state=RpFS8LGiFNcERvJ_&client_id=cryptomator&code_challenge_method=S256&code_challenge=wco4JVUg6pA-BMV_PFEJu7Xb1LgglADHUPP3VLb2rIc&redirect_uri=http%3A%2F%2F127.0.0.1%3A59468%2F6cn7pzR43drFgn-r
 #class class cloud.katta.client.model.StorageProfileDto {
 #    instance: class StorageProfileS3STSDto {
@@ -167,7 +168,7 @@ katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AU
 ### Setup AWS: static storage profile
 
 ```bash
-katta "storageprofile" "aws" "static" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--clientId" "cryptomator" "--hubUrl" "${HUB_URL}" "--uuid" "5755b607-373c-44af-af7d-63f6776bb8f0" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
+katta "storageprofile" "s3" "static" "--hubUrl" "${HUB_URL}" "--uuid" "5755b607-373c-44af-af7d-63f6776bb8f0" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
 #Please login on ${AUTH_URL}?code_challenge=kD0HEjaJ-epu_GN7-Pf6NE6f7EDvTl1vvt77cFulssM&code_challenge_method=S256&client_id=cryptomator&state=DgHh0TPhlQtge0gb&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65298%2F_joIZopLjbkANf-F
 #class class cloud.katta.client.model.StorageProfileDto {
 #    instance: class StorageProfileS3StaticDto {
