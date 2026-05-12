@@ -1,0 +1,57 @@
+.cornerTL,
+.cornerTR,
+.cornerBR,
+.cornerBL {
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  pointer-events: none;
+}
+
+.cornerTL { top: 0; left: 0; }
+.cornerTR { top: 0; right: 0; transform: rotate(90deg); }
+.cornerBR { bottom: 0; right: 0; transform: rotate(180deg); }
+.cornerBL { bottom: 0; left: 0; transform: rotate(-90deg); }
+
+.sideTop,
+.sideRight,
+.sideBottom,
+.sideLeft {
+  position: absolute;
+  pointer-events: none;
+  background-repeat: repeat;
+}
+
+.sideTop {
+  top: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 2rem;
+  background-repeat: repeat-x;
+}
+
+.sideBottom {
+  bottom: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 2rem;
+  background-repeat: repeat-x;
+  transform: rotate(180deg);
+}
+
+.sideLeft {
+  left: 0;
+  top: 2rem;
+  bottom: 2rem;
+  width: 2rem;
+  background-repeat: repeat-y;
+}
+
+.sideRight {
+  right: 0;
+  top: 2rem;
+  bottom: 2rem;
+  width: 2rem;
+  background-repeat: repeat-y;
+  transform: rotate(180deg);
+}

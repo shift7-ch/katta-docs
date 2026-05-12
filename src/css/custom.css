@@ -8,52 +8,99 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #49b04a;
-  --ifm-color-primary-dark: #429e43;
-  --ifm-color-primary-darker: #3e963f;
-  --ifm-color-primary-darkest: #337b34;
-  --ifm-color-primary-light: #58ba59;
-  --ifm-color-primary-lighter: #61bd62;
-  --ifm-color-primary-lightest: #7bc87c;
+  --ifm-color-primary: #6565a2;
+  --ifm-color-primary-dark: #56568f;
+  --ifm-color-primary-darker: #474774;
+  --ifm-color-primary-darkest: #3d3c5e;
+  --ifm-color-primary-light: #797cb2;
+  --ifm-color-primary-lighter: #9598c3;
+  --ifm-color-primary-lightest: #b9bcd8;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  
+  --ifm-hero-background-color: transparent;
+
   /* Font family overrides */
   --ifm-font-family-base: 'Open Sans', sans-serif;
-  --ifm-heading-font-family: 'Quicksand', sans-serif;
+  --ifm-heading-font-family: 'Roboto Slab', ui-serif, Georgia, serif;
 }
 
-/* Light mode only background color */
+/* Dark mode primary ramp — Infima does not auto-derive these from the base. */
+[data-theme='dark'] {
+  --ifm-color-primary: #9598c3;
+  --ifm-color-primary-dark: #797cb2;
+  --ifm-color-primary-darker: #6565a2;
+  --ifm-color-primary-darkest: #56568f;
+  --ifm-color-primary-light: #b9bcd8;
+  --ifm-color-primary-lighter: #d5d7e7;
+  --ifm-color-primary-lightest: #e8e9f1;
+}
+
+/* Light mode only background and surface tokens */
 [data-theme='light'] {
   --ifm-background-color: #f7fafc;
   --ifm-code-background: #ffffff;
+  background-image: url('/img/bg-paper.png');
+  background-repeat: repeat-y;
+  background-size: 100% auto;
 }
 
 [data-theme='light'] pre {
   background-color: #ffffff !important;
 }
 
-/* Custom heading font weights for Quicksand */
+/* Custom heading font weights for Roboto Slab */
 h1 {
-  font-weight: 500; /* Use Quicksand medium */
+  font-weight: 700;
 }
 
 h2 {
-  font-weight: 500; /* Use Quicksand medium */
+  font-weight: 700;
 }
 
 h3, h4, h5, h6 {
-  font-weight: 400; /* Use Quicksand regular */
+  font-weight: 500;
 }
 
 .navbar__title {
-  font-family: 'Quicksand', sans-serif;
+  font-family: var(--ifm-heading-font-family);
   font-weight: 700;
-  color: #49b04a;
+  color: var(--ifm-color-primary);
 }
 
 [data-theme='dark'] .navbar__title {
   color: #ffffff;
+}
+
+.footer {
+  background-color: transparent;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.footer__copyright > * + * {
+  margin-top: 0.75rem;
+}
+
+.footer__mastodon a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.footer__mastodon a:hover {
+  text-decoration: none;
+  color: var(--ifm-font-color-base);
+}
+
+.footer__mastodon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+  transition: color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+}
+
+.footer__mastodon a:hover svg {
+  color: #6364FF;
 }
 
 /* GitHub navbar icon */

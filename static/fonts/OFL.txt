@@ -1,4 +1,6 @@
-Copyright 2011 The Quicksand Project Authors (https://github.com/andrew-paglinawan/QuicksandFamily), with Reserved Font Name “Quicksand”.
+Copyright 2020 The Open Sans Project Authors (https://github.com/googlefonts/opensans), with Reserved Font Name "Open Sans".
+
+Copyright 2024 The Roboto Slab Project Authors (https://github.com/googlefonts/robotoslab), with Reserved Font Name "Roboto Slab".
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

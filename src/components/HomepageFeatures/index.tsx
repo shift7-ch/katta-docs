@@ -1,6 +1,10 @@
 import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
+import clsx from 'clsx';
 import type { ReactNode } from 'react';
+
+import FrameBorders from './FrameBorders';
+import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
@@ -14,8 +18,7 @@ const FeatureList: FeatureItem[] = [
     link: '/introduction/intro',
     description: (
       <>
-        Documentation for Cryptomator on Windows, macOS, and Linux.
-        Create vaults, manage encrypted files, and configure settings.
+        Get to know Katta and learn how secure S3 access works for you and your team.
       </>
     ),
   },
@@ -24,8 +27,7 @@ const FeatureList: FeatureItem[] = [
     link: '/arch/architecture',
     description: (
       <>
-        Documentation for Cryptomator on Windows, macOS, and Linux.
-        Create vaults, manage encrypted files, and configure settings.
+        Understand how Katta combines Mountain Duck, client-side encryption, and Keycloak under the hood.
       </>
     ),
   },
@@ -34,8 +36,7 @@ const FeatureList: FeatureItem[] = [
     link: '/setup/server-setup',
     description: (
       <>
-        Documentation for Cryptomator on Windows, macOS, and Linux.
-        Create vaults, manage encrypted files, and configure settings.
+        Step-by-step guides for deploying the Katta server and connecting your S3 buckets.
       </>
     ),
   },
@@ -43,31 +44,26 @@ const FeatureList: FeatureItem[] = [
 
 function Feature({title, description, link}: FeatureItem) {
   return (
-    <div className="card" style={{height: '100%'}}>
-      <div className="card__header">
-        <Heading as="h3">
-          <Link to={link} className="text--no-decoration">
-            {title}
-          </Link>
-        </Heading>
-      </div>
-      <div className="card__body">
-        <p>{description}</p>
-      </div>
-      <div className="card__footer">
-        <Link
-          className="button button--secondary button--block"
-          to={link}>
-          Learn More
+    <div className={styles.feature}>
+      <FrameBorders />
+      <Heading as="h3">
+        <Link to={link} className="text--no-decoration">
+          {title}
         </Link>
-      </div>
+      </Heading>
+      <p className={styles.featureBody}>{description}</p>
+      <Link
+        className="button button--primary button--block"
+        to={link}>
+        Learn More
+      </Link>
     </div>
   );
 }
 
 export default function HomepageFeatures(): ReactNode {
   return (
-    <section className="container padding-vert--lg">
+    <section className={clsx('container padding-vert--lg', styles.features)}>
       <div className="row">
         {FeatureList.map((props, idx) => (
           <div key={idx} className="col col--4 margin-bottom--lg">
