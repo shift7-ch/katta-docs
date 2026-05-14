@@ -12,7 +12,7 @@ Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/ad
 
 ```bash
 export PATH=$PATH:[your location of katta cli executable]
-katta --help                                                                                                                                                                                                                                              feature/katta-server-update
+katta --help
 #Usage: katta [-h] [-V] [COMMAND]
 #  -h, --help      Show this help message and exit.
 #  -V, --version   Print version information and exit.
@@ -202,15 +202,13 @@ Use
 
 ```shell
 katta storageprofile minio sts --help
-katta storage profile s3 static --help
+katta storageprofile s3 static --help
 ```
 
 see also [README](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme).
 
 ## Setup MinIO without Katta Admin CLI
 
-> [!NOTE]  
-> Katta Addmin CLI has limited support for MinIO.
 
 
 A full working example with MinIO can be found
