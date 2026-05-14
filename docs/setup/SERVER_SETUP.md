@@ -36,7 +36,7 @@ katta --help
 
 The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
-![ServerSetup.drawio.png](img/overview/ServerSetup.drawio.png)
+![ServerSetup.drawio.png](../img/overview/ServerSetup.drawio.png)
 
 In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
 
