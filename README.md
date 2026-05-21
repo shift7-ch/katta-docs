@@ -1,54 +1,48 @@
 # Katta Documentation
 
-Katta brings zero-config storage management and zero-knowledge key management for teams and organizations.
+Official documentation site for Katta. Built with [Docusaurus](https://docusaurus.io/).
 
-It easily integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
-As usual, your favorite cloud service remains your free choice [^1].
+## Contributing
 
-[^1]: Currently, we support AWS S3 and MinIO S3.
+We welcome contributions! Please read our [contributing guidelines](.github/CONTRIBUTING.md) for details on how to help.
 
-Katta consists of Katta Server and Katta Client:
+## Quick Start
 
-* Katta Client is based on [Mountain Duck](https://mountainduck.io/) and [Katta Client Library](https://github.com/shift7-ch/katta-clientlib),
-* Katta Server is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).
+This repo uses [pnpm](https://pnpm.io/) (pinned via `packageManager` in
+`package.json`). The easiest way to get a matching version is to enable
+[Corepack](https://nodejs.org/api/corepack.html): `corepack enable`.
 
-## Contents
+```bash
+pnpm install
+pnpm start
+```
 
-This documentation only covers the Katta-specific parts going beyond the upstream documentations:
+Opens dev server at `http://localhost:8000` with live reload.
 
-* [Cryptomator Documentation](https://docs.cryptomator.org/)
-* [Mountain Duck Help](https://docs.mountainduck.io/mountainduck/)
+## Structure
 
-This documentation contains, in increasing level of technical depth:
+- `docs/introduction/` Introduction - Get to know Katta.
+- `docs/arch/` - Architecture - Understand Katta.
+- `docs/setup/` - Setup - Step-by-step guides.
+- `docs/img/` - Resources
 
-* [Get an Overview](OVERVIEW.md)
-* [Architecture](ARCHITECTURE.md)
-* [Get an Overview](OVERVIEW.md)
-* [Setup Katta Server](SETUP_KATTA_SERVER.md)
-* [Katta Token Management](TOKENS.md)
+## Scripts
 
-## Comparison with Cryptomator Hub
+```bash
+pnpm build # Build static site
+pnpm serve # Serve built site locally
+```
 
-Cryptomator and Cryptomator Hub ecosystem provides
+Other scripts can be found in `package.json`.
 
-* *Client-side Data Encryption*: data is encrypted in the client only, never on the server; data is always encrypted before it leaves the local machine.
-  Event with access to the stored encrypted data, a penetrator cannot decrypt the plaintext without access to the data keys.
-* *Zero-Knowledge Key Management*: key material is uploaded to hub only in end-to-end-encrypted fashion.
-  Event with access to the stored encrypted keys, a penetrator cannot decrypt the data keys without access to the key encryption keys.
+## Deployment
 
-While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Katta adds the following features:
+Deployed to [docs.katta.cloud](https://docs.katta.cloud) via GitHub Pages from the `main` branch.
 
-* The storage location and storage access is managed by Katta Server:
-    * Vault metadata contains the location where data is stored:
-        * Katta Server Admins can manage the Storage Profiles to define where new vaults can be created
-        * Katta Static Mode: the vault template (data to initialize the vault) is uploaded upon vault creation
-        * Katta STS Mode: a bucket is created on behalf of the user
-    * Vault membership defines storage access:
-        * Katta Static Mode: the key material is shared among Vault Members in end-to-end encrypted way and zero-trust in Katta Server
-        * Katta STS Mode: vault membership is mirrored in Keycloak, and the access tokens issued by Keycloak are evaluated by STS for fine-grained storage
-          access control.
-* Data Sync in Katta Client. No third-party sync client (like Dropbox) is required.
-* Automatic Access Grant in Katta Client (not support by Cryptomator Hub yet)
+## License
 
+This documentation is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International License (CC-BY-SA 4.0)](LICENSE.txt).
 
+## Acknowledgements
 
+Setup base on [Cryptomator Docs](https://github.com/cryptomator/docs/)

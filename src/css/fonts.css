@@ -1,0 +1,56 @@
+/*
+ * For Font reduction use:
+ * `pip install fonttools brotli`
+ */
+
+/*
+ * For text bodies [ASCII + ÄäÖöÜüß€]:
+ * pyftsubset opensans-regular.woff2 --unicodes=U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC --verbose --flavor=woff2 --output-file=opensans-regular.reduced.woff2
+ */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Open Sans Regular'), local('OpenSans-Regular'), url('/fonts/opensans-regular.reduced.woff2') format('woff2');
+  unicode-range: U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC;
+}
+
+/*
+ * For medium text (e.g. paragraphs, medium emphasis) [ASCII + ÄäÖöÜüß€]:
+ * pyftsubset opensans-medium.woff2 --unicodes=U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC --verbose --flavor=woff2 --output-file=opensans-medium.reduced.woff2
+ */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Open Sans Medium'), local('OpenSans-Medium'), url('/fonts/opensans-medium.reduced.woff2') format('woff2');
+  unicode-range: U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC;
+}
+
+/*
+ * For bold text (e.g. headings, bold emphasis) [ASCII + ÄäÖöÜüß€]:
+ * pyftsubset opensans-bold.woff2 --unicodes=U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC --verbose --flavor=woff2 --output-file=opensans-bold.reduced.woff2
+ */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Open Sans Bold'), local('OpenSans-Bold'), url('/fonts/opensans-bold.reduced.woff2') format('woff2');
+  unicode-range: U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC;
+}
+
+/*
+ * For headings (variable wght axis 100–900) [ASCII + ÄäÖöÜüß€]:
+ * pyftsubset RobotoSlab-VariableFont_wght.ttf --unicodes=U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC --flavor=woff2 --output-file=robotoslab-variable.reduced.woff2
+ */
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/robotoslab-variable.reduced.woff2') format('woff2');
+  unicode-range: U+0020-007F,U+00C4,U+00E4,U+00D6,U+00F6,U+00DC,U+00FC,U+00DF,U+20AC;
+}
