@@ -6,9 +6,11 @@ sidebar_position: 2
 
 # Katta Architecture
 
-> [!NOTE]  
-> This document gives a mid-level overview over Katta Architecture
->
+:::note
+
+This document gives a mid-level overview over Katta Architecture
+
+:::
 
 ## Flow to retrieve user keys
 

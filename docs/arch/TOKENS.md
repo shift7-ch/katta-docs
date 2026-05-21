@@ -3,15 +3,21 @@ id: tokens
 title: Katta Token Management
 sidebar_position: 2
 ---
+
 # Katta Token Management
 
-> [!NOTE]  
-> This document describes the use of scoped tokens for storage access on an in-depth conceptual level.
->
-> See [OVERVIEW.md](introduction/OVERVIEW.md) for a mid-level conceptual overview of Katta.
+:::note
 
-> [!CAUTION]
-> This document has missing parts and needs double-checking whether it reflects the latest code version.
+This document describes the use of scoped tokens for storage access on an in-depth conceptual level.
+See [OVERVIEW.md](introduction/OVERVIEW.md) for a mid-level conceptual overview of Katta.
+
+:::
+
+:::warning
+
+This document has missing parts and needs double-checking whether it reflects the latest code version.
+
+:::
 
 ## Scoped Tokens for Katta S3 STS Storage Access Control
 

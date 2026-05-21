@@ -7,13 +7,15 @@ sidebar_position: 1
 Setup Katta Server
 ==================
 
-> [!NOTE]  
-> This document describes step-by-step how to set up Katta Server integration with a storage provider, covering:
-> * Storage providers: MinIO and AWS
-> * Mode: Static and STS.
->
-> See [OVERVIEW.md](introduction/OVERVIEW.md) for a conceptual overview.
->
+:::note
+
+This document describes step-by-step how to set up Katta Server integration with a storage provider, covering:
+
+* Storage providers: MinIO and AWS
+* Mode: Static and STS.
+  See [OVERVIEW.md](introduction/OVERVIEW.md) for a conceptual overview.
+
+:::
 
 ## TL;DR;
 

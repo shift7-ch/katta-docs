@@ -6,8 +6,11 @@ sidebar_position: 2
 
 # Katta Overview
 
-> [!NOTE]  
-> This document gives a mid-level technical overview over Katta usage scenarios.
+:::note
+
+This document gives a mid-level technical overview over Katta usage scenarios.
+
+:::
 
 Katta consists of the following components and sub-components:
 
@@ -36,8 +39,11 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 * The vault keys are uploaded to Katta Server only after encryption on your machine.
 * Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
 
-> [!IMPORTANT]  
-> One vault corresponds to one bucket (root directory).
+:::info
+
+One vault corresponds to one bucket (root directory).
+
+:::
 
 A vault is initialized with a *vault template* consisting of the vault metadata file (`vault.uvf`) and the the representation of the root folder under the data
 directory `d`:
