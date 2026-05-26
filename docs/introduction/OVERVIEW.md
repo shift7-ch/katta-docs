@@ -225,11 +225,11 @@ The following diagram illustrates the flow of actions to create a vault in the t
 
 ## Comparison Katta Web Client and Katta Desktop Client
 
-The following table captures the current state of implemented features[^1]:
+The following table captures the current state of implemented features:
 
 | Feature                                | Katta Web Client | Katta Desktop Client |
 |----------------------------------------|------------------|----------------------|
-| create vault static                    | ✅                | ✅                    |
+| create vault static                    | ✅[^1]            | ✅                    |
 | create vault STS                       | ✅                | ✅                    |
 | list vaults                            | ✅                | ✅                    |
 | decrypt vault data                     | ❌                | ✅                    |
@@ -239,6 +239,8 @@ The following table captures the current state of implemented features[^1]:
 | initial setup (user keys)              | ✅                | ✅                    |
 | View/reset setup code                  | ✅                | ❌                    |
 | Manage Signature Chains (Web of Trust) | ✅                | ❌                    |
+| Share vault with members or owners     | ✅                | ❌                    |
+| Archive vaults                         | ✅                | ❌                    |
 
 [^1]: Conceptually, the only limitation is that S3 does not offer bucket creation and setting CORS as a joint operation, hence Web Clients can only use existing
 buckets.
