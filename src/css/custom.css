@@ -35,6 +35,14 @@
   --ifm-color-primary-lightest: #e8e9f1;
 }
 
+/* draw.io diagrams are transparent PNGs with dark line art — invisible on the dark
+   background without a light plate behind them. */
+[data-theme='dark'] .markdown img[src*='.drawio'] {
+  background-color: #f7fafc;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
 /* Light mode only background and surface tokens */
 [data-theme='light'] {
   --ifm-background-color: #f7fafc;

@@ -43,7 +43,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/shift7-ch/katta-docs/tree/11-docusaurus/',
+            'https://github.com/shift7-ch/katta-docs/tree/main/',
           routeBasePath: '/',
         },
         blog: false,
