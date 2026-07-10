@@ -1,23 +1,30 @@
 ---
 id: server-setup
-title: Katta Server Setup
+title: Storage Provider Setup
 sidebar_position: 1
 ---
 
-Setup Katta Server
-==================
+# Storage Provider Setup
 
 :::note
 
 This document describes step-by-step how to set up Katta Server integration with a storage provider, covering:
 
 * Storage providers: MinIO and AWS
-* Mode: Static and STS.
-  See [OVERVIEW.md](introduction/OVERVIEW.md) for a conceptual overview.
+* Modes: Static and STS.
+  See the [Katta Overview](introduction/OVERVIEW.md) for a conceptual overview.
 
 :::
 
-## TL;DR;
+:::info Prerequisite
+
+This page assumes a running Katta Server (backend, web frontend, and Keycloak). Deploying Katta Server itself follows the upstream
+[Cryptomator Hub setup](https://docs.cryptomator.org/hub/); see [katta-terraform](https://github.com/shift7-ch/katta-terraform)
+for a full AWS deployment example.
+
+:::
+
+## TL;DR
 
 Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme)
 
@@ -38,7 +45,7 @@ katta --help
 
 The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
-![ServerSetup.drawio.png](../img/overview/ServerSetup.drawio.png)
+![Activity diagram: Katta Server setup in Static and STS Mode](../img/overview/ServerSetup.drawio.png)
 
 In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
 
@@ -49,6 +56,8 @@ In words: in order to be able to use the uploaded storage profiles, the followin
 * for STS, the trust and roles need to be configured in IAM of the S3 provider. See below for details.
   See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
 
+Common pitfalls (mostly CORS-related) are collected in [FAQ & Troubleshooting](TROUBLESHOOTING.md).
+
 ## Setup AWS with Katta Admin CLI
 
 ### Setup AWS: OIDC provider and roles
@@ -57,17 +66,17 @@ In words: in order to be able to use the uploaded storage profiles, the followin
 export AWS_ACCESS_KEY_ID=[your aws credentials]
 export AWS_SECRET_ACCESS_KEY=[your aws credentials]
 export AWS_SESSION_TOKEN=[your aws credentials]
-export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud/realms/cryptomator]
+export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.example.com/realms/cryptomator]
 katta "setup" "aws" "--realmUrl" "${REALM_URL}"
-#Trying environment credentials providerListOpenIdConnectProvidersResponse(OpenIDConnectProviderList=[OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/chipotle), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.katta.cloud/kc/realms/tamarind)])
-#arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator
+#Trying environment credentials providerListOpenIdConnectProvidersResponse(OpenIDConnectProviderList=[OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.example.com/kc/realms/chipotle), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.example.com/kc/realms/tamarind)])
+#arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator
 #aws iam create-role --role-name katta-create-bucket --assume-role-policy-document file://...
 #{
 #  "Version" : "2012-10-17",
 #  "Statement" : {
 #    "Effect" : "Allow",
 #    "Principal" : {
-#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator"
+#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator"
 #    },
 #    "Action" : "sts:AssumeRoleWithWebIdentity"
 #  }
@@ -91,7 +100,7 @@ katta "setup" "aws" "--realmUrl" "${REALM_URL}"
 #  "Statement" : {
 #    "Effect" : "Allow",
 #    "Principal" : {
-#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.che.catta.cloud/realms/cryptomator"
+#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator"
 #    },
 #    "Action" : [ "sts:AssumeRoleWithWebIdentity", "sts:TagSession" ]
 #  }
@@ -139,10 +148,10 @@ katta "setup" "aws" "--realmUrl" "${REALM_URL}"
 ### Setup AWS: STS storage profile
 
 ```bash
-export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.che.catta.cloud/realms/cryptomator]
+export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.example.com/realms/cryptomator]
 export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
 export AUTH_URL=${REALM_URL}/protocol/openid-connect/auth
-export HUB_URL=[your hub URL e.g. https://hub.che.catta.cloud]
+export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
 export AWS_ACCOUNT_ID=[your AWS Account ID]
 katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--awsAccountId" "${AWS_ACCOUNT_ID}" "--region" "eu-central-1" "--regions" "eu-central-1"
 #Please login on REALM_URL/protocol/openid-connect/auth?response_type=code&state=RpFS8LGiFNcERvJ_&client_id=cryptomator&code_challenge_method=S256&code_challenge=wco4JVUg6pA-BMV_PFEJu7Xb1LgglADHUPP3VLb2rIc&redirect_uri=http%3A%2F%2F127.0.0.1%3A59468%2F6cn7pzR43drFgn-r
@@ -243,12 +252,13 @@ Or containerized:
 ```
 export MINIO_ROOT_USER=
 export MINIO_ROOT_PASSWORD=
-export MINIO_API_CORS_ALLOW_ORIGIN=testing.hub.cryptomator.org
+export MINIO_API_CORS_ALLOW_ORIGIN=[your Katta Server origin, e.g. https://katta.example.com]
 docker run -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=$MINIO_ROOT_USER -e MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD -e MINIO_API_CORS_ALLOW_ORIGIN=$MINIO_API_CORS_ALLOW_ORIGIN quay.io/minio/minio server /data --console-address ":9001"
 ```
 
-Side-note: MinIO does not support bucket CORS API,
+Side-note: MinIO does not support the bucket CORS API,
 see [MinIO - Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operations/concepts/thresholds.html#unsupported-s3-bucket-apis)
+and [FAQ & Troubleshooting](TROUBLESHOOTING.md#minio-setting-cors-on-a-bucket-does-not-work).
 
 #### Policy and OIDC provider for MinIO
 
@@ -272,7 +282,7 @@ mc admin policy create myminio kattaaccessbucket setup/local/minio_sts/access_bu
 Add a new OIDC provider, vault creation and vault access policy in MinIO:
 
 ```shell
-WELL_KNOWN=https://testing.hub.cryptomator.org/kc/realms/katta/.well-known/openid-configuration
+WELL_KNOWN=https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration
 #WELL_KNOWN=http://localhost:8180/realms/cryptomator/.well-known/openid-configuration
 mc idp openid add myminio cryptomator \
     config_url="$WELL_KNOWN" \
@@ -309,7 +319,7 @@ mc idp openid ls myminio
 ╭─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │    client_id: cryptomator                                                                               │
 │client_secret: ignore-me                                                                                 │
-│   config_url: https://testing.hub.cryptomator.org/kc/realms/katta/.well-known/openid-configuration │
+│   config_url: https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration │
 │       enable: on                                                                                        │
 │      roleARN: arn:minio:iam:::role/IqZpDC5ahW_DCAvZPZA4ACjEnDE                                          │
 │  role_policy: kattacreatebucket                                                                    │
@@ -321,69 +331,44 @@ mc idp openid ls myminio
 
 See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
 
-## Setup AWS without Katta AdminCLI (deprecated)
+## Appendix: Setup without the Katta Admin CLI (deprecated)
+
+:::warning Deprecated
+
+The following sections describe the manual setup that the [Katta Admin CLI](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme)
+now automates. They are kept for reference.
+
+:::
 
 ### Setup AWS: OIDC provider
 
 Documentation: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html
 
 ```shell
-openssl s_client -servername testing.hub.cryptomator.org -showcerts -connect testing.hub.cryptomator.org:443 > testing.hub.cryptomator.org.crt
+openssl s_client -servername keycloak.example.com -showcerts -connect keycloak.example.com:443 > keycloak.example.com.crt
 
-vi testing.hub.cryptomator.org.crt ...
+vi keycloak.example.com.crt ...
 (remove the irrelevant parts from the chain)
 
-cat testing.hub.cryptomator.org.crt
+cat keycloak.example.com.crt
 -----BEGIN CERTIFICATE-----
-MIIGBDCCBOygAwIBAgISA1CGKN3OkGJihg/qGhz2fl3fMA0GCSqGSIb3DQEBCwUA
-MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD
-EwJSMzAeFw0yMzExMTIxMzAyMTdaFw0yNDAyMTAxMzAyMTZaMCYxJDAiBgNVBAMT
-G3Rlc3RpbmcuaHViLmNyeXB0b21hdG9yLm9yZzCCAiIwDQYJKoZIhvcNAQEBBQAD
-ggIPADCCAgoCggIBALWWmJr7lckOPCysl8p8FywJ2BwfCfdqMqTeb7KdOa3Zd9kb
-rb0dYUAs6cs4XKIxSBzKTDJAZiE5d2/iXUgHIBS8hDjG8U40EFaKDTc/JugOSovs
-HB6FQTi4YCMNfm3oMBiREMXYQTEKErBFfECbtGw8mTua2suT6Uc7lwj91qbPO6BN
-TROk0Az1NcifYOz8lMZhelg0WXEa10YfalaKGtjh4srMBv0rT85PpXaJXaNp58Ls
-4Psf/YlPjGJOhevnyAuqZouUD9sz7gZX8WvQ87y9uTXpDoarySh/0nppYLPZTDty
-sI3LeVwwrf4ir5jObVgjkH1CdS8kj/ueKLLW0BBqSX/9oji9o1zFJlBeRcWbeW08
-SD3+7292cy+zpNo3Y7xEFxGs0SVlJjTRk4cf6edkVq5QzTPqIF9FSn6tgXC6OTJi
-ISHnLGvkuSOzCieADPwjlYJiix3duK+0rpeN3xH3/NnyvPnncbWr/KLwwGE/tsHx
-orv1XLXkV0nmD9MDvE1gqRd7m7n3PwXEojz2Ih37i4bowFx2jYy6acAyY0KJSWwE
-3Rl2BRvOqXY1AOZC2MKOp7mb3hbryr8pzUPb0j4p3iOmOG9MgUQydKLyE97W1Ucd
-PRQMHdoG+EKnDeaauKdZ/3Lj0jMJ1CKlmYOB5qShHv1XCR5uimouioQkoJTFAgMB
-AAGjggIeMIICGjAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEG
-CCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFHkBSFhuApvRJvGqRHZg
-5t183UMCMB8GA1UdIwQYMBaAFBQusxe3WFbLrlAJQOYfr52LFMLGMFUGCCsGAQUF
-BwEBBEkwRzAhBggrBgEFBQcwAYYVaHR0cDovL3IzLm8ubGVuY3Iub3JnMCIGCCsG
-AQUFBzAChhZodHRwOi8vcjMuaS5sZW5jci5vcmcvMCYGA1UdEQQfMB2CG3Rlc3Rp
-bmcuaHViLmNyeXB0b21hdG9yLm9yZzATBgNVHSAEDDAKMAgGBmeBDAECATCCAQUG
-CisGAQQB1nkCBAIEgfYEgfMA8QB2ADtTd3U+LbmAToswWwb+QDtn2E/D9Me9AA0t
-cm/h+tQXAAABi8PXIB0AAAQDAEcwRQIhAPOlsQr63JOSMbTFWOM746oA7i4HQ+hl
-p7M3pRpG4HYQAiBKqLSDsx1FdI18Fax3k7zkCgsY8x96ZAQvVUfdch0xoAB3AO7N
-0GTV2xrOxVy3nbTNE6Iyh0Z8vOzew1FIWUZxH7WbAAABi8PXIBwAAAQDAEgwRgIh
-AOZskIE18A5sTthKz6w3wMvIocbaoj3UCTCIAXWVJJNzAiEAmMWS709vLq/WOPG0
-5hb6lBPn6NRnjizJaNEnj/ts71EwDQYJKoZIhvcNAQELBQADggEBADiSgsGpOKqZ
-0kzeIS9x7vJlc3I0lnScB9JjxJyLoZFs//T4SNWE18zFxnzVspWRnwu4NTmuGURv
-6RWJ8RAznYwjZCnVDdQREUSX7wahzGdz+3GalRaIYngkvwHOhT+aGLbrKRjz+Pfh
-13qMStwjlfA6iSofHqVeQFCf48itgeVjNbpdZKEOLwdiV+JMwpT4n/i0nfVwWkaG
-RcEWn8S4gfSq1iZ/LAhWdyB0QJ4EcCO6mx02wABxbQibPc5FM8Q64j37TizHniVu
-hs+X7qFNDF/jvbob3sL09e0BLjiZWxVasAHiAAaZONTRV0N5YYV56F5br/vnegic
-u3AvSS5HW70=
+MIIGBDCC...(certificate body omitted)...
 -----END CERTIFICATE-----
 
 
-openssl x509 -in testing.hub.cryptomator.org.crt -fingerprint -sha1 -noout | sed -e 's/://g' | sed -e 's/[Ss][Hh][Aa]1 [Ff]ingerprint=//'
+openssl x509 -in keycloak.example.com.crt -fingerprint -sha1 -noout | sed -e 's/://g' | sed -e 's/[Ss][Hh][Aa]1 [Ff]ingerprint=//'
 BE21B29075BF9F3265353F8B85208A8981DAEC2A
 
-aws iam create-open-id-connect-provider --url https://testing.hub.cryptomator.org/kc/realms/katta --client-id-list cryptomator cryptomatorhub  --thumbprint-list BE21B29075BF9F3265353F8B85208A8981DAEC2A
+aws iam create-open-id-connect-provider --url https://keycloak.example.com/realms/cryptomator --client-id-list cryptomator cryptomatorhub  --thumbprint-list BE21B29075BF9F3265353F8B85208A8981DAEC2A
 {
-    "OpenIDConnectProviderArn": "arn:aws:iam::930717317329:oidc-provider/testing.hub.cryptomator.org/kc/realms/katta1"
+    "OpenIDConnectProviderArn": "arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator1"
 }
 
 aws iam list-open-id-connect-providers
 
-aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::930717317329:oidc-provider/testing.hub.cryptomator.org/kc/realms/katta
+aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator
 {
-    "Url": "testing.hub.cryptomator.org/kc/realms/katta",
+    "Url": "keycloak.example.com/realms/cryptomator",
     "ClientIDList": [
         "cryptomatorhub",
         "cryptomator"
@@ -423,7 +408,7 @@ aws iam get-role-policy --role-name katta-createbucket --policy-name katta-creat
 ```
 
 ```shell
-TOKEN=`curl -v -X POST https://testing.hub.cryptomator.org/kc/realms/katta/protocol/openid-connect/token \
+TOKEN=`curl -v -X POST https://keycloak.example.com/realms/cryptomator/protocol/openid-connect/token \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "client_id=cryptomator" \
      -d "scope=openid" \
@@ -432,14 +417,14 @@ TOKEN=`curl -v -X POST https://testing.hub.cryptomator.org/kc/realms/katta/proto
      -d "password=$PASSWORD"    | jq ".id_token" | tr -d '"'`
 
 jwtd $TOKEN
-aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::930717317329:role/katta-createbucket" --role-session-name="blabla" --web-identity-token $TOKEN
+aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::**************:role/katta-createbucket" --role-session-name="blabla" --web-identity-token $TOKEN
 ```
 
-### Hub configuration
+### Hub configuration (manual AWS setup)
 
 See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The
 configured prefix must match the ones configured in
-the AWS/MinIO setup. Take the role arns from the AWS/MinIO setup.
+the AWS/MinIO setup. Take the role ARNs from the AWS/MinIO setup.
 
 ### AWS cleanup
 
@@ -452,17 +437,17 @@ aws iam delete-role-policy --role-name katta_chain_02 --policy-name katta_chain_
 aws iam delete-role --role-name katta_chain_02
 ```
 
-## Storage Profiles without Katta Admin CLI (deprecated)
+### Storage profiles via the backend API
 
-### API documentation
+#### API documentation
 
 See http://localhost:8080/q/openapi?format=json or http://localhost:8080/q/swagger-ui/
 
-### Examples
+#### Examples
 
 See [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup).
 
-### Upload storage profiles
+#### Upload storage profiles
 
 You need to be a hub admin user. If direct access grant is enabled:
 

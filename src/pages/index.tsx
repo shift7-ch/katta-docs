@@ -38,7 +38,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Official Katta documentation. Learn how to secure your S3 storage with step-by-step guides for all platforms.">
+      description="Official Katta documentation. Learn how Katta secures your S3 storage with client-side encryption and zero-knowledge key management.">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

@@ -27,7 +27,7 @@ const config: Config = {
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'warn',
+      onBrokenMarkdownLinks: 'throw',
     },
   },
 
@@ -75,12 +75,6 @@ const config: Config = {
           excludeRoutes: [
             '/',
             '/search/',
-            '/android/',
-            '/desktop/',
-            '/ios/',
-            '/hub/',
-            '/misc/',
-            '/security/',
           ],
         },
       },
@@ -119,7 +113,7 @@ const config: Config = {
         {
           label: 'Architecture',
           to: 'arch/architecture',
-          activeBasePath: 'architecture/',
+          activeBasePath: 'arch/',
           position: 'left',
         },
         {

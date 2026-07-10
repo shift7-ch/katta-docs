@@ -9,13 +9,14 @@ sidebar_position: 2
 :::note
 
 This document describes the use of scoped tokens for storage access on an in-depth conceptual level.
-See [OVERVIEW.md](introduction/OVERVIEW.md) for a mid-level conceptual overview of Katta.
+See the [Katta Overview](introduction/OVERVIEW.md) for a mid-level conceptual overview of Katta.
 
 :::
 
 :::warning
 
-This document has missing parts and needs double-checking whether it reflects the latest code version.
+This deep dive may lag behind the latest implementation in some details. When in doubt, the tests in the `keycloak` module
+of [Katta Server](https://github.com/shift7-ch/katta-server) are authoritative.
 
 :::
 
@@ -28,12 +29,12 @@ and [MinIO STS AssumeRoleWithWebIdentity](https://min.io/docs/minio/linux/develo
 allow to request temporary, limited-privilege credentials for users.
 To get fine-grained control access to S3 storage, we use OIDC access tokens scoped to
 one vault and use them to get access to one bucket (i.e. one vault) only.
-In order to keep our components zero-trust, we use no privileged broker to update [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html).
+In order to keep our components zero-trust, we use no privileged broker to update [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html)
 when vaults are created or users are given access to vaults,
 i.e. we use a static mapping to exchange OIDC access tokens for temporary S3 credentials.
 The static mapping uses a claim in the access token to issue temporary credentials with a dynamic role giving access to the vault's bucket only.
 
-AWS STS imposes 2048 KB size limit[^1] on the OIDC tokens sent to them[^2]. So the OIDC token must not grow in the number of vaults.
+AWS imposes size limits on session policies[^1] and rejects OIDC tokens that are too large[^2]. So the OIDC token must not grow with the number of vaults.
 Therefore, we use [RFC 8693 token exchange](https://www.rfc-editor.org/rfc/rfc8693) to get fine-grained access tokens before we go to STS.
 
 [^1]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html#reference_iam-limits-entity-length &rarr; `Role session policies`
@@ -61,11 +62,9 @@ Katta S3 STS combines the following standard APIs:
 
 ### Intermediate-Level Description
 
-At an intermediate Level, the following diagram shows
-![Tokens.drawio.png](../img/Tokens.drawio.png)
+At an intermediate level, the following diagrams show the token flow from login to S3 access:
 
-https://sparxsystems.com/resources/tutorials/uml2/sequence-diagram.html
-https://mermaid.js.org/syntax/sequenceDiagram
+![Sequence diagram: token flow from login to S3 access](../img/Tokens.drawio.png)
 
 ```mermaid
 sequenceDiagram
@@ -94,13 +93,12 @@ STS -->> Katta Client: (10) AccessKeyId, SecretKey
 Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta<vaultId>/*"}
 else AWS STS
 Note over Katta Client: { "aud": "cryptomatorvaults", "https://aws.amazon.com/tags": {"principal_tags":{"<vaultId>":[""]},"TransitiveTagKeys":["<vaultId>"]}, ...}
-Katta Client ->> MinIO STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
-Note over STS: 
-        MinIO STS -->> Katta Client: (10) AccessKeyId, SecretKey
+Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
+STS -->> Katta Client: (10) AccessKeyId, SecretKey
 Note over Katta Client: { Action: [sts:AssumeRole, sts:TagSession], Resource: "arn:aws:iam::...:role/katta_chain_02"}
-Katta Client ->> MinIO STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta_chain_02", tag.name=VaultRequested, tag.value=<vaultId>)
+Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta_chain_02", tag.name=VaultRequested, tag.value=<vaultId>)
 Note over STS: "Condition": { "ForAnyValue:StringEquals": { "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}" } }
-MinIO STS -->> Katta Client: (12) AccessKeyId, SecretKey
+STS -->> Katta Client: (12) AccessKeyId, SecretKey
 Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta<vaultId>/*"}
 end
 Katta Client ->> S3: (13) /list-bucket
@@ -119,19 +117,12 @@ Katta Client ->> S3: (13) /list-bucket
 8. Keycloak returns access token for OIDC access token with vault-specific claims added by protocol mappers in the requested scope.
 9. Katta client sends scoped OIDC access token to
    STS [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html).
-10. STS returns temporary `AccesKeyId`, `SecretAccessKey` and `SessionToken`.
+10. STS returns temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
     * AWS: the temporary role is tagged with the `vaultId`.
     * MinIO: the credentials allow access to one bucket.
 11. AWS only: Katta client sends AWS credentials to STS in order to assume role.
 12. AWS only: AWS sends credentials to access giving access to one bucket from the session tags.
-13. Katta client access S3 storage with temporary `AccesKeyId`, `SecretAccessKey` and `SessionToken`.
-
-### Detailed Description
-
-TODO sequence diagram with example JSONs/tokens for the steps above, maybe add cli calls?
-
-* AWS: token contains `https://aws.amazon.com/tags` claim
-* MinIO: token contains `client_id` claim
+13. Katta client accesses S3 storage with temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
 
 ## IAM Data Model
 
@@ -140,7 +131,7 @@ TODO sequence diagram with example JSONs/tokens for the steps above, maybe add c
 The following diagram shows the data model we use
 for [Policy-Based Access Control](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html) with MinIO STS:
 
-![MinIOSetup.drawio.png](../img/MinIOSetup.drawio.png)
+![Data model: MinIO policy-based access control](../img/MinIOSetup.drawio.png)
 
 OpenID Identities and Policies are installed once during Katta Server Setup (or before the corresponding storage profile(s) for a new storage location are
 uploaded).
@@ -166,7 +157,7 @@ The following diagram show the data model we use for [OIDC Federation](https://d
 to request [temporary security credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_control-access_assumerole.html)
 in [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html):
 
-![AWSSetup.drawio.png](../img/AWSSetup.drawio.png)
+![Data model: AWS IAM OIDC federation and role chaining](../img/AWSSetup.drawio.png)
 
 An STS request with token issued by a configured OpenID Connect Provider (defined by `url`, `client_id`, `thumbprint`) returns credentials from Role Policies
 attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
@@ -181,23 +172,84 @@ attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
       by [passing session tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html#id_session-tags_role-chaining) in the session of the
       credentials from the first call.
 
-TODO add FAQ stuff
-
-## Tokens with Inline-Policy for S3 Bucket Creation and Template Upload
+## Tokens with Inline Policy for S3 Bucket Creation and Template Upload
 
 ### Motivation
 
-TODO motivate by almost-zero-knowledge
+Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials
+of its own. The only moment it acts on storage is bucket creation for the Web Client in STS Mode — a browser cannot create a bucket and use it right away, as
+S3 does not offer bucket creation and setting CORS as a joint operation (see [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)). For this single operation, the
+Web Client hands Katta Server temporary credentials that are:
+
+* **short-lived**: requested with the minimal `DurationSeconds` of 900 seconds,
+* **role-restricted**: issued for the create-bucket role of the storage profile, whose permission policy is limited to the configured bucket prefix
+  (see [Storage Provider Setup](setup/SERVER_SETUP.md)),
+* **downscoped by an inline session policy** to exactly the new vault's bucket and the template objects.
+
+The effective permissions are the [intersection of the role's permission policy and the inline session policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session).
+Notably, the credentials contain no read permission on object contents (`s3:GetObject`) at all — even for the new bucket, Katta Server can only write the
+(client-side encrypted) vault template.
 
 ### S3 Bucket Creation (Katta S3 STS only)
 
-TODO describe inline policies for Katta S3 static and STS
+In the **Web Client** ([`CreateVault.vue`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/frontend/src/components/CreateVault.vue)):
 
-### S3 Template Upload (Katta S3 STS and static)
+1. The Web Client calls [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) directly at the
+   STS endpoint of the storage profile (AWS or MinIO), with the user's OIDC access token as web identity, the storage profile's `stsRoleCreateBucketHub`
+   role ARN, `DurationSeconds: 900`, the vault ID as `RoleSessionName` — and the following inline session policy, with `<bucket>` replaced by the new vault's
+   bucket name (`<bucketPrefix><vaultId>`):
 
-## Token Refresh
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": [
+           "s3:CreateBucket",
+           "s3:GetBucketPolicy",
+           "s3:PutBucketVersioning",
+           "s3:GetBucketVersioning"
+         ],
+         "Resource": "arn:aws:s3:::<bucket>"
+       },
+       {
+         "Effect": "Allow",
+         "Action": ["s3:PutObject"],
+         "Resource": [
+           "arn:aws:s3:::<bucket>/*.uvf",
+           "arn:aws:s3:::<bucket>/*/"
+         ]
+       }
+     ]
+   }
+   ```
 
-TODO describe refresh at multiple levels activity diagram
+2. STS returns temporary credentials whose permissions are the intersection of the create-bucket role's permission policy and this session policy.
+3. The Web Client sends the temporary credentials together with the client-side encrypted vault template (`vault.uvf`, root directory hash, `dir.uvf`), the
+   region, and the storage profile ID to Katta Server (`PUT /api/storage/{vaultId}`, see
+   [`StorageResource`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/java/org/cryptomator/hub/api/katta/StorageResource.java)).
+4. Katta Server checks that the bucket does not exist yet, creates it, uploads the vault template, and applies the storage profile's bucket settings
+   (versioning, acceleration, encryption) using only the received credentials
+   (see [`S3StorageHelper`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/java/org/cryptomator/hub/api/katta/storage/S3StorageHelper.java)).
+
+The **Desktop Client** is not subject to browser CORS restrictions, so it does not need to involve Katta Server: it assumes the storage profile's
+`stsRoleCreateBucketClient` role itself and creates the bucket and uploads the vault template directly
+(see [`HubUVFVaultProvider`](https://github.com/shift7-ch/katta-clientlib/blob/main/hub/src/main/java/cloud/katta/protocols/hub/HubUVFVaultProvider.java)).
+Here the create-bucket role's permission policy (bucket prefix) is the effective restriction. This is also why the storage profile carries two create-bucket
+role ARNs: `stsRoleCreateBucketHub` (assumed by the Web Client, credentials passed to Katta Server) and `stsRoleCreateBucketClient` (assumed by the Desktop
+Client directly).
+
+### S3 Template Upload (Katta S3 STS and Static)
+
+The vault template is encrypted on the user's machine before any upload; whoever performs the upload never sees plaintext.
+
+* *STS Mode*: the upload rides on the bucket-creation credentials described above — performed by Katta Server for the Web Client and by the Desktop Client
+  itself. The session policy's `s3:PutObject` statement matches exactly the template objects (`vault.uvf`, `dir.uvf`, and the root directory placeholder
+  ending in `/`) and nothing else.
+* *Static Mode*: the bucket already exists, and the client uploads the template directly with the static credentials provided by the user — the Web Client
+  from the browser (after verifying the bucket is empty; this requires the bucket CORS settings described in
+  [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)), the Desktop Client via its S3 connection.
 
 ## Keycloak Architecture
 
@@ -211,7 +263,7 @@ Therefore, we use client roles added to client scopes instead of realm roles to 
 
 The following diagram shows the data model used in Keycloak:
 
-![KeycloakSyncDataModel.drawio.png](../img/KeycloakSyncDataModel.drawio.png)
+![Data model: Keycloak client scopes and roles synced per vault](../img/KeycloakSyncDataModel.drawio.png)
 
 This means that only users with both
 
@@ -251,9 +303,9 @@ corresponding [upstream Keycloak realm definition](https://github.com/cryptomato
 | Diff                                                                                       | Motivation                                                                                                                                                                                                         |
 |--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | additional permissions `manage-users` and `manage-clients` for `syncer` role               | Required for Katta Server Backend to Keycloak synchronization                                                                                                                                                      |
-| add client roles for `realm-management` client                                             | Needs to be present if `realm-mangement` client is re-defined, although the Keycloak defaults are used.                                                                                                            |
+| add client roles for `realm-management` client                                             | Needs to be present if `realm-management` client is re-defined, although the Keycloak defaults are used.                                                                                                            |
 | remove `oidc-usermodel-client-role-mapper` from `cryptomator` and `cryptomatorhub` clients | Client roles must not be added by default to access tokens for `cryptomator` client. As we add one client role per vault, the token would grow with the amount of vaults and quickly hit token size limits at AWS. |
-| add `x-katta-action:oauth` to `redirectUris` of `cryptomator`client                        | Support for                                                                                                                                                                                                        |
+| add `x-katta-action:oauth` to `redirectUris` of `cryptomator` client                       | Custom URL scheme used by Katta Desktop Client to receive the authorization code of the OAuth Authorization Code Flow.                                                                                             |
 | add `oidc-audience-mapper`                                                                 | `aud` claim is required for STS                                                                                                                                                                                    |
 | remove `roles` scope from default client scopes in `cryptomator` client                    | `roles` scope adds client roles under `realm_access.cryptomator_vaults.roles`                                                                                                                                      |
 | add `basic` scope to default client scopes in `cryptomator` client                         | `sub` claim is required for STS [^3]                                                                                                                                                                               |
@@ -264,7 +316,7 @@ For more details, see the tests in the `keycloak` module of Katta Server.
 
 The following diagram shows the wiring of the Keycloak realm to allow token exchange:
 
-![RealmDataModel.drawio.png](../img/RealmDataModel.drawio.png)
+![Data model: Keycloak realm wiring for token exchange](../img/RealmDataModel.drawio.png)
 
 [^3]:  Keycloak 25 introduces mapper for `sub` claim in scope `basic`, the scope needs to added explicitly to the default scopes list as we override the
 list (in order to remove the `roles` scope),
