@@ -32,6 +32,7 @@ This documentation contains, in increasing level of technical depth:
 * [Storage Provider Setup](setup/SERVER_SETUP.md) — connect Katta Server to AWS or MinIO
 * [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md) — common pitfalls, mostly CORS-related
 * [Katta Architecture](arch/ARCHITECTURE.md) — authentication and key retrieval flows
+* [Security Architecture](arch/SECURITY.md) — keys, zero-knowledge boundaries, threat model
 * [Katta Token Management](arch/TOKENS.md) — deep dive into scoped tokens and IAM data models
 
 Unsure what a term means? Check the [Glossary](GLOSSARY.md), which also maps Katta terms to their upstream counterparts.

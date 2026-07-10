@@ -110,7 +110,7 @@ directories
 on a per-file basis. It is based on the year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/en/latest/misc/vault-format-history/).
 It will allow in the future for implementation
 of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/key-rotation.md)
-(see also the Security Architecture draft in [cryptomator/docs#55](https://github.com/cryptomator/docs/pull/55/files)).
+(see also the [Security Architecture](arch/SECURITY.md)).
 
 [Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
 contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
@@ -249,6 +249,5 @@ Terms used throughout this documentation are defined in the [Glossary](GLOSSARY.
 
 ## Key Overview
 
-The following diagram shows the cryptographic keys used in Katta, where they are stored and how they are encrypted/signed:
-![Overview of the cryptographic keys used in Katta](../img/overview/key-overview.drawio.png)
-For more details, refer to the Security Architecture draft in [cryptomator/docs#55](https://github.com/cryptomator/docs/pull/55/files).
+The cryptographic keys used in Katta — where they are stored, how they are encrypted, and what each party can access — are described in the
+[Security Architecture](arch/SECURITY.md).
