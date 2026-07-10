@@ -45,4 +45,4 @@ This documentation is licensed under the [Creative Commons Attribution-ShareAlik
 
 ## Acknowledgements
 
-Setup base on [Cryptomator Docs](https://github.com/cryptomator/docs/)
+Based on [Cryptomator Docs](https://github.com/cryptomator/docs/).
