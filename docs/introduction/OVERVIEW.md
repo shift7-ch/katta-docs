@@ -213,8 +213,9 @@ In words:
 * A technical admin needs to prepare OIDC trust and roles in AWS or MinIO IAM and define an STS Mode storage profile in Katta Server.
 * Katta Client refreshes the user's access token (triggering the OAuth Authorization Code Flow in the browser)
 * The access token is sent to STS with an inline policy in order to issue temporary credentials that allow for the creation of a specific bucket.
-* The temporary S3 credentials are sent to Katta Server which calls S3 to create the corresponding bucket. Due to CORS restrictions, this allows the creation of
-  STS vaults both in Web and Desktop Client in the same way.
+* In the Web Client, the temporary S3 credentials are sent to Katta Server, which calls S3 to create the corresponding bucket on the user's behalf. This is
+  necessary because a browser cannot create a bucket and use it right away (CORS restrictions). The Desktop Client is not bound by CORS and creates the bucket
+  itself, without involving Katta Server.
 * Finally, Katta Client then uploads the `vault.uvf` with the access configuration, and the vault members are synced to Keycloak.
 
 The following diagram illustrates the flow of actions to create a vault in the two modes:
@@ -242,8 +243,9 @@ The following table captures the current state of implemented features:
 | Share vault with members or owners     | ✅                | ❌                    |
 | Archive vaults                         | ✅                | ❌                    |
 
-[^1]: Conceptually, the only limitation is that S3 does not offer bucket creation and setting CORS as a joint operation, hence Web Clients can only use existing
-buckets.
+[^1]: Conceptually, the only limitation is that a browser cannot create a bucket and configure its CORS settings in one shot, since S3 does not offer bucket
+creation and CORS configuration as a joint operation. Hence in Static Mode the Web Client can only use pre-existing, CORS-configured buckets, while in STS Mode
+Katta Server creates the bucket on its behalf. The Desktop Client is not affected.
 
 ## Glossary
 
