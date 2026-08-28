@@ -11,7 +11,7 @@ sidebar_position: 1
 This document describes step-by-step how to set up Katta Server integration with a storage provider, covering:
 
 * Storage providers: MinIO and AWS
-* Modes: Static and STS.
+* Modes: Static and STS Storage Access Mode.
   See the [Katta Overview](introduction/OVERVIEW.md) for a conceptual overview.
 
 :::
@@ -45,11 +45,11 @@ katta --help
 
 The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
-![Activity diagram: Katta Server setup in Static and STS Mode](../img/overview/ServerSetup.drawio.png)
+![Activity diagram: Katta Server setup in Static and STS Storage Access Mode](../img/overview/ServerSetup.drawio.png)
 
-In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
+In words: to be able to use the uploaded storage profiles, the following actions need to be taken:
 
-* for Static Mode, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
+* for _Static Storage Access Mode_, we do S3 calls from the Web Client to upload the vault template. Hence, CSP settings need to be set correctly matching the endpoints of the
   storage profile. Contact your Katta Server admin running Katta Web. The configuration options can be found
   in [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). See
   also [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for full examples.
@@ -451,7 +451,7 @@ See [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test
 
 You need to be a hub admin user. If direct access grant is enabled:
 
-```
+```shell
 export HUB_API_BASE=http://localhost:8080/api
 export ACCESS_TOKEN=`curl -v -X POST http://localhost:8180/realms/cryptomator/protocol/openid-connect/token \
      -H "Content-Type: application/x-www-form-urlencoded" \
@@ -468,7 +468,7 @@ curl  $HUB_API_BASE/storageprofile/ -H "Authorization: Bearer $ACCESS_TOKEN"
 
 Else, use [hub-cli](https://github.com/cryptomator/hub-cli) to get the access token with Authorization Code flow:
 
-```
+```shell
 hub login --client-id=cryptomator authorization-code --api-base $HUB_API_BASE | tee ACCESS_TOKEN.txt; export ACCESS_TOKEN=$(cat ACCESS_TOKEN.txt| tail -1)
 ```
 

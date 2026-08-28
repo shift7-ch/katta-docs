@@ -1,16 +1,16 @@
 ---
 id: troubleshooting
 title: FAQ & Troubleshooting
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # FAQ & Troubleshooting
 
 Most setup pitfalls in Katta are CORS-related, because the Web Client talks to the S3 endpoint directly from the browser.
 
-## Vault creation from the Web Client fails in Static Mode
+## Vault creation from the Web Client fails in _Static Storage Access Mode_
 
-In Static Mode, the Web Client uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
+In _Static Storage Access Mode_, the Web Client uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
 
 * The **bucket CORS settings** must allow requests from the Katta Web origin. Create the bucket and set its CORS configuration before creating the vault
   ([AWS console](https://aws.amazon.com/console/) or [AWS CLI](https://aws.amazon.com/cli/)).
@@ -18,7 +18,7 @@ In Static Mode, the Web Client uploads the vault template to the S3 bucket direc
   [`application.properties`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties);
   see [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for a full example.
 
-## Why does Katta Server create the bucket for the Web Client in STS Mode?
+## Why does Katta Server create the bucket for the Web Client in STS Storage Access Mode?
 
 Only the **Web Client** delegates bucket creation to Katta Server, and only because it runs in a browser. A browser cannot create a bucket, configure its CORS
 settings, and upload to it in one shot — and S3 does not offer bucket creation and CORS configuration as a joint operation. So the Web Client assumes the
@@ -30,9 +30,7 @@ creates the bucket itself. See [Tokens](../arch/TOKENS.md#s3-bucket-creation-kat
 
 ## MinIO: setting CORS on a bucket does not work
 
-MinIO does not support the bucket CORS API — see
-[MinIO — Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operations/concepts/thresholds.html#unsupported-s3-bucket-apis).
-Instead, set the allowed origin globally when starting the server:
+MinIO does not support the bucket CORS API — see [MinIO — Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operations/concepts/thresholds.html#unsupported-s3-bucket-apis). Instead, set the allowed origin globally when starting the server:
 
 ```bash
 export MINIO_API_CORS_ALLOW_ORIGIN=https://your-katta-server.example.com
