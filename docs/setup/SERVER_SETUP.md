@@ -45,11 +45,11 @@ katta --help
 
 The following diagram illustrates the flow of actions to setup Katta Server in both modes:
 
-![Activity diagram: Katta Server setup in Static and STS Mode](../img/overview/ServerSetup.drawio.png)
+![Activity diagram: Katta Server setup in Static and STS Storage Access Mode](../img/overview/ServerSetup.drawio.png)
 
 In words: in order to be able to use the uploaded storage profiles, the following actions need to be taken:
 
-* for Static Mode, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
+* for _Static Storage Access Mode_, we do S3 calls from the Web Client to upload the vault template, hence CSP settings need to be set correctly matching the endpoints of the
   storage profile. Contact your Katta Server admin running Katta Web. The configuration options can be found
   in [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). See
   also [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for full examples.
