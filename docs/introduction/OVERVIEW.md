@@ -238,8 +238,8 @@ The following table captures the current state of implemented features:
 | Initial Setup creating User Keys          | ✅                | ✅                    |
 | View/Reset Setup Code                     | ✅                | ❌                    |
 | Manage Signature Chains (Web of Trust)    | ✅                | ❌                    |
-| Share vault with members or owners     | ✅                | ❌                    |
-| Archive vaults                         | ✅                | ❌                    |
+| Share vault with Members or Owners        | ✅                | ❌                    |
+| Archive Vaults                            | ✅                | ❌                    |
 
 [^1]: Conceptually, the only limitation is that a browser cannot create a bucket and configure its CORS settings in one shot, since S3 does not offer bucket
 creation and CORS configuration as a joint operation. Hence, in _Static Storage Access Mode_ the Web Client can only use pre-existing, CORS-configured buckets, while in _STS Storage Access Mode_
