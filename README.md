@@ -8,9 +8,7 @@ We welcome contributions! Please read our [contributing guidelines](.github/CONT
 
 ## Quick Start
 
-This repo uses [pnpm](https://pnpm.io/) (pinned via `packageManager` in
-`package.json`). The easiest way to get a matching version is to enable
-[Corepack](https://nodejs.org/api/corepack.html): `corepack enable`.
+This repo uses [pnpm](https://pnpm.io/) (pinned via `packageManager` in `package.json`). The easiest way to get a matching version is to enable [Corepack](https://nodejs.org/api/corepack.html): `corepack enable`.
 
 ```bash
 pnpm install

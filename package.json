@@ -2,10 +2,12 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
+    "preinstall": "node scripts/check-pm.js",
     "docusaurus": "docusaurus",
-    "start": "docusaurus start --port 8000",
-    "build": "docusaurus build",
+    "start": "node scripts/check-pm.js && docusaurus start --port 8000",
+    "build": "node scripts/check-pm.js && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -15,10 +17,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docusaurus/core": "3.9.2",
-    "@docusaurus/plugin-client-redirects": "^3.9.2",
-    "@docusaurus/preset-classic": "3.9.2",
-    "@docusaurus/theme-mermaid": "^3.9.2",
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/faster": "^3.10.2",
+    "@docusaurus/plugin-client-redirects": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "@docusaurus/theme-mermaid": "^3.10.2",
     "@easyops-cn/docusaurus-search-local": "^0.55.1",
     "@mdx-js/react": "^3.1.1",
     "@signalwire/docusaurus-plugin-llms-txt": "^1.2.2",
@@ -28,14 +31,26 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.9.2",
-    "@docusaurus/tsconfig": "3.9.2",
-    "@docusaurus/types": "3.9.2",
+    "@docusaurus/module-type-aliases": "^3.10.2",
+    "@docusaurus/tsconfig": "^3.10.2",
+    "@docusaurus/types": "^3.10.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
     "typescript": "~5.9.3"
   },
-  "overrides": {
-    "copy-webpack-plugin": "14.0.0",
-    "css-minimizer-webpack-plugin": "8.0.0"
+  "pnpm": {
+    "overrides": {
+      "copy-webpack-plugin": "14.0.0",
+      "css-minimizer-webpack-plugin": "8.0.0",
+      "body-parser": "^1.20.6",
+      "brace-expansion": "^1.1.18",
+      "fast-uri": "^3.1.5",
+      "postcss": "^8.5.23",
+      "serialize-javascript": "^7.0.5",
+      "svgo": "^3.3.4",
+      "undici": "^7.29.0",
+      "uuid": "^11.1.1"
+    }
   },
   "browserslist": {
     "production": [
@@ -50,6 +65,6 @@
     ]
   },
   "engines": {
-    "node": ">=20.0"
+    "node": ">=24.0"
   }
 }
