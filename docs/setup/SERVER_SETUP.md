@@ -38,6 +38,7 @@ katta --help
 #  setup           Setup Storage Provider Integration
 #  storageprofile  Configure Storage Location
 #  accesstoken     Get access token using authorization code flow.
+#  completion      Generate a bash completion script for the katta CLI.
 #  help            Display help information about the specified command.
 ```
 
@@ -153,68 +154,51 @@ export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
 export AUTH_URL=${REALM_URL}/protocol/openid-connect/auth
 export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
 export AWS_ACCOUNT_ID=[your AWS Account ID]
-katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--hubUrl" "${HUB_URL}" "--uuid" "29109070-8807-470c-8f28-61ac3eece4ca" "--name" "AWS S3 STS" "--awsAccountId" "${AWS_ACCOUNT_ID}" "--region" "eu-central-1" "--regions" "eu-central-1"
+katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--hubUrl" "${HUB_URL}" "--name" "AWS S3 STS" "--awsAccountId" "${AWS_ACCOUNT_ID}" "--region" "eu-central-1" "--regions" "eu-central-1"
 #Please login on REALM_URL/protocol/openid-connect/auth?response_type=code&state=RpFS8LGiFNcERvJ_&client_id=cryptomator&code_challenge_method=S256&code_challenge=wco4JVUg6pA-BMV_PFEJu7Xb1LgglADHUPP3VLb2rIc&redirect_uri=http%3A%2F%2F127.0.0.1%3A59468%2F6cn7pzR43drFgn-r
-#class class cloud.katta.client.model.StorageProfileDto {
-#    instance: class StorageProfileS3STSDto {
-#        id: 29109070-8807-470c-8f28-61ac3eece4ca
-#        name: AWS S3 STS
-#        protocol: S3STS
-#        archived: false
-#        scheme: JsonNullable[https]
-#        hostname: JsonNullable[null]
-#        port: JsonNullable[443]
-#        withPathStyleAccessEnabled: false
-#        storageClass: STANDARD
-#        region: eu-central-1
-#        regions: [eu-central-1]
-#        bucketPrefix: katta-
-#        stsRoleCreateBucketClient: arn:aws:iam::**************:role/katta-create-bucket
-#        stsRoleCreateBucketHub: arn:aws:iam::**************:role/katta-create-bucket
-#        stsEndpoint: JsonNullable[null]
-#        bucketVersioning: true
-#        bucketAcceleration: JsonNullable[null]
-#        bucketEncryption: NONE
-#        stsRoleAccessBucketAssumeRoleWithWebIdentity: arn:aws:iam::**************:role/katta-access-bucket-web-identity-role
-#        stsRoleAccessBucketAssumeRoleTaggedSession: JsonNullable[arn:aws:iam::**************:role/katta-access-bucket-tagged-session-role]
-#        stsDurationSeconds: JsonNullable[null]
-#        stsSessionTag: Vault
-#    }
-#    isNullable: false
-#    schemaType: oneOf
+# The created storage profile is printed as JSON. The server assigns the "id".
+#{
+#  "id" : "29109070-8807-470c-8f28-61ac3eece4ca",
+#  "name" : "AWS S3 STS",
+#  "protocol" : "S3STS",
+#  "archived" : false,
+#  "endpoint" : null,
+#  "pathStyleAccessEnabled" : false,
+#  "storageClass" : "STANDARD",
+#  "region" : "eu-central-1",
+#  "regions" : [ "eu-central-1" ],
+#  "bucketPrefix" : "katta-",
+#  "stsRoleCreateBucketClient" : "arn:aws:iam::**************:role/katta-create-bucket",
+#  "stsRoleCreateBucketHub" : "arn:aws:iam::**************:role/katta-create-bucket",
+#  "stsEndpoint" : null,
+#  "stsRoleAccessBucketAssumeRoleWithWebIdentity" : "arn:aws:iam::**************:role/katta-access-bucket-web-identity-role",
+#  "stsRoleAccessBucketAssumeRoleTaggedSession" : "arn:aws:iam::**************:role/katta-access-bucket-tagged-session-role",
+#  "stsDurationSeconds" : null,
+#  "stsSessionTag" : "Vault"
 #}
-````
+```
 
 ### Setup AWS: static storage profile
 
 ```bash
-katta "storageprofile" "s3" "static" "--hubUrl" "${HUB_URL}" "--uuid" "5755b607-373c-44af-af7d-63f6776bb8f0" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
+katta "storageprofile" "aws" "static" "--hubUrl" "${HUB_URL}" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
 #Please login on ${AUTH_URL}?code_challenge=kD0HEjaJ-epu_GN7-Pf6NE6f7EDvTl1vvt77cFulssM&code_challenge_method=S256&client_id=cryptomator&state=DgHh0TPhlQtge0gb&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65298%2F_joIZopLjbkANf-F
-#class class cloud.katta.client.model.StorageProfileDto {
-#    instance: class StorageProfileS3StaticDto {
-#        id: 5755b607-373c-44af-af7d-63f6776bb8f0
-#        name: AWS S3 Static
-#        protocol: S3STATIC
-#        archived: false
-#        scheme: JsonNullable[https]
-#        hostname: JsonNullable[null]
-#        port: JsonNullable[443]
-#        withPathStyleAccessEnabled: false
-#        storageClass: STANDARD
-#        region: eu-west-1
-#        regions: [eu-west-1, eu-west-2, eu-west-3]
-#        bucketPrefix: katta-
-#        stsRoleCreateBucketClient: 
-#        stsRoleCreateBucketHub: 
-#        stsEndpoint: JsonNullable[null]
-#        bucketVersioning: true
-#        bucketAcceleration: JsonNullable[null]
-#        bucketEncryption: NONE
-#    }
-#    isNullable: false
-#    schemaType: oneOf
+# The created storage profile is printed as JSON. The server assigns the "id".
+#{
+#  "id" : "5755b607-373c-44af-af7d-63f6776bb8f0",
+#  "name" : "AWS S3 Static",
+#  "protocol" : "S3STATIC",
+#  "archived" : false,
+#  "endpoint" : null,
+#  "pathStyleAccessEnabled" : false,
+#  "storageClass" : "STANDARD",
+#  "region" : "eu-west-1",
+#  "regions" : [ "eu-west-1", "eu-west-2", "eu-west-3" ],
+#  "bucketPrefix" : "katta-"
 #}
 ```
+
+For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 static` instead, which additionally requires `--endpointUrl`.
 
 ## Setup MinIO storage profile with Katta Admin CLI
 
@@ -232,7 +216,7 @@ see also [README](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-c
 
 
 A full working example with MinIO can be found
-in [docker-compose-minio-localhost-hub.yml](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-minio-localhost-hub.yml).
+in [docker-compose-hub-keycloak-minio.yml](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml).
 The json files can be found under [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/)
 
 ### Setup MinIO
@@ -459,11 +443,13 @@ export ACCESS_TOKEN=`curl -v -X POST http://localhost:8180/realms/cryptomator/pr
      -d "grant_type=password" \
      -d "username=admin" \
      -d "password=admin" | jq ".access_token" | tr -d '"'`
-curl -X PUT $HUB_API_BASE/storageprofile/s3sts -d @setup/minio_sts/minio_sts_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl -X PUT $HUB_API_BASE/storageprofile/s3 -d @setup/minio_static/minio_static_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl -X PUT $HUB_API_BASE/storageprofile/s3sts -d @setup/aws_sts/aws_sts_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl -X PUT $HUB_API_BASE/storageprofile/s3 -d @setup/aws_static/aws_static_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl  $HUB_API_BASE/storageprofile/ -H "Authorization: Bearer $ACCESS_TOKEN"
+# Single polymorphic endpoint; the storage profile type is selected by the "protocol" discriminator
+# ("S3STS" or "S3STATIC") in the request body. The server assigns the "id".
+curl -X POST $HUB_API_BASE/storageprofile -d @setup/minio_sts/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
+curl -X POST $HUB_API_BASE/storageprofile -d @setup/minio_static/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
+curl -X POST $HUB_API_BASE/storageprofile -d @setup/aws_sts/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
+curl -X POST $HUB_API_BASE/storageprofile -d @setup/aws_static/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
+curl  $HUB_API_BASE/storageprofile -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 Else, use [hub-cli](https://github.com/cryptomator/hub-cli) to get the access token with Authorization Code flow:
