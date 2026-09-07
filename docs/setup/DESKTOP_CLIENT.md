@@ -4,6 +4,9 @@ title: Desktop Setup
 sidebar_position: 2
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Desktop Setup
 
 :::note
@@ -27,32 +30,65 @@ with the `create-vault` role.
 
 :::
 
-The screenshots below are from macOS. Windows looks slightly different but the steps are the same. _Windows screenshots pending._
+The screenshots are shown per platform in **macOS** / **Windows** tabs; the selected platform is remembered across the page.
+_Windows screenshots are still pending._
 
 ## Install Katta Desktop
 
-Download Katta Desktop from the Katta Web application of your Katta Server and install:
+Download Katta Desktop from the Katta Web application of your Katta Server and install it:
 
-* **macOS** — open the `.zip` or `.dmg` and drag **Katta.app** into your *Applications* folder.
-* **Windows** — open the `.msix` follow the wizard.
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
+
+Open the `.zip` or `.dmg` and drag **Katta.app** into your *Applications* folder.
+
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+Open the `.msix` package and follow the wizard.
+
+</TabItem>
+</Tabs>
 
 For the general client interface, the menu bar / tray icon, and file synchronization behavior, see the
 [Mountain Duck Help](https://docs.mountainduck.io/mountainduck/).
 
 ## Authenticate with Katta Server
 
-Choose _Open in Katta_ from the Katta Web application of your Katta Server or enter the server hostname manually 
-connection prompt when selecting _Open Connection…_ from the Katta Desktop menu.
+Choose _Open in Katta_ from the Katta Web application of your Katta Server, or open the connection prompt manually with
+_Open Connection…_ from the Katta Desktop menu and enter the server hostname.
 
-![Katta Desktop login prompt](../img/desktop/macos/desktop-macos-connection.png)
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
 
-It opens your web browser to obtain an
-authorization code and shows the prompt below until you finish signing in (select **Cancel** to abort).
+![Katta Desktop connection prompt](../img/desktop/macos/desktop-macos-connection.png)
+
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+_Windows screenshot pending._
+
+</TabItem>
+</Tabs>
+
+Katta Desktop opens your web browser to obtain an authorization code and shows the prompt below until you finish signing in
+(select **Cancel** to abort).
+
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
 
 ![Katta Desktop login prompt](../img/desktop/macos/desktop-macos-login-prompt.png)
 
-Your browser opens the Katta Web sign-in page. Enter your username (or email) and password and select
-**Sign In**. If your organization connects an external identity provider (OpenID Connect, SAML, or LDAP), authenticate there instead.
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+_Windows screenshot pending._
+
+</TabItem>
+</Tabs>
+
+Your browser opens the Katta Web sign-in page. Enter your username (or email) and password and select **Sign In**. If your
+organization connects an external identity provider (OpenID Connect, SAML, or LDAP), authenticate there instead.
 
 ![Sign in to Katta Web](../img/desktop/macos/desktop-macos-sign-in.png)
 
@@ -63,15 +99,37 @@ After a successful sign-in the browser passes the authorization code back to Kat
 The first time you authenticate on a device, Katta Desktop handles your **Account Key** — a high-entropy secret that protects your
 personal key pair and lets you recover it on other apps, browsers, and devices. Katta Server never sees the Account Key.
 
-* **New user** — Katta Desktop generates the Account Key and pre-fills a device name. Copy the Account Key to a safe place (for
-  example a password manager), tick **I stored my Account Key securely**, and select **Finish Setup**.
+**New user.** Katta Desktop generates the Account Key and pre-fills a device name. Copy the Account Key to a safe place (for example
+a password manager), tick **I stored my Account Key securely**, and select **Finish Setup**.
 
-  ![Account Key dialog in Katta Desktop](../img/desktop/macos/desktop-macos-account-key.png)
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
 
-* **New device** — enter the Account Key you saved during the initial setup to unlock your key pair on this device. This is 
-case if you already logged in with Katta Web to your account and created the Account Key.
+![Account Key dialog in Katta Desktop](../img/desktop/macos/desktop-macos-account-key.png)
 
-  ![New Device dialog in Katta Desktop](../img/desktop/macos/desktop-macos-new-device.png)
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+_Windows screenshot pending._
+
+</TabItem>
+</Tabs>
+
+**New device.** If you already created your Account Key on another app or browser (for example when signing in to Katta Web), enter
+it here to unlock your key pair on this device.
+
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
+
+![New device dialog in Katta Desktop](../img/desktop/macos/desktop-macos-new-device.png)
+
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+_Windows screenshot pending._
+
+</TabItem>
+</Tabs>
 
 :::info Authorized Devices
 
@@ -84,15 +142,37 @@ You can review the apps and devices authorized with your Account Key on your pro
 
 Once authenticated, Katta Server is mounted as a location (for example *Katta – demo.katta.cloud*).
 
-1. Open the Katta location, secondary-click (right-click) an empty area, and choose **New Encrypted Vault…**.
+**1. Add a new vault.** Open the Katta location, secondary-click (right-click) an empty area, and choose **New Encrypted Vault…**.
 
-   ![New Encrypted Vault context menu](../img/desktop/macos/desktop-macos-new-vault.png)
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
 
-2. Enter a name for the vault and pick a **storage profile** from the dropdown. The list contains the storage locations your
-   administrator configured (see [Storage Provider Setup](SERVER_SETUP.md)); the value in parentheses is the region the bucket is
-   created in. Select **Create Vault**.
+![New Encrypted Vault context menu](../img/desktop/macos/desktop-macos-new-vault.png)
 
-   ![Create Vault dialog in Katta Desktop](../img/desktop/macos/desktop-macos-create-vault.png)
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+_Windows screenshot pending._
+
+</TabItem>
+</Tabs>
+
+**2. Name it and choose a storage profile.** Enter a name for the vault and pick a **storage profile** from the dropdown. The list
+contains the storage locations your administrator configured (see [Storage Provider Setup](SERVER_SETUP.md)); the value in
+parentheses is the region the bucket is created in. Select **Create Vault**.
+
+<Tabs groupId="os" queryString>
+<TabItem value="macos" label="macOS">
+
+![Create Vault dialog in Katta Desktop](../img/desktop/macos/desktop-macos-create-vault.png)
+
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+_Windows screenshot pending._
+
+</TabItem>
+</Tabs>
 
 Katta Desktop creates the storage bucket, uploads the encrypted vault template, and registers the vault keys with Katta Server
 (encrypted on your computer).
@@ -106,7 +186,8 @@ You become the vault owner and can share the vault with other Katta users from K
 ## Add files to a vault
 
 The vault appears as a folder inside the Katta location. Work with it like any other folder: drag files and folders into it in
-Finder.app on macOS and Windows File Explorer, or save into it from an application. Katta Desktop syncs the contents to the vault's S3 bucket in the background; opening a file downloads and decrypts it on demand.
+Finder on macOS or File Explorer on Windows, or save into it from an application. Katta Desktop syncs the contents to the vault's S3
+bucket in the background; opening a file downloads and decrypts it on demand.
 
 :::info Zero-knowledge, end-to-end encrypted
 
@@ -121,4 +202,3 @@ See the [Security Architecture](../arch/SECURITY.md) and
 [E2E-Encrypted Data Sync](../introduction/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
 
 :::
-
