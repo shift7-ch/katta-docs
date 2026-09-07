@@ -8,7 +8,14 @@ sidebar_position: 1
 
 :::note
 
-This document gives a mid-level overview over Katta Architecture
+This document gives a mid-level overview of Katta Architecture through the two central client-side runtime flows: how the Katta
+Desktop Client retrieves the user's keys (first login, new device, and account recovery), and how it authenticates and accesses a
+vault's storage (OIDC login, token exchange, STS or static storage credentials, and vault unlock). Each diagram is followed by a
+step-by-step walkthrough.
+
+For the components and roles involved, see the [Katta Overview](../introduction/OVERVIEW.md). For the cryptographic keys and the
+server's trust boundary, see the [Security Architecture](SECURITY.md); for scoped tokens and the storage IAM data model, see
+[Katta Token Management](TOKENS.md).
 
 :::
 
