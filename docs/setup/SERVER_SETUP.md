@@ -16,7 +16,7 @@ This document describes step-by-step how to set up Katta Server integration with
 
 :::
 
-:::info Prerequisite
+:::info[Prerequisite]
 
 This page assumes a running Katta Server (backend, web frontend, and Keycloak). Deploying Katta Server itself follows the upstream
 [Cryptomator Hub setup](https://docs.cryptomator.org/hub/); see [katta-terraform](https://github.com/shift7-ch/katta-terraform)
@@ -333,7 +333,7 @@ See [application.properties](https://github.com/shift7-ch/katta-server/blob/feat
 
 ## Appendix: Setup without the Katta Admin CLI (deprecated)
 
-:::warning Deprecated
+:::warning[Deprecated]
 
 The following sections describe the manual setup that the [Katta Admin CLI](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme)
 now automates. They are kept for reference.

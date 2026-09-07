@@ -12,7 +12,7 @@ This document gives a mid-level technical overview over Katta usage scenarios.
 
 :::
 
-:::info Upstream reading
+:::info[Upstream reading]
 
 This page builds on concepts from the upstream documentation:
 [vaults and vault management](https://docs.cryptomator.org/hub/vault-management/) in Cryptomator Hub and
