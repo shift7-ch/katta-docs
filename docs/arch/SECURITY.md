@@ -29,14 +29,14 @@ The following diagram shows the cryptographic keys used in Katta, where they are
 
 ![Overview of the cryptographic keys used in Katta](../img/overview/key-overview.drawio.png)
 
-| Key | Type | Generated | Stored |
-|---|---|---|---|
-| User key pair | ECDH P-384 (key agreement) + ECDSA P-384 (signing) | In the client at first login (initial setup) | Private keys on Katta Server, only as JWEs: one per device (encrypted to the device key) and one encrypted with the Account Key |
-| Device key | P-384 key pair, one per device | In the client when a device is set up | Private key in the OS keychain / password store of the device; public key on Katta Server |
-| Account Key | High-entropy secret (setup code) | In the client at initial setup | With the user (e.g. password manager); used to encrypt the user keys via PBES2-HS512+A256KW for device-independent recovery |
-| Vault member key | 256-bit symmetric key (A256KW) | In the client at vault creation | On Katta Server, only inside per-member access token JWEs encrypted to each member's public user key (ECDH-ES, A256GCM) |
-| Vault recovery key | P-384 key pair | In the client at vault creation | Together with the member key in the vault owner's access token; enables vault recovery |
-| Vault keys (UVF seeds) | 32-byte seeds; per-file keys derived via HKDF-SHA512, per the [UVF metadata spec](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme) | In the client at vault creation | Inside `vault.uvf`, a JWE encrypted with the vault member key; stored in the S3 bucket and, for convenience, on Katta Server |
+| Key                    | Type                                                                                                                                                                                | Generated                                    | Stored                                                                                                                          |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| User key pair          | ECDH P-384 (key agreement) + ECDSA P-384 (signing)                                                                                                                                  | In the client at first login (initial setup) | Private keys on Katta Server, only as JWEs: one per device (encrypted to the device key) and one encrypted with the Account Key |
+| Device key             | P-384 key pair, one per device                                                                                                                                                      | In the client when a device is set up        | Private key in the OS keychain / password store of the device; public key on Katta Server                                       |
+| Account Key            | High-entropy secret (setup code)                                                                                                                                                    | In the client at initial setup               | With the user (e.g. password manager); used to encrypt the user keys via PBES2-HS512+A256KW for device-independent recovery     |
+| Vault member key       | 256-bit symmetric key (A256KW)                                                                                                                                                      | In the client at vault creation              | On Katta Server, only inside per-member access token JWEs encrypted to each member's public user key (ECDH-ES, A256GCM)         |
+| Vault recovery key     | P-384 key pair                                                                                                                                                                      | In the client at vault creation              | Together with the member key in the vault owner's access token; enables vault recovery                                          |
+| Vault keys (UVF seeds) | 32-byte seeds; per-file keys derived via HKDF-SHA512, per the [UVF metadata spec](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme) | In the client at vault creation              | Inside `vault.uvf`, a JWE encrypted with the vault member key; stored in the S3 bucket and, for convenience, on Katta Server    |
 
 All JWEs use A256GCM content encryption; key management is ECDH-ES (per-user grants), A256KW (vault metadata via member key), or
 PBES2-HS512+A256KW (Account Key). In the bucket, file contents are encrypted with
@@ -51,7 +51,7 @@ The retrieval flows for these keys (login, device setup, recovery) are shown in 
 
 Encrypted (cannot be read by the server or anyone with database access):
 
-* `vault.uvf` vault metadata — including the storage configuration in the `cloud.katta.storage` extension; in Static Mode this contains the S3 access
+* `vault.uvf` vault metadata — including the storage configuration in the `cloud.katta.storage` extension; in _Static Storage Access Mode_ this contains the S3 access
   credentials, so **storage credentials are also end-to-end encrypted**
 * Per-member access tokens (vault member key + recovery key, encrypted to each member's public key)
 * User private keys (encrypted per device and with the Account Key)
@@ -61,8 +61,7 @@ Plaintext (visible to a server operator or database admin):
 * Vault names and descriptions, the membership graph (who has access to which vault), user and group directory data, audit log events
 * Public keys of users and vaults (`uvfKeySet` contains only public JWKs)
 
-This is the "zero-knowledge" boundary: a compromised Katta Server, database, or backup exposes organizational metadata, but no key material and no
-way to decrypt vault contents.
+This is the "zero-knowledge" boundary: a compromised Katta Server, database, or backup exposes organizational metadata but no key material and no way to decrypt vault contents.
 
 ## Granting Access
 
@@ -82,18 +81,18 @@ server-provided public keys; use `maxWotDepth` where key substitution by the ser
 
 Encryption protects confidentiality; storage access control additionally protects the ciphertext:
 
-* *Static Mode*: access to the bucket is controlled by the static S3 credentials, which are shared only inside the end-to-end encrypted `vault.uvf`.
-* *STS Mode*: vault membership is mirrored to Keycloak, and clients exchange their OIDC tokens for temporary S3 credentials scoped to a single vault's
+* _Static Storage Access Mode_: access to the bucket is controlled by the static S3 credentials, which are shared only inside the end-to-end encrypted `vault.uvf` vault metadata.
+* _STS Storage Access Mode_: vault membership is mirrored to Keycloak, and clients exchange their OIDC tokens for temporary S3 access tokens scoped to a single vault's
   bucket. No component holds standing storage credentials. See [Katta Token Management](TOKENS.md) for the full flow.
 
 ## Threat Model Summary
 
-| Party with access to … | Can see / do | Cannot |
-|---|---|---|
-| Storage provider (S3) | Ciphertext objects, object sizes, bucket names (containing the vault ID in STS Mode), access patterns; delete or withhold data | Decrypt file contents or file names; tampering with ciphertext is detected on decryption |
-| Katta Server, its database, or backups | Vault names, membership graph, audit logs, public keys, encrypted blobs; deny service | Decrypt vault data, key material, or the storage credentials inside `vault.uvf` |
-| Keycloak / identity provider | Authenticate as any user towards the API; in STS Mode, issue tokens granting access to the ciphertext in a vault's bucket | Decrypt vault data; obtain vault member keys (access grants happen client-side) |
-| A vault member | Everything in vaults they are a member of | Other vaults; granting access requires a vault owner |
+| Party with access to …                 | Can see / do                                                                                                                                    | Cannot                                                                                   |
+|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Storage provider (S3)                  | Ciphertext objects, object sizes, bucket names (containing the vault ID in _STS Storage Access Mode_), access patterns; delete or withhold data | Decrypt file contents or file names; tampering with ciphertext is detected on decryption |
+| Katta Server, its database, or backups | Vault names, membership graph, audit logs, public keys, encrypted blobs; deny service                                                           | Decrypt vault data, key material, or the storage credentials inside `vault.uvf`          |
+| Keycloak / identity provider           | Authenticate as any user towards the API; in _STS Storage Access Mode_, issue tokens granting access to the ciphertext in a vault's bucket      | Decrypt vault data; obtain vault member keys (access grants happen client-side)          |
+| A vault member                         | Everything in vaults they are a member of                                                                                                       | Other vaults; granting access requires a vault owner                                     |
 
 As with any end-to-end encrypted system, a compromised *client* (or user account together with its Account Key) has access to everything the user has
 access to — Katta's guarantees concern the server and infrastructure side.

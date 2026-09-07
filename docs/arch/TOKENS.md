@@ -177,7 +177,7 @@ attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
 ### Motivation
 
 Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials
-of its own. The only moment it acts on storage is bucket creation for the Web Client in STS Mode — a browser cannot create a bucket and use it right away, as
+of its own. The only moment it acts on storage is bucket creation for the Web Client in _STS Storage Access Mode_ — a browser cannot create a bucket and use it right away, as
 S3 does not offer bucket creation and setting CORS as a joint operation (see [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)). For this single operation, the
 Web Client hands Katta Server temporary credentials that are:
 
@@ -244,10 +244,10 @@ Client directly).
 
 The vault template is encrypted on the user's machine before any upload; whoever performs the upload never sees plaintext.
 
-* *STS Mode*: the upload rides on the bucket-creation credentials described above — performed by Katta Server for the Web Client and by the Desktop Client
+* _STS Storage Access Mode_: the upload rides on the bucket-creation credentials described above — performed by Katta Server for the Web Client and by the Desktop Client
   itself. The session policy's `s3:PutObject` statement matches exactly the template objects (`vault.uvf`, `dir.uvf`, and the root directory placeholder
   ending in `/`) and nothing else.
-* *Static Mode*: the bucket already exists, and the client uploads the template directly with the static credentials provided by the user — the Web Client
+* _Static Storage Access Mode_: the bucket already exists, and the client uploads the template directly with the static credentials provided by the user — the Web Client
   from the browser (after verifying the bucket is empty; this requires the bucket CORS settings described in
   [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)), the Desktop Client via its S3 connection.
 

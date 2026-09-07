@@ -11,9 +11,9 @@ Katta brings zero-config storage management and zero-knowledge key management fo
 It easily integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
 As usual, your favorite cloud service remains your free choice [^1].
 
-[^1]: In Static Mode, any S3-compatible provider works; STS Mode currently supports AWS S3 and MinIO. See [Katta S3 Modes](OVERVIEW.md#katta-s3-modes).
+[^1]: In Static Storage Access Mode, any S3-compatible provider works; STS Storage Access Mode currently supports AWS S3 and MinIO. See [Katta S3 Modes](OVERVIEW.md#katta-s3-modes).
 
-Katta consists of Katta Server and Katta Client:
+Katta consists of Katta Server and Katta Desktop Client:
 
 * Katta Client is based on [Mountain Duck](https://mountainduck.io/) and [Katta Client Library](https://github.com/shift7-ch/katta-clientlib),
 * Katta Server is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).

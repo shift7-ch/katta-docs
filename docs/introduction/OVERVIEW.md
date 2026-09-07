@@ -72,16 +72,15 @@ see [example directory structure](https://github.com/encryption-alliance/unified
 
 Katta currently supports two modes for both S3 providers:
 
-* Static Mode: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
+* **Static Storage Access Mode**: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
   the frontend.
-* STS Mode: use STS to have fine-grained permissions;
-  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server creates the bucket and uploads the vault template;
+* **STS Storage Access Mode**: use STS to have fine-grained permissions;
+  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server or Katta Desktop Client creates the bucket and uploads the vault template;
   - storage access: only vault users can access storage.
 
-If you want to use static mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
+If you want to use Static Storage Access mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
 
-Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html).
-If you want to use Katta STS mode, Katta currently supports two S3 object storage services:
+Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
 
 * [AWS](https://aws.amazon.com/s3/)
 * [MinIO](https://min.io/)
@@ -90,15 +89,15 @@ If you want to use Katta STS mode, Katta currently supports two S3 object storag
 
 Katta Storage Profiles are created by Katta Server Admins to define the available storage locations where users can create vaults, e.g.
 
-* Katta mode (static or STS)
+* Katta storage access mode (static or STS)
 * S3 endpoint
 * default region
 * available region
 * storage-provider specific settings (e.g. [path-style-requests](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#path-style-access),
   see also [path-style-requests](https://docs.cyberduck.io/protocols/s3/#connecting-using-deprecated-path-style-requests))
 
-Katta Server Admins can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restrict vault creation to some zones,
-another company uses a low-cost S3 provider supporting only Static Mode,
+Katta Server Admins can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restricts vault creation to some zones,
+another company uses a low-cost S3 provider supporting only _Static Storage Access Mode_,
 and yet another company has their own MinIO instance.
 
 See [Storage Provider Setup](setup/SERVER_SETUP.md) for the configuration options.
@@ -146,11 +145,11 @@ The contents of `vault.uvf` come from the following sources:
 * Katta Server Admin: technical administrator of the databases and the infrastructure running Katta Server; zero-trust means the data can never be decrypted by a person having access to the database
   or the server running the Katta Server or to the physical storage (unless the Katta Server admin is also a Vault Member, of course).
 
-## E2E-Encrypted Data Sync in Static and STS mode
+## E2E-Encrypted Data Sync in Static and STS Storage Access modes
 
-The following diagram illustrates the interactions when Katta Client syncs data in a vault in *Static Mode*:
+The following diagram illustrates the interactions when Katta Client syncs data in a vault in *Static Storage Access Mode*:
 
-![Interaction diagram: data access in Static Mode](../img/overview/DataAccessStatic_Interaction.drawio.png)
+![Interaction diagram: data access in Static Storage Access Mode](../img/overview/DataAccessStatic_Interaction.drawio.png)
 
 In words:
 
@@ -158,9 +157,9 @@ In words:
   etc.)), as well as the encryption keys; it is stored encrypted in Katta Server Backend.
 * With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
-The following diagram illustrates the interactions when Katta Client syncs data in a vault in *STS Mode*:
+The following diagram illustrates the interactions when Katta Client syncs data in a vault in _STS Storage Access Mode_:
 
-![Interaction diagram: data access in STS Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
+![Interaction diagram: data access in STS Storage Access Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
 
 In words:
 
@@ -186,31 +185,30 @@ In words:
   a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/).
   The other actions directly correspond to the interactions described above.
 
-## Vault Creation in Static and STS mode
+## Vault Creation in Static and STS Storage Access Mode
 
-The following diagram illustrates the interactions when a user
-creates a vault in *Static Mode*:
+The following diagram illustrates the interactions when a user creates a vault in _Static Storage Access Mode_:
 
-![Interaction diagram: vault creation in Static Mode](../img/overview/VaultCreationStatic_Interaction.drawio.png)
+![Interaction diagram: vault creation in Static Storage Access Mode](../img/overview/VaultCreationStatic_Interaction.drawio.png)
 
 In words:
 
-* A Katta Server admin (role `admin`) needs to define the possible S3 endpoints for Katta S3 Static Mode where users can create vaults.
+* A Katta Server admin (role `admin`) needs to define the possible S3 endpoints for Katta _Static Storage Access Mode_ where users can create vaults.
   Admins upload storage profiles via the backend API and can inspect them in the Web Client.
-* To create a vault in Static Mode, a bucket first needs to be created manually ([AWS console](https://aws.amazon.com/console/)
+* To create a vault in _Static Storage Access Mode_ in Katta Web, a bucket first needs to be created manually ([AWS console](https://aws.amazon.com/console/)
   or [AWS CLI](https://aws.amazon.com/cli/)) with the correct bucket CORS settings (see [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)).
 * A Katta user (role `create-vault`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
   Vault Owner.
 * Finally, Katta Client verifies the configuration and uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
 
 The following diagram illustrates the interactions when a user creates a
-vault in *STS Mode*:
+vault in _STS Storage Access Mode_:
 
-![Interaction diagram: vault creation in STS Mode](../img/overview/VaultCreationSTS_Interaction.drawio.png)
+![Interaction diagram: vault creation in STS Storage Access Mode](../img/overview/VaultCreationSTS_Interaction.drawio.png)
 
 In words:
 
-* A technical admin needs to prepare OIDC trust and roles in AWS or MinIO IAM and define an STS Mode storage profile in Katta Server.
+* A technical admin needs to prepare OIDC trust and roles in AWS or MinIO IAM and define an _STS Storage Access Mode_ storage profile in Katta Server.
 * Katta Client refreshes the user's access token (triggering the OAuth Authorization Code Flow in the browser)
 * The access token is sent to STS with an inline policy in order to issue temporary credentials that allow for the creation of a specific bucket.
 * In the Web Client, the temporary S3 credentials are sent to Katta Server, which calls S3 to create the corresponding bucket on the user's behalf. This is
@@ -220,7 +218,7 @@ In words:
 
 The following diagram illustrates the flow of actions to create a vault in the two modes:
 
-![Activity diagram: vault creation in Static and STS Mode](../img/overview/VaultCreation_Activity.drawio.png)
+![Activity diagram: vault creation in Static and STS Storage Access Mode](../img/overview/VaultCreation_Activity.drawio.png)
 
 
 
@@ -228,23 +226,23 @@ The following diagram illustrates the flow of actions to create a vault in the t
 
 The following table captures the current state of implemented features:
 
-| Feature                                | Katta Web Client | Katta Desktop Client |
-|----------------------------------------|------------------|----------------------|
-| create vault static                    | ✅[^1]            | ✅                    |
-| create vault STS                       | ✅                | ✅                    |
-| list vaults                            | ✅                | ✅                    |
-| decrypt vault data                     | ❌                | ✅                    |
-| manual access grant                    | ✅                | ❌                    |
-| automatic access grant                 | ❌                | ✅                    |
-| view details storage profiles          | ✅                | ❌                    |
-| initial setup (user keys)              | ✅                | ✅                    |
-| View/reset setup code                  | ✅                | ❌                    |
-| Manage Signature Chains (Web of Trust) | ✅                | ❌                    |
-| Share vault with members or owners     | ✅                | ❌                    |
-| Archive vaults                         | ✅                | ❌                    |
+| Feature                                      | Katta Web Client | Katta Desktop Client |
+|----------------------------------------------|------------------|----------------------|
+| Create Vault with S3 Static Access Tokens    | ✅[^1]           | ✅                   |
+| Create Vault with S3 Temporary Access Tokens | ✅               | ✅                   |
+| List Vaults                                  | ✅               | ✅                   |
+| Decrypt Vault Contents                       | ❌               | ✅                   |
+| Manual Access Grant                          | ✅               | ❌                   |
+| Automatic Access Grant                       | ❌               | ✅                   |
+| View Storage Profiles Details                | ✅               | ❌                   |
+| Initial Setup creating User Keys             | ✅               | ✅                   |
+| View/Reset Setup Code                        | ✅               | ❌                   |
+| Manage Signature Chains (Web of Trust)       | ✅               | ❌                   |
+| Share vault with Members or Owners           | ✅               | ❌                   |
+| Archive Vaults                               | ✅               | ❌                   |
 
 [^1]: Conceptually, the only limitation is that a browser cannot create a bucket and configure its CORS settings in one shot, since S3 does not offer bucket
-creation and CORS configuration as a joint operation. Hence in Static Mode the Web Client can only use pre-existing, CORS-configured buckets, while in STS Mode
+creation and CORS configuration as a joint operation. Hence, in _Static Storage Access Mode_ the Web Client can only use pre-existing, CORS-configured buckets, while in _STS Storage Access Mode_
 Katta Server creates the bucket on its behalf. The Desktop Client is not affected.
 
 ## Glossary

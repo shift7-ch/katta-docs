@@ -15,16 +15,21 @@ The Cryptomator and Cryptomator Hub ecosystem provides:
 
 While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Katta adds the following features:
 
-* The storage location and storage access are managed by Katta Server:
-    * Vault metadata contains the location where data is stored:
-        * Katta Server Admins can manage the Storage Profiles to define where new vaults can be created
-        * Katta Static Mode: the vault template (data to initialize the vault) is uploaded upon vault creation
-        * Katta STS Mode: a bucket is created on behalf of the user
-    * Vault membership defines storage access:
-        * Katta Static Mode: the key material is shared among Vault Members in an end-to-end encrypted way with zero trust in Katta Server
-        * Katta STS Mode: vault membership is mirrored in Keycloak, and the access tokens issued by Keycloak are evaluated by STS for fine-grained storage
-          access control.
-* Data Sync in Katta Client. No third-party sync client (like Dropbox) is required.
-* Automatic Access Grant in Katta Client (not supported by Cryptomator Hub yet)
+* _Storage Location_: Vault metadata managed by Katta Server contains the location where data is stored. Katta Server administrators can manage the _Storage Profiles_ to define storage locations where new vaults can be created authenticating using static or STS access tokens.
+* _Storage Access_: Vault membership defines storage access managed by Katta Server:
+    - **Static Storage Access Mode**: the key material is shared among Vault Members in an end-to-end encrypted way with zero trust in Katta Server
+    - **STS Storage Access Mode**: vault membership is mirrored in Keycloak, and the access tokens issued by Keycloak are evaluated by STS for fine-grained storage
+      access control.
+* _Sync Data_ with _Katta Desktop Client_. No third-party sync client (like Dropbox) is required.
+* _Automatic Access Grant_ in Katta Client (not supported by Cryptomator Hub yet)
+
+|                               | Cryptomator Hub | Katta Server & Katta Desktop Client |
+|-------------------------------|-----------------|-------------------------------------|
+| Client-side Data Encryption   | ✔️              | ✔️                                  |
+| Zero-Knowledge Key Management | ✔️              | ✔️                                  |
+| Storage Profiles              | –               | ✔️                                  |
+| Storage Access                | –               | ✔️                                  |
+| Desktop Sync                  | –               | ✔️                                  |
+| Automatic Access Grant        | –               | ✔️                                  |
 
 See the [Katta Overview](OVERVIEW.md) for how these concepts fit together, and the [Glossary](GLOSSARY.md) for how Katta terms map to their upstream counterparts.
