@@ -61,7 +61,23 @@ Common pitfalls (mostly CORS-related) are collected in [FAQ & Troubleshooting](T
 
 ## Setup AWS with Katta Admin CLI
 
+Setting up AWS as a storage provider takes two steps: configure the AWS-side trust and roles (only for _STS Storage Access Mode_), then
+upload a matching storage profile to Katta Server. Run the steps in this order — the storage profile references the roles created in
+the first step.
+
 ### Setup AWS: OIDC provider and roles
+
+Only required for _STS Storage Access Mode_. `katta setup aws` prepares the AWS account so Keycloak-issued tokens can be exchanged for
+temporary S3 credentials:
+
+* registers (or updates) the Keycloak realm as an OpenID Connect identity provider in AWS IAM for the `cryptomator`, `cryptomatorhub`
+  and `cryptomatorvaults` clients, refreshing the TLS thumbprints;
+* creates the IAM roles and policies for **bucket creation** (restricted to the configured bucket prefix) and for **bucket access**
+  via role chaining with tagged sessions (restricted to a single vault's bucket).
+
+It is idempotent — re-run it to pick up renewed Keycloak TLS certificates or policy changes. It needs AWS credentials with IAM
+permissions in the environment (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN`, or an AWS profile). The command
+prints the equivalent `aws iam …` calls it performs.
 
 ```bash
 export AWS_ACCESS_KEY_ID=[your aws credentials]
@@ -148,6 +164,15 @@ katta "setup" "aws" "--realmUrl" "${REALM_URL}"
 
 ### Setup AWS: STS storage profile
 
+Uploads an STS storage profile to Katta Server (requires the `admin` role). The command derives the role ARNs from `--awsAccountId`
+and `--roleNamePrefix` (default `katta-`), so they must match the roles created by `katta setup aws`. `--region` is the region
+pre-selected in the client, `--regions` the list of regions a vault creator may choose from; `--bucketPrefix` (default `katta-`) must
+match the prefix used in the IAM policies.
+
+Once the profile exists, users with the `create-vault` role can create vaults for it: Katta Server provisions the S3 bucket on the fly
+and hands out short-lived STS credentials scoped to that single bucket. Authentication uses the browser-based Authorization Code flow
+unless `--accessToken` is supplied. The command prints the created profile as JSON.
+
 ```bash
 export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.example.com/realms/cryptomator]
 export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
@@ -180,6 +205,11 @@ katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AU
 
 ### Setup AWS: static storage profile
 
+Uploads a static storage profile to Katta Server (requires the `admin` role). _Static Storage Access Mode_ needs no OIDC provider or
+IAM roles — S3 is reached with long-lived access keys that the vault creator supplies when creating the vault. Use this for an
+existing bucket, or when STS is not an option. `--region`/`--regions` and `--bucketPrefix` have the same meaning as for the STS
+profile. The command prints the created profile as JSON.
+
 ```bash
 katta "storageprofile" "aws" "static" "--hubUrl" "${HUB_URL}" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
 #Please login on ${AUTH_URL}?code_challenge=kD0HEjaJ-epu_GN7-Pf6NE6f7EDvTl1vvt77cFulssM&code_challenge_method=S256&client_id=cryptomator&state=DgHh0TPhlQtge0gb&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65298%2F_joIZopLjbkANf-F
@@ -202,7 +232,16 @@ For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 sta
 
 ## Setup MinIO storage profile with Katta Admin CLI
 
-Use
+MinIO is configured directly in MinIO rather than through the CLI (see [Setup MinIO](#setup-minio) below), so there is no
+`katta setup minio` equivalent of `katta setup aws`. The CLI only uploads the storage profile:
+
+* `katta storageprofile minio sts` — STS profile. Pass the endpoint URL and the three role ARNs from `mc idp openid ls` (one each for
+  the `cryptomator`, `cryptomatorhub` and `cryptomatorvaults` clients). MinIO scopes bucket access per vault through the
+  `${jwt:client_id}` policy variable and does not support role chaining or tagged sessions, so the AWS-only fields
+  (`stsRoleAccessBucketAssumeRoleTaggedSession`, `stsSessionTag`) are left unset.
+* `katta storageprofile s3 static` — static profile for a MinIO endpoint reached with long-lived access keys.
+
+Run `--help` on either command for the full option list:
 
 ```shell
 katta storageprofile minio sts --help
