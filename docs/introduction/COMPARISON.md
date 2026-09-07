@@ -13,6 +13,8 @@ The Cryptomator and Cryptomator Hub ecosystem provides:
 * *Zero-Knowledge Key Management*: key material is uploaded to the server only in end-to-end-encrypted fashion.
   Even with access to the stored encrypted keys, an attacker cannot decrypt the data keys without access to the key encryption keys.
 
+Mountain Duck provides interoperable access to Cryptomator Vaults in any storage location, including S3-compatible object storage.
+
 While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Katta adds the following features:
 
 * _Storage Location_: Vault metadata managed by Katta Server contains the location where data is stored. Katta Server administrators can manage the _Storage Profiles_ to define storage locations where new vaults can be created authenticating using static or STS access tokens.
@@ -22,13 +24,13 @@ While sharing Client-side Data Encryption and Zero-Knowledge Key Management, Kat
 * _Sync Data_ with _Katta Desktop_. No third-party sync client (like Dropbox) is required.
 * _Automatic Access Grant_ in _Katta Desktop_.
 
-|                               | Cryptomator Hub | Katta Server & Katta Desktop |
-|-------------------------------|-----------------|------------------------------|
-| Client-side Data Encryption   | ✔️              | ✔️                           |
-| Zero-Knowledge Key Management | ✔️              | ✔️                           |
-| Storage Profiles              | –               | ✔️                           |
-| Storage Access                | –               | ✔️                           |
-| Desktop Sync                  | –               | ✔️                           |
-| Automatic Access Grant        | –               | ✔️                           |
+|                               | Mountain Duck | Cryptomator Hub | Katta Server & Katta Desktop |
+|-------------------------------|---------------|-----------------|------------------------------|
+| Client-side Data Encryption   | ✔️            | ✔️              | ✅️                           |
+| Zero-Knowledge Key Management | –             | ✔️              | ✅️                           |
+| Storage Profiles              | –             | –               | ✅️                           |
+| Storage Access                | –             | –               | ✅️                           |
+| Desktop Sync                  | ✔️            | –               | ✅️                           |
+| Automatic Access Grant        | –             | –               | ✅️                           |
 
 See the [Katta Overview](OVERVIEW.md) for how these concepts fit together, and the [Glossary](GLOSSARY.md) for how Katta terms map to their upstream counterparts.
