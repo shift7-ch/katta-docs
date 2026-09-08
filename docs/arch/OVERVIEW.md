@@ -12,12 +12,10 @@ This document gives a mid-level technical overview over Katta usage scenarios.
 
 :::
 
-:::tip Upstream reading
-
+:::tip[Upstream reading]
 This page builds on concepts from the upstream documentation:
 [vaults and vault management](https://docs.cryptomator.org/hub/vault-management/) in Cryptomator Hub and
 [connecting to storage](https://docs.mountainduck.io/mountainduck/connect/) in Mountain Duck.
-
 :::
 
 

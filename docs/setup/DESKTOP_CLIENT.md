@@ -137,10 +137,8 @@ You can review the apps and devices authorized with your Account Key on your pro
 
 ## Create a new vault
 
-:::tip Katta Web
-
+:::tip[Katta Web]
 Alternatively, creating a new vault in Katta Web is also supported.
-
 :::
 
 Once authenticated, Katta Server is mounted as a location (for example *Katta – demo.katta.cloud*).
