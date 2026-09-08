@@ -89,6 +89,8 @@ For local testing, the `demo` profile in the [Docker Compose Configuration File]
 brings up Katta Server, Keycloak, and MinIO together with a matching set of storage-profile and setup JSON files under
 [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/).
 
+* [One-Stop Shop Demo with Docker Compose](https://github.com/shift7-ch/katta-clientlib#one-stop-shop-demo-with-docker-compose)
+
 ### Configuration
 
 See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
