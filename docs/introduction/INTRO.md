@@ -27,7 +27,7 @@ This documentation only covers the Katta-specific parts going beyond the upstrea
 
 This documentation contains, in increasing level of technical depth:
 
-* [How Katta Differs from Cryptomator Hub](COMPARISON.md) — what Katta adds on top of the upstream projects
+* [Why Katta?](COMPARISON.md) — what Katta adds compared to bare cloud storage
 * [Katta Overview](OVERVIEW.md) — concepts: vaults, S3 modes, storage profiles, roles
 * [Storage Provider Setup](setup/SERVER_SETUP.md) — connect Katta Server to AWS or MinIO
 * [Katta Desktop Setup](setup/DESKTOP_CLIENT.md) — install Katta Desktop on macOS or Windows
