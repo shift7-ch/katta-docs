@@ -85,7 +85,7 @@ bootstrap), `postgres` and `minio` (can be disabled to use external services, e.
 
 ### Docker Compose
 
-For local testing, [docker-compose-hub-keycloak-minio.yml](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml)
+For local testing, the `demo` profile in the [Docker Compose Configuration File](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml)
 brings up Katta Server, Keycloak, and MinIO together with a matching set of storage-profile and setup JSON files under
 [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/).
 
