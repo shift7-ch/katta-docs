@@ -6,15 +6,13 @@ sidebar_position: 2
 
 ## Deploy Katta as a Cloud Storage Solution
 
-:::info Cryptomator
-
+:::info[Cryptomator]
 The Cryptomator ecosystem provides:
 
 * *Client-side Data Encryption*: data is encrypted in the client only, never on the server; data is always encrypted before it leaves the local machine.
   Even with access to the stored encrypted data, an attacker cannot decrypt the plaintext without access to the data keys.
 * *Zero-Knowledge Key Management*: key material is uploaded to the server only in end-to-end-encrypted fashion.
   Even with access to the stored encrypted keys, an attacker cannot decrypt the data keys without access to the key encryption keys.
-
 :::
 
 Organizations run Katta instead of a hosted file-sync service:

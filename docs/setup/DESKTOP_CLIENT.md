@@ -23,7 +23,7 @@ See the [Katta Overview](../arch/OVERVIEW.md) for a conceptual overview.
 
 :::
 
-:::info Prerequisite
+:::info[Prerequisite]
 
 This page assumes a running Katta Server [setup](SERVER_SETUP.md) with at least one storage profile configured, and a user account
 with the `create-vault` role.
@@ -130,11 +130,9 @@ it here to unlock your key pair on this device.
 </TabItem>
 </Tabs>
 
-:::info Authorized Devices
-
+:::info[Authorized Devices]
 You can review the apps and devices authorized with your Account Key on your profile page in Katta Web. See
 [Flow to retrieve user keys](../arch/ARCHITECTURE.md#flow-to-retrieve-user-keys) for what happens behind the scenes.
-
 :::
 
 ## Create a new vault
@@ -182,10 +180,8 @@ _Windows screenshot pending._
 Katta Desktop creates the storage bucket, uploads the encrypted vault template, and registers the vault keys with Katta Server
 (encrypted on your computer).
 
-:::info Share Vault
-
+:::info[Share Vault]
 You become the vault owner and can share the vault with other Katta users from Katta Web.
-
 :::
 
 ## Add files to a vault
@@ -196,9 +192,7 @@ bucket in the background; opening a file downloads and decrypts it on demand.
 
 ![Windows Explorer](../img/desktop/windows/desktop-windows-explorer.png)
 
-:::info Zero-knowledge, end-to-end encrypted
-
+:::info[Zero-knowledge, end-to-end encrypted]
 Everything you put in a vault is encrypted on your computer before it is uploaded, and decrypted again only on the computer of a
 vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See the [Security Architecture](../arch/SECURITY.md) and [E2E-Encrypted Data Sync](../arch/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
-
 :::
