@@ -199,13 +199,6 @@ bucket in the background; opening a file downloads and decrypts it on demand.
 :::info Zero-knowledge, end-to-end encrypted
 
 Everything you put in a vault is encrypted on your computer before it is uploaded, and decrypted again only on the computer of a
-vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext.
-
-Neither Katta Server nor the storage provider ever holds the vault keys or sees plaintext: Katta Server stores the vault metadata
-only as a JWE, and the bucket stores only encrypted objects. A Katta Server administrator, an infrastructure operator, or the
-storage provider therefore cannot read your data.
-
-See the [Security Architecture](../arch/SECURITY.md) and
-[E2E-Encrypted Data Sync](../introduction/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
+vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See the [Security Architecture](../arch/SECURITY.md) and [E2E-Encrypted Data Sync](../introduction/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
 
 :::
