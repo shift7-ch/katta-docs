@@ -29,12 +29,12 @@ Katta consists of the following components and sub-components:
     * Katta (Server) Backend
     * Keycloak
 
-Katta Desktop Client is based on
+Katta Desktop is based on
 
 * [Mountain Duck](https://mountainduck.io/) (macOS and Windows native parts, closed source),
 * [Katta Client Library](https://github.com/shift7-ch/katta-clientlib) (open source), which is based on [Cyberduck](https://cyberduck.io/) (open source),
 
-and Katta Web Client and Katta Server are based on
+and Katta Web and Katta Server are based on
 
 * [Cryptomator Hub](https://github.com/cryptomator/hub/) (open source).
 
@@ -75,7 +75,7 @@ Katta currently supports two modes for both S3 providers:
 * **Static Storage Access Mode**: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
   the frontend.
 * **STS Storage Access Mode**: use STS to have fine-grained permissions;
-  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server or Katta Desktop Client creates the bucket and uploads the vault template;
+  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
   - storage access: only vault users can access storage.
 
 If you want to use Static Storage Access mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
@@ -222,24 +222,24 @@ The following diagram illustrates the flow of actions to create a vault in the t
 
 
 
-## Comparison Katta Web Client and Katta Desktop Client
+## Comparison of Katta Web and Katta Desktop
 
 The following table captures the current state of implemented features:
 
-| Feature                                      | Katta Web Client | Katta Desktop Client |
-|----------------------------------------------|------------------|----------------------|
-| Create Vault with S3 Static Access Tokens    | ✅[^1]           | ✅                   |
-| Create Vault with S3 Temporary Access Tokens | ✅               | ✅                   |
-| List Vaults                                  | ✅               | ✅                   |
-| Decrypt Vault Contents                       | ❌               | ✅                   |
-| Manual Access Grant                          | ✅               | ❌                   |
-| Automatic Access Grant                       | ❌               | ✅                   |
-| View Storage Profiles Details                | ✅               | ❌                   |
-| Initial Setup creating User Keys             | ✅               | ✅                   |
-| View/Reset Setup Code                        | ✅               | ❌                   |
-| Manage Signature Chains (Web of Trust)       | ✅               | ❌                   |
-| Share vault with Members or Owners           | ✅               | ❌                   |
-| Archive Vaults                               | ✅               | ❌                   |
+| Feature                                     | Katta Web | Katta Desktop |
+|---------------------------------------------|-----------|---------------|
+| Create Vault with S3Static Access Tokens    | ✅[^1]    | ✅            |
+| Create Vault with S3Temporary Access Tokens | ✅        | ✅            |
+| List Vaults                                 | ✅        | ✅            |
+| Decrypt Vault Contents                      | ❌        | ✅            |
+| Manual Access Grant                         | ✅        | ❌            |
+| Automatic Access Grant                      | ❌        | ✅            |
+| View Storage Profiles Details               | ✅        | ❌            |
+| Initial Setup creating User Keys            | ✅        | ✅            |
+| View/Reset Setup Code                       | ✅        | ❌            |
+| Manage Signature Chains (Web of Trust)      | ✅        | ❌            |
+| Share vault with Members or Owners          | ✅        | ❌            |
+| Archive Vaults                              | ✅        | ❌            |
 
 [^1]: Conceptually, the only limitation is that a browser cannot create a bucket and configure its CORS settings in one shot, since S3 does not offer bucket
 creation and CORS configuration as a joint operation. Hence, in _Static Storage Access Mode_ the Web Client can only use pre-existing, CORS-configured buckets, while in _STS Storage Access Mode_

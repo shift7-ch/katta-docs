@@ -43,6 +43,18 @@
   padding: 0.75rem;
 }
 
+/* Application screenshots have wildly different native sizes (dialogs vs. full
+   windows). Render them all at the same width regardless of aspect ratio. */
+.markdown img[src*='desktop-macos-'],
+.markdown img[src*='desktop-windows-'] {
+  display: block;
+  width: 600px;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem 0;
+  border-radius: 6px;
+}
+
 /* Light mode only background and surface tokens */
 [data-theme='light'] {
   --ifm-background-color: #f7fafc;
