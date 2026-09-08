@@ -47,11 +47,10 @@ Open the `.zip` or `.dmg` and drag **Katta.app** into your *Applications* folder
 
 Open the `.msix` package and follow the wizard.
 
+![Install Katta Desktop](../img/desktop/windows/desktop-windows-download-install.png)
+
 </TabItem>
 </Tabs>
-
-For the general client interface, the menu bar / tray icon, and file synchronization behavior, see the
-[Mountain Duck Help](https://docs.mountainduck.io/mountainduck/).
 
 ## Authenticate with Katta Server
 
@@ -66,7 +65,7 @@ _Open Connection…_ from the Katta Desktop menu and enter the server hostname.
 </TabItem>
 <TabItem value="windows" label="Windows">
 
-_Windows screenshot pending._
+![Katta Desktop connection prompt](../img/desktop/windows/desktop-windows-connection.png)
 
 </TabItem>
 </Tabs>
@@ -110,7 +109,7 @@ a password manager), tick **I stored my Account Key securely**, and select **Fin
 </TabItem>
 <TabItem value="windows" label="Windows">
 
-_Windows screenshot pending._
+![Account Key dialog in Katta Desktop](../img/desktop/windows/desktop-windows-account-key.png)
 
 </TabItem>
 </Tabs>
@@ -126,7 +125,7 @@ it here to unlock your key pair on this device.
 </TabItem>
 <TabItem value="windows" label="Windows">
 
-_Windows screenshot pending._
+![New device dialog in Katta Desktop](../img/desktop/windows/desktop-windows-new-device.png)
 
 </TabItem>
 </Tabs>
@@ -140,6 +139,12 @@ You can review the apps and devices authorized with your Account Key on your pro
 
 ## Create a new vault
 
+:::info Katta Web
+
+Alternatively, creating a new vault in Katta Web is also supported.
+
+:::
+
 Once authenticated, Katta Server is mounted as a location (for example *Katta – demo.katta.cloud*).
 
 **1. Add a new vault.** Open the Katta location, secondary-click (right-click) an empty area, and choose **New Encrypted Vault…**.
@@ -152,7 +157,7 @@ Once authenticated, Katta Server is mounted as a location (for example *Katta �
 </TabItem>
 <TabItem value="windows" label="Windows">
 
-_Windows screenshot pending._
+![New Encrypted Vault context menu](../img/desktop/windows/desktop-windows-new-vault.png)
 
 </TabItem>
 </Tabs>
@@ -188,6 +193,8 @@ You become the vault owner and can share the vault with other Katta users from K
 The vault appears as a folder inside the Katta location. Work with it like any other folder: drag files and folders into it in
 Finder on macOS or File Explorer on Windows, or save into it from an application. Katta Desktop syncs the contents to the vault's S3
 bucket in the background; opening a file downloads and decrypts it on demand.
+
+![Windows Explorer](../img/desktop/windows/desktop-windows-explorer.png)
 
 :::info Zero-knowledge, end-to-end encrypted
 
