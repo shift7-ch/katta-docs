@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Fail if pnpm-lock.yaml references any source outside the npm registry.
 #
+# pnpm 12 writes the lockfile as two YAML documents: the first pins the
+# pnpm binary itself (packageManagerDependencies), the second holds the
+# project's dependencies. `yq ea` evaluates both in one pass, so a single
+# array comes back and both documents get the same scrutiny.
+#
 # pnpm-lock.yaml v9 stores only an integrity hash for registry packages —
 # tarball/git/github/file/link/workspace URLs only appear when a dependency
 # was deliberately resolved from a non-registry source. Spotting any of
@@ -25,7 +30,7 @@ fi
 # Check 1: every packages.*.resolution must contain only the "integrity"
 # key. Any other key (tarball, repo, directory, type, commit, url, path)
 # means the resolution points at a non-registry source.
-bad_resolutions=$(yq '
+bad_resolutions=$(yq ea '
   [.packages // {} | to_entries[]
    | select(.value.resolution | keys - ["integrity"] | length > 0)
    | .key]
@@ -35,7 +40,7 @@ bad_resolutions=$(yq '
 # range, not a non-registry protocol.
 BAD_PROTOCOL_REGEX='^(git\+|git://|github:|file:|link:|workspace:|https?://)'
 
-bad_specs=$(REGEX="$BAD_PROTOCOL_REGEX" yq '
+bad_specs=$(REGEX="$BAD_PROTOCOL_REGEX" yq ea '
   [.importers // {} | .. | (.specifier? // "") | select(test(strenv(REGEX)))]
   + [.importers // {} | .. | (.version? // "") | select(test(strenv(REGEX)))]
 ' "$LOCK_FILE")
