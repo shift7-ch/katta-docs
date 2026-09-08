@@ -106,8 +106,8 @@ Keycloak client.
    asks Katta Server to perform an OAuth 2.0 Token Exchange with Keycloak (targeting the `cryptomatorvaults` client) and returns a
    scoped access token. See [Token Management](TOKENS.md).
 6. **Temporary storage credentials (STS Storage Access Mode only).** The client calls `AssumeRoleWithWebIdentity` on the STS API with
-   the OIDC ID token to obtain temporary S3 tokens, optionally followed by a second `AssumeRole` for role chaining. In _Static Storage
-   Access Mode_ this step is skipped and the S3 static access tokens come from the vault metadata instead.
+   the exchanged, vault-scoped access token to obtain temporary S3 tokens, optionally followed by a second `AssumeRole` for role
+   chaining. In _Static Storage Access Mode_ this step is skipped and the S3 static access tokens come from the vault metadata instead.
 7. **Storage access.** The client talks to the S3 API directly, authenticating requests with AWS4-HMAC-SHA256.
 8. **Vault unlock.** The client retrieves the per-member vault access token
    (`GET /api/vaults/{vaultId}/access-token`, a JWE) and the vault UVF metadata (`GET /api/vaults/{vaultId}`). It decrypts the access
@@ -178,7 +178,7 @@ sequenceDiagram
     opt : AssumeRoleWithWebIdentity
         participant sts as STS API Server
         client ->>+ sts: Retrieve Temporary Tokens
-        Note over client, sts: Assume role with OIDC Id token
+        Note over client, sts: Assume role with exchanged, vault-scoped access token
         sts ->>- client: STS Tokens
         opt : AssumeRole
             client ->>+ sts: Retrieve Temporary Tokens

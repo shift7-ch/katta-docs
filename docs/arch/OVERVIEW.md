@@ -113,7 +113,7 @@ The contents of `vault.uvf` come from the following sources:
 ### Katta Roles
 
 * Katta User: the [`user`](https://docs.cryptomator.org/hub/user-group-management/#roles) role allows to login to Katta Server Frontend
-* Katta Vault Creator: [`create-vault`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users allowed to create vault in Katta Server
+* Katta Vault Creator: [`create-vaults`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users allowed to create vault in Katta Server
 * Katta Admin: [`admin`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users have administrative permissions in the Katta Server Frontend /
   Katta Server Backend API, they can configure the Katta Server and they can
   upload storage profiles.
@@ -178,7 +178,7 @@ In words:
   Admins upload storage profiles via the backend API and can inspect them in the Web Client.
 * To create a vault in _Static Storage Access Mode_ in Katta Web, a bucket first needs to be created manually ([AWS console](https://aws.amazon.com/console/)
   or [AWS CLI](https://aws.amazon.com/cli/)) with the correct bucket CORS settings (see [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)).
-* A Katta user (role `create-vault`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
+* A Katta user (role `create-vaults`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
   Vault Owner.
 * Finally, Katta Client verifies the configuration and uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
 

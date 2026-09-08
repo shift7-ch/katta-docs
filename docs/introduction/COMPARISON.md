@@ -34,8 +34,8 @@ Organizations run Katta instead of a hosted file-sync service:
   account store to maintain.
 * **Access control that follows membership.** In _STS Storage Access Mode_, vault membership is mirrored to Keycloak and clients
   exchange their OIDC token ([RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html)) for short-lived S3 credentials scoped to a
-  single vault's bucket (AWS STS or MinIO STS, with role chaining). No component holds standing storage credentials, and removing a
-  member revokes their storage access. See [Katta Token Management](arch/TOKENS.md).
+  single vault's bucket (AWS STS or MinIO STS; AWS additionally uses role chaining). No component holds standing storage
+  credentials, and removing a member revokes their storage access. See [Katta Token Management](arch/TOKENS.md).
 * **No extra sync subscription or client.** Katta Desktop (based on [Mountain Duck](https://mountainduck.io/)) mounts vaults natively
   on macOS and Windows with synchronization built in. Your only recurring cost is the S3 storage and traffic you would pay anyway —
   there is no per-seat or per-gigabyte markup on top.
@@ -51,7 +51,7 @@ See [Storage Provider Setup](setup/SERVER_SETUP.md) to connect Katta Server to A
 [Desktop Setup](setup/DESKTOP_CLIENT.md) to roll out Katta Desktop to users.
 
 
-# Comparison with Cryptomator Hub and Mountain Duck
+## Comparison with Cryptomator Hub and Mountain Duck
 
 Mountain Duck provides interoperable access to Cryptomator Vaults in any storage location, including S3-compatible object storage. Katta adds the following features beyond client-side data encryption and zero knowledge key management of Cryptomator Hub:
 

@@ -81,7 +81,7 @@ helm install katta oci://ghcr.io/shift7-ch/charts/katta-server \
 Key values sections: `urls` (public hostnames for Hub, Keycloak, and the S3 API — `urls.s3.public` must be a dedicated host served
 at the root), `ingress` (`nginx` or `traefik`, TLS), `hub` (database connection, admin credentials, telemetry), `keycloak` (realm
 bootstrap), `postgres` and `minio` (can be disabled to use external services, e.g. via `hub.database.jdbcUrl`). See the
-[chart README](https://github.com/shift7-ch/katta-server/chart) for the complete values reference.
+[chart README](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/README.md) for the complete values reference.
 
 ### Docker Compose
 
@@ -177,8 +177,9 @@ match the prefix used in the IAM policies.
 Alternatively, creating storage profiles in Katta Web is also supported for users with the admin role.
 :::
 
-Once the profile exists, users with the `create-vault` role can create vaults for it: Katta Server provisions the S3 bucket on the fly
-and hands out short-lived STS credentials scoped to that single bucket. The command prints the created profile as JSON.
+Once the profile exists, users with the `create-vaults` role can create vaults for it. The client obtains short-lived bucket-creation
+credentials from AWS STS with its OIDC access token. Katta Desktop then creates the bucket itself; in Katta Web the browser hands
+those credentials to Katta Server, which creates the bucket on the user's behalf. The command prints the created profile as JSON.
 
 :::info
 Authentication uses the browser-based Authorization Code flow unless `--accessToken` is supplied.
@@ -245,8 +246,7 @@ Requires MinIO admin credentials, passed with `--accessKey` / `--secretKey`.
 :::info
 Because the MinIO Client (`mc`) API is incomplete ([minio/minio#16151](https://github.com/minio/minio/issues/16151)), `katta setup
 minio` does **not** register the OIDC providers itself. It prints the `mc alias set`, `mc idp openid add` (one provider per client,
-named `${roleNamePrefix}${clientId}`) and `mc admin service restart` commands for you to run against the MinIO server. See
-[Setup MinIO](#setup-minio-1) below for the manual `mc` steps.
+named `${roleNamePrefix}${clientId}`) and `mc admin service restart` commands for you to run against the MinIO server.
 :::
 
 ```bash
@@ -265,7 +265,12 @@ Create an STS storage profile. Pass the endpoint URL and the three role ARNs fro
   (`stsRoleAccessBucketAssumeRoleTaggedSession`, `stsSessionTag`) are left unset.
 
 ```bash
-katta storageprofile minio sts
+export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
+export MINIO_URL=[your MinIO URL, e.g. http://localhost:9000]
+katta storageprofile minio sts --hubUrl "${HUB_URL}" --name "MinIO S3 STS" --endpointUrl "${MINIO_URL}" --region "us-east-1" \
+  --stsRoleCreateBucketClient "arn:minio:iam:::role/…" \
+  --stsRoleCreateBucketHub "arn:minio:iam:::role/…" \
+  --stsRoleAccessBucket "arn:minio:iam:::role/…"
 ```
 
 ### MinIO S3 Storage Profile for Static Access Mode
@@ -273,5 +278,5 @@ katta storageprofile minio sts
 Create a static storage profile for a MinIO endpoint reached with long-lived access keys.
 
 ```bash
-katta storageprofile s3 static
+katta storageprofile s3 static --hubUrl "${HUB_URL}" --name "MinIO S3 Static" --endpointUrl "${MINIO_URL}" --region "us-east-1"
 ```

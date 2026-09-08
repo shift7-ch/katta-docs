@@ -26,12 +26,12 @@ See the [Katta Overview](../arch/OVERVIEW.md) for a conceptual overview.
 :::info[Prerequisite]
 
 This page assumes a running Katta Server [setup](SERVER_SETUP.md) with at least one storage profile configured, and a user account
-with the `create-vault` role.
+with the `create-vaults` role.
 
 :::
 
 The screenshots are shown per platform in **macOS** / **Windows** tabs; the selected platform is remembered across the page.
-_Windows screenshots are still pending._
+_Two Windows screenshots are still pending._
 
 ## Install Katta Desktop
 
@@ -98,16 +98,20 @@ After a successful sign-in the browser passes the authorization code back to Kat
 The first time you authenticate on a device, Katta Desktop handles your **Account Key** — a high-entropy secret that protects your
 personal key pair and lets you recover it on other apps, browsers, and devices. Katta Server never sees the Account Key.
 
-**New user.** Katta Desktop generates the Account Key and pre-fills a device name. Copy the Account Key to a safe place (for example
-a password manager), tick **I stored my Account Key securely**, and select **Finish Setup**.
+**New user.** Katta Desktop generates the Account Key. Copy it to a safe place, for example a password manager. Then confirm the
+dialog:
 
 <Tabs groupId="os" queryString>
 <TabItem value="macos" label="macOS">
+
+Tick **I stored my Account Key securely**, then select **Finish Setup**.
 
 ![Account Key dialog in Katta Desktop](../img/desktop/macos/desktop-macos-account-key.png)
 
 </TabItem>
 <TabItem value="windows" label="Windows">
+
+Enter a device name. Keep **Save Password** ticked, then select **Login**.
 
 ![Account Key dialog in Katta Desktop](../img/desktop/windows/desktop-windows-account-key.png)
 
@@ -143,7 +147,8 @@ Alternatively, creating a new vault in Katta Web is also supported.
 
 Once authenticated, Katta Server is mounted as a location (for example *Katta – demo.katta.cloud*).
 
-**1. Add a new vault.** Open the Katta location, secondary-click (right-click) an empty area, and choose **New Encrypted Vault…**.
+**1. Add a new vault.** Open the Katta location and secondary-click (right-click) an empty area. On macOS, choose
+**New Encrypted Vault…**. On Windows, choose **Katta** and then **New Encrypted Vault…**.
 
 <Tabs groupId="os" queryString>
 <TabItem value="macos" label="macOS">

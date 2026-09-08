@@ -70,7 +70,7 @@ only transports and stores the resulting JWE — it cannot grant itself (or anyo
 
 The remaining attack surface is key substitution: a malicious server could serve a forged public key for a user. Katta mitigates this with the Web of
 Trust inherited from Cryptomator Hub: user key pairs include an ECDSA P-384 signing key, and users can verify each other's keys, building signature
-chains that are checked before access is granted (managed in the Web Client; see the feature comparison in the [Katta Overview](OVERVIEW.md#comparison-katta-web-client-and-katta-desktop-client)).
+chains that are checked before access is granted (managed in the Web Client; see the feature comparison in the [Katta Overview](OVERVIEW.md#comparison-of-katta-web-and-katta-desktop)).
 Automatic Access Grant runs on vault owners' clients: a scheduler periodically checks for members awaiting access and grants it by encrypting the member
 key to their public key — client-side, like any manual grant. When the vault's `maxWotDepth` is configured (`org.cryptomator.automaticAccessGrant` in the
 vault metadata), a candidate's public key is only accepted if it carries a signature chain that verifies against the granting owner's own signing key and
