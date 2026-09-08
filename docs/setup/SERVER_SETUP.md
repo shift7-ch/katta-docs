@@ -89,6 +89,10 @@ For local testing, [docker-compose-hub-keycloak-minio.yml](https://github.com/sh
 brings up Katta Server, Keycloak, and MinIO together with a matching set of storage-profile and setup JSON files under
 [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/).
 
+### Configuration
+
+See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
+
 ## Storage Provider Setup
 
 Supported storage backend configurations are:
@@ -202,28 +206,6 @@ katta storageprofile aws static --hubUrl "${HUB_URL}" --name "AWS S3 Static" --r
 For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 static` instead, which additionally requires `--endpointUrl`.
 :::
 
-## Setup MinIO
-
-#### OIDC Provider and Roles
-
-`katta setup minio` prepares the MinIO server so Keycloak-issued tokens can be exchanged for temporary S3 credentials:
-
-:::info
-Only required for _STS Storage Access Mode_.
-:::
-
-### MinIO S3 Storage Profile for STS Access Mode
-
-Run `katta storageprofile minio sts` to create a STS storage profile. Pass the endpoint URL and the three role ARNs from `mc idp openid ls` (one each for
-  the `cryptomator`, `cryptomatorhub` and `cryptomatorvaults` clients). MinIO scopes bucket access per vault through the
-  `${jwt:client_id}` policy variable and does not support role chaining or tagged sessions, so the AWS-only fields
-  (`stsRoleAccessBucketAssumeRoleTaggedSession`, `stsSessionTag`) are left unset.
-
-### MinIO S3 Storage Profile for Static Access Mode
-
-Run `katta storageprofile s3 static` to create a static storage profile for a MinIO endpoint reached with long-lived access keys.
-
-
 ### Setup MinIO
 
 Documentation
@@ -232,212 +214,62 @@ Documentation
 * [MinIO Client Reference `mc idp openid`](https://min.io/docs/minio/linux/reference/minio-mc/mc-idp-openid.html)
 * [MinIO Security Token Service `AssumeRoleWithWebIdentity`](https://min.io/docs/minio/linux/developers/security-token-service/AssumeRoleWithWebIdentity.html)
 
-```
-minio server data --console-address :9001
-```
-
-Or containerized:
-
-```
-export MINIO_ROOT_USER=
-export MINIO_ROOT_PASSWORD=
-export MINIO_API_CORS_ALLOW_ORIGIN=[your Katta Server origin, e.g. https://katta.example.com]
-docker run -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=$MINIO_ROOT_USER -e MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD -e MINIO_API_CORS_ALLOW_ORIGIN=$MINIO_API_CORS_ALLOW_ORIGIN quay.io/minio/minio server /data --console-address ":9001"
-```
-
-Side-note: MinIO does not support the bucket CORS API,
-see [MinIO - Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operations/concepts/thresholds.html#unsupported-s3-bucket-apis)
-and [FAQ & Troubleshooting](TROUBLESHOOTING.md#minio-setting-cors-on-a-bucket-does-not-work).
-
-#### Policy and OIDC provider for MinIO
+#### Policy and OIDC Provider
 
 Add a role for creating buckets with prefix `katta` and uploading the vault template (`vault.uvf` and the root directory objects), as well as read/write
 access to buckets through the `client_id` claim in the JWT token.
 
-Side-note: MinIO does not allow for multiple OIDC providers with the same client ID:
-
-```
-mc: <ERROR> Unable to add OpenID IDP config to server. Client ID XYZ is present with multiple OpenID configurations.
-```
-
-This is not a problem as we leave the claim specifying the vault unset or pointing to a non-existing vault.
-
-```shell
-mc alias set myminio http://127.0.0.1:9000 minioadmin minioadmin
-mc admin policy create myminio kattacreatebucket setup/local/minio_sts/create_bucket_policy.json
-mc admin policy create myminio kattaaccessbucket setup/local/minio_sts/access_bucket_policy.json
-```
-
-Add a new OIDC provider, vault creation and vault access policy in MinIO:
-
-```shell
-WELL_KNOWN=https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration
-#WELL_KNOWN=http://localhost:8180/realms/cryptomator/.well-known/openid-configuration
-mc idp openid add myminio cryptomator \
-    config_url="$WELL_KNOWN" \
-    client_id="cryptomator" \
-    client_secret="ignore-me" \
-    role_policy="kattacreatebucket"
-mc idp openid add myminio cryptomatorhub \
-    config_url="$WELL_KNOWN" \
-    client_id="cryptomatorhub" \
-    client_secret="ignore-me" \
-    role_policy="kattacreatebucket"    
-mc idp openid add myminio cryptomatorvaults \
-    config_url="$WELL_KNOWN" \
-    client_id="cryptomatorvaults" \
-    client_secret="ignore-me" \
-    role_policy="kattaaccessbucket"    
-mc admin service restart myminio
-```
-
-Extract the policy ARN:
-
-```shell
-mc idp openid ls myminio 
-╭──────────────────────────────────────────────────────────────────────────╮
-│ On?        Name                             RoleARN                      │
-│ 🔴           (default)                                                   │
-│ 🟢         cryptomator  arn:minio:iam:::role/IqZpDC5ahW_DCAvZPZA4ACjEnDE │
-│ 🟢      cryptomatorhub  arn:minio:iam:::role/HGKdlY4eFFsXVvJmwlMYMhmbnDE │
-│ 🟢   cryptomatorvaults  arn:minio:iam:::role/Hdms6XDZ6oOpuWYI3gu4gmgHN94 │
-╰──────────────────────────────────────────────────────────────────────────╯
-
-
- mc idp openid info myminio cryptomator
-╭─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│    client_id: cryptomator                                                                               │
-│client_secret: ignore-me                                                                                 │
-│   config_url: https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration │
-│       enable: on                                                                                        │
-│      roleARN: arn:minio:iam:::role/IqZpDC5ahW_DCAvZPZA4ACjEnDE                                          │
-│  role_policy: kattacreatebucket                                                                    │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-
-```
-
-### Hub configuration
-
-See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
-
-## Appendix: Manual Setup without Katta Admin CLI (deprecated)
-
-:::warning Deprecated
-
-The following sections describe the manual setup that the [Katta Admin CLI](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme)
-now automates. They are kept for reference.
-
+:::info
+Only required for _STS Storage Access Mode_.
 :::
 
-### Setup AWS: OIDC provider
+`katta setup minio` prepares the MinIO server so Keycloak-issued tokens can be exchanged for temporary S3 credentials. It reads the
+Keycloak URL, realm and client IDs from `${hubUrl}/api/config` and then creates (or updates) two MinIO policies via the MinIO Admin API:
+* a **bucket creation** policy (`--createBucketPolicyName`, default `katta-createbucketpolicy`) allowing `s3:CreateBucket` and
+  versioning/policy reads on `arn:aws:s3:::katta-*` plus `s3:PutObject` for the vault template (`katta-*/*/` and `katta-*/*.uvf`),
+  restricted to the configured bucket prefix;
+* a **bucket access** policy (`--accessBucketPolicyName`, default `katta-accessbucketpolicy`) granting read/write on
+  `arn:aws:s3:::katta-${jwt:client_id}`. MinIO scopes bucket access per vault through the `${jwt:client_id}` policy variable and
+  does not support role chaining or tagged sessions.
 
-Documentation: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html
+:::tip
+It is idempotent — re-run it to pick up policy changes.
+:::
 
-```shell
-openssl s_client -servername keycloak.example.com -showcerts -connect keycloak.example.com:443 > keycloak.example.com.crt
+:::tip
+Requires MinIO admin credentials, passed with `--accessKey` / `--secretKey`.
+:::
 
-vi keycloak.example.com.crt ...
-(remove the irrelevant parts from the chain)
+:::info
+Because the MinIO Client (`mc`) API is incomplete ([minio/minio#16151](https://github.com/minio/minio/issues/16151)), `katta setup
+minio` does **not** register the OIDC providers itself. It prints the `mc alias set`, `mc idp openid add` (one provider per client,
+named `${roleNamePrefix}${clientId}`) and `mc admin service restart` commands for you to run against the MinIO server. See
+[Setup MinIO](#setup-minio-1) below for the manual `mc` steps.
+:::
 
-cat keycloak.example.com.crt
------BEGIN CERTIFICATE-----
-MIIGBDCC...(certificate body omitted)...
------END CERTIFICATE-----
-
-
-openssl x509 -in keycloak.example.com.crt -fingerprint -sha1 -noout | sed -e 's/://g' | sed -e 's/[Ss][Hh][Aa]1 [Ff]ingerprint=//'
-BE21B29075BF9F3265353F8B85208A8981DAEC2A
-
-aws iam create-open-id-connect-provider --url https://keycloak.example.com/realms/cryptomator --client-id-list cryptomator cryptomatorhub  --thumbprint-list BE21B29075BF9F3265353F8B85208A8981DAEC2A
-{
-    "OpenIDConnectProviderArn": "arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator1"
-}
-
-aws iam list-open-id-connect-providers
-
-aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator
-{
-    "Url": "keycloak.example.com/realms/cryptomator",
-    "ClientIDList": [
-        "cryptomatorhub",
-        "cryptomator"
-    ],
-    "ThumbprintList": [
-        "a053375bfe84e8b748782c7cee15827a6af5a405"
-    ],
-    "CreateDate": "2023-11-13T13:51:32.729000+00:00",
-    "Tags": []
-}
+```bash
+export MINIO_ROOT_USER=
+export MINIO_ROOT_PASSWORD=
+export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
+export MINIO_URL=[your MinIO URL, e.g. http://localhost:9000]
+katta setup minio --hubUrl "${HUB_URL}" --endpointUrl "${MINIO_URL}" --accessKey "${MINIO_ROOT_USER}" --secretKey "${MINIO_ROOT_PASSWORD}"
 ```
 
-### Setup AWS: roles
+### MinIO S3 Storage Profile for STS Access Mode
 
-1. Add role for creating buckets with prefix `katta` and uploading `vault.uvf`.
-2. Adapt OIDC provider in trust policy and bucket prefix in permission policy. 
-3. Add roles for role chaining, adapt OIDC provider in trust policy and bucket prefix in permission policy.
+Create an STS storage profile. Pass the endpoint URL and the three role ARNs from `mc idp openid ls` (one each for
+  the `cryptomator`, `cryptomatorhub` and `cryptomatorvaults` clients). MinIO scopes bucket access per vault through the
+  `${jwt:client_id}` policy variable and does not support role chaining or tagged sessions, so the AWS-only fields
+  (`stsRoleAccessBucketAssumeRoleTaggedSession`, `stsSessionTag`) are left unset.
 
-```shell
-aws iam create-role --role-name katta-createbucket --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/createbuckettrustpolicy.json
-aws iam put-role-policy --role-name katta-createbucket --policy-name katta-createbucket --policy-document file://src/main/resources/katta/setup/aws_sts/createbucketpermissionpolicy.json
-
-
-aws iam create-role --role-name katta_chain_01 --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_01_trustpolicy.json
-aws iam put-role-policy --role-name katta_chain_01 --policy-name katta_chain_01 --policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_01_permissionpolicy.json
-
-sleep 10;
-
-aws iam create-role --role-name katta_chain_02 --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_02_trustpolicy.json
-aws iam put-role-policy --role-name katta_chain_02 --policy-name katta_chain_02 --policy-document file://src/main/resources/katta/setup/aws_sts/katta_chain_02_permissionpolicy.json
+```bash
+katta storageprofile minio sts
 ```
 
-Checking roles:
+### MinIO S3 Storage Profile for Static Access Mode
 
-```shell
-aws iam get-role --role-name katta-createbucket
-aws iam get-role-policy --role-name katta-createbucket --policy-name katta-createbucket
+Create a static storage profile for a MinIO endpoint reached with long-lived access keys.
+
+```bash
+katta storageprofile s3 static
 ```
-
-```shell
-TOKEN=`curl -v -X POST https://keycloak.example.com/realms/cryptomator/protocol/openid-connect/token \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "client_id=cryptomator" \
-     -d "scope=openid" \
-     -d "grant_type=password" \
-     -d "username=admin" \
-     -d "password=$PASSWORD"    | jq ".id_token" | tr -d '"'`
-
-jwtd $TOKEN
-aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::**************:role/katta-createbucket" --role-session-name="blabla" --web-identity-token $TOKEN
-```
-
-### Hub configuration (manual AWS setup)
-
-See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The  configured prefix must match the ones configured in the AWS/MinIO setup. Take the role ARNs from the AWS/MinIO setup.
-
-#### Upload storage profiles
-
-You need to be a hub admin user. If direct access grant is enabled:
-
-```shell
-export HUB_API_BASE=http://localhost:8080/api
-export ACCESS_TOKEN=`curl -v -X POST http://localhost:8180/realms/cryptomator/protocol/openid-connect/token \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "client_id=cryptomator" \
-     -d "grant_type=password" \
-     -d "username=admin" \
-     -d "password=admin" | jq ".access_token" | tr -d '"'`
-# Single polymorphic endpoint; the storage profile type is selected by the "protocol" discriminator
-# ("S3STS" or "S3STATIC") in the request body. The server assigns the "id".
-curl -X POST $HUB_API_BASE/storageprofile -d @setup/minio_sts/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl -X POST $HUB_API_BASE/storageprofile -d @setup/minio_static/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl -X POST $HUB_API_BASE/storageprofile -d @setup/aws_sts/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl -X POST $HUB_API_BASE/storageprofile -d @setup/aws_static/storage_profile.json -v  -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
-curl  $HUB_API_BASE/storageprofile -H "Authorization: Bearer $ACCESS_TOKEN"
-```
-
-Else, use [hub-cli](https://github.com/cryptomator/hub-cli) to get the access token with Authorization Code flow:
-
-```shell
-hub login --client-id=cryptomator authorization-code --api-base $HUB_API_BASE | tee ACCESS_TOKEN.txt; export ACCESS_TOKEN=$(cat ACCESS_TOKEN.txt| tail -1)
-```
-
