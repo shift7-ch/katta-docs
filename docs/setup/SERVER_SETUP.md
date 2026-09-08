@@ -1,177 +1,182 @@
 ---
 id: server-setup
-title: Storage Provider Setup
+title: Server Setup
 sidebar_position: 1
 ---
 
-# Storage Provider Setup
+# Server Setup
 
 :::note
-
-This document describes step-by-step how to set up Katta Server integration with a storage provider, covering:
+This document describes step-by-step how to set up Katta Server including the configuration of a storage provider, covering:
 
 * Storage providers: MinIO and AWS
 * Modes: Static and STS Storage Access Mode.
   See the [Katta Overview](arch/OVERVIEW.md) for a conceptual overview.
-
 :::
 
-:::info Prerequisite
+## Deploying Katta Server
 
-This page assumes a running Katta Server (backend, web frontend, and Keycloak). Deploying Katta Server itself follows the upstream
-[Cryptomator Hub setup](https://docs.cryptomator.org/hub/); see [katta-terraform](https://github.com/shift7-ch/katta-terraform)
-for a full AWS deployment example.
+Katta Server (backend, web frontend, and Keycloak) is deployed independently of the storage provider integration described on the
+rest of this page. Its configuration follows the upstream [Cryptomator Hub setup](https://docs.cryptomator.org/hub/); the following
+options are available:
 
+:::note
+A managed Katta Server, hosted and maintained by shift7 GmbH, is not currently available. Katta Server must be self-hosted using one
+of the options below.
 :::
 
-## TL;DR
+### Terraform (AWS)
 
-Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme)
+[katta-terraform](https://github.com/shift7-ch/katta-terraform) provisions a complete Katta Server deployment on AWS: VPC and
+networking, Application Load Balancers, an ECS cluster running Keycloak and the Katta Server backend, RDS PostgreSQL databases,
+Route53 records and ACM certificates, and an ECR pull-through cache for the container images.
+
+Prerequisites: a domain registered in AWS Route53, Docker, and the AWS CLI with configured credentials. Deployment parameters
+(`dns_suffix`, database passwords, client secrets, `github_token`, …) are supplied as `TF_VAR_*` environment variables or a
+`terraform.tfvars` file.
 
 ```bash
-export PATH=$PATH:[your location of katta cli executable]
-katta --help
-#Usage: katta [-h] [-V] [COMMAND]
-#  -h, --help      Show this help message and exit.
-#  -V, --version   Print version information and exit.
-#Commands:
-#  setup           Setup Storage Provider Integration
-#  storageprofile  Configure Storage Location
-#  accesstoken     Get access token using authorization code flow.
-#  completion      Generate a bash completion script for the katta CLI.
-#  help            Display help information about the specified command.
+terraform workspace new katta
+terraform init
+terraform validate
+terraform plan
+terraform apply --auto-approve
 ```
 
-## Overview
+Tear the deployment down with `terraform destroy --auto-approve` (note the 7-day grace period on AWS Secrets Manager deletions).
 
-The following diagram illustrates the flow of actions to setup Katta Server in both modes:
+See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full variable reference and for example CSP and
+`application.properties` settings ([ecs.tf](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf)).
 
-![Activity diagram: Katta Server setup in Static and STS Storage Access Mode](../img/overview/ServerSetup.drawio.png)
+### Helm chart (Kubernetes)
 
-In words: to be able to use the uploaded storage profiles, the following actions need to be taken:
+The [katta-server](https://github.com/shift7-ch/katta-server) repository ships a Helm chart, published as an OCI artifact at
+`ghcr.io/shift7-ch/charts/katta-server`. It deploys the Katta Server backend (required) and, enabled by default, Keycloak and
+PostgreSQL; a bundled MinIO can optionally be enabled for demos. Chart signatures can be verified with `cosign`.
 
-* for _Static Storage Access Mode_, we do S3 calls from the Web Client to upload the vault template. Hence, CSP settings need to be set correctly matching the endpoints of the
-  storage profile. Contact your Katta Server admin running Katta Web. The configuration options can be found
-  in [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). See
-  also [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for full examples.
-* for STS, the trust and roles need to be configured in IAM of the S3 provider. See below for details.
-  See [connect-external-iam](https://docs.cryptomator.org/hub/user-group-management/#connect-external-iam) on how to connect with external IAM.
+Local demo on a single-node cluster (kind, minikube, k3d, Docker Desktop) with the bundled MinIO, using the `values-demo.yaml` from
+a checkout of the repository:
 
-Common pitfalls (mostly CORS-related) are collected in [FAQ & Troubleshooting](TROUBLESHOOTING.md).
+```bash
+minikube addons enable ingress
+helm install katta chart \
+  --namespace katta \
+  --create-namespace \
+  -f chart/values-demo.yaml
+```
 
-## Setup AWS with Katta Admin CLI
+Production deployment behind an existing ingress controller:
+
+```bash
+helm install katta oci://ghcr.io/shift7-ch/charts/katta-server \
+  --namespace katta \
+  --create-namespace \
+  --wait --timeout 5m \
+  --set urls.hub.public=https://hub.example.com \
+  --set urls.kc.public=https://kc.example.com \
+  --set ingress.controller=traefik \
+  --set hub.admin.password=changeme
+```
+
+Key values sections: `urls` (public hostnames for Hub, Keycloak, and the S3 API — `urls.s3.public` must be a dedicated host served
+at the root), `ingress` (`nginx` or `traefik`, TLS), `hub` (database connection, admin credentials, telemetry), `keycloak` (realm
+bootstrap), `postgres` and `minio` (can be disabled to use external services, e.g. via `hub.database.jdbcUrl`). See the
+[chart README](https://github.com/shift7-ch/katta-server/chart) for the complete values reference.
+
+### Docker Compose
+
+For local testing, [docker-compose-hub-keycloak-minio.yml](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml)
+brings up Katta Server, Keycloak, and MinIO together with a matching set of storage-profile and setup JSON files under
+[setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/).
+
+## Storage Provider Setup
+
+Supported storage backend configurations are:
+
+- **Static Storage Access Mode** AWS S3 or generic S3-compatible provider accessed using static access keys
+- **STS Storage Access Mode** AWS S3 accessed using AWS Security Token Service (STS) or MinIO issuing temporary access keys from OIDC access token obtained by user from Keycloak identity provider (OIDC).
+
+### Katta Admin CLI Usage
+
+Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme) to configure a Katta Server including its S3 storage backend. Use `--help` to print available commands.
+
+```bash
+katta --help
+Usage: katta [-h] [-V] [COMMAND]
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+Commands:
+  setup           Setup Storage Provider Integration
+  storageprofile  Configure Storage Location
+  accesstoken     Get access token using authorization code flow.
+  completion      Generate a bash completion script for the katta CLI.
+  help            Display help information about the specified command.
+```
+
+Run `--help` on commands for the full option list:
+
+```shell
+katta storageprofile minio sts --help
+katta storageprofile s3 static --help
+```
+
+### Setup AWS
 
 Setting up AWS as a storage provider takes two steps: configure the AWS-side trust and roles (only for _STS Storage Access Mode_), then
 upload a matching storage profile to Katta Server. Run the steps in this order — the storage profile references the roles created in
 the first step.
 
-### Setup AWS: OIDC provider and roles
+#### OIDC Provider and Roles
 
-Only required for _STS Storage Access Mode_. `katta setup aws` prepares the AWS account so Keycloak-issued tokens can be exchanged for
+:::info
+Only required for _STS Storage Access Mode_.
+:::
+
+`katta setup aws` prepares the AWS account so Keycloak-issued tokens can be exchanged for
 temporary S3 credentials:
 
 * registers (or updates) the Keycloak realm as an OpenID Connect identity provider in AWS IAM for the `cryptomator`, `cryptomatorhub`
   and `cryptomatorvaults` clients, refreshing the TLS thumbprints;
 * creates the IAM roles and policies for **bucket creation** (restricted to the configured bucket prefix) and for **bucket access**
-  via role chaining with tagged sessions (restricted to a single vault's bucket).
+  via role chaining with tagged sessions, restricted to a single S3 bucket used for the vault.
 
-It is idempotent — re-run it to pick up renewed Keycloak TLS certificates or policy changes. It needs AWS credentials with IAM
-permissions in the environment (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN`, or an AWS profile). The command
-prints the equivalent `aws iam …` calls it performs.
+:::tip
+It is idempotent — re-run it to pick up renewed Keycloak TLS certificates or policy changes.
+:::
+
+:::tip
+Requires AWS credentials with IAM permissions in the environment (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, or an AWS profile).
+:::
+
+:::tip
+The `katta` command prints the equivalent `aws iam …` for the API calls it performs.
+:::
 
 ```bash
-export AWS_ACCESS_KEY_ID=[your aws credentials]
-export AWS_SECRET_ACCESS_KEY=[your aws credentials]
-export AWS_SESSION_TOKEN=[your aws credentials]
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+export AWS_SESSION_TOKEN=
 export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.example.com/realms/cryptomator]
-katta "setup" "aws" "--realmUrl" "${REALM_URL}"
-#Trying environment credentials providerListOpenIdConnectProvidersResponse(OpenIDConnectProviderList=[OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.example.com/kc/realms/chipotle), OpenIDConnectProviderListEntry(Arn=arn:aws:iam::**************:oidc-provider/testing.example.com/kc/realms/tamarind)])
-#arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator
-#aws iam create-role --role-name katta-create-bucket --assume-role-policy-document file://...
-#{
-#  "Version" : "2012-10-17",
-#  "Statement" : {
-#    "Effect" : "Allow",
-#    "Principal" : {
-#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator"
-#    },
-#    "Action" : "sts:AssumeRoleWithWebIdentity"
-#  }
-#}
-#aws iam put-role-policy --role-name katta-create-bucket --policy-name katta-create-bucket --policy-document file://...
-#{
-#  "Version" : "2012-10-17",
-#  "Statement" : [ {
-#    "Effect" : "Allow",
-#    "Action" : [ "s3:CreateBucket", "s3:GetBucketPolicy", "s3:PutBucketVersioning", "s3:GetBucketVersioning", "s3:GetAccelerateConfiguration", "s3:PutAccelerateConfiguration", "s3:GetEncryptionConfiguration", "s3:PutEncryptionConfiguration" ],
-#    "Resource" : "arn:aws:s3:::katta-*"
-#  }, {
-#    "Effect" : "Allow",
-#    "Action" : "s3:PutObject",
-#    "Resource" : [ "arn:aws:s3:::katta-*/*/", "arn:aws:s3:::katta-*/*.uvf" ]
-#  } ]
-#}
-#aws iam create-role --role-name katta-access-bucket-web-identity-role --assume-role-policy-document file://...
-#{
-#  "Version" : "2012-10-17",
-#  "Statement" : {
-#    "Effect" : "Allow",
-#    "Principal" : {
-#      "Federated" : "arn:aws:iam::**************:oidc-provider/keycloak.example.com/realms/cryptomator"
-#    },
-#    "Action" : [ "sts:AssumeRoleWithWebIdentity", "sts:TagSession" ]
-#  }
-#}
-#aws iam put-role-policy --role-name katta-access-bucket-web-identity-role --policy-name katta-access-bucket-web-identity-role --policy-document file://...
-#{
-#  "Version" : "2012-10-17",
-#  "Statement" : {
-#    "Effect" : "Allow",
-#    "Action" : [ "sts:AssumeRole", "sts:TagSession" ],
-#    "Resource" : "arn:aws:iam::**************:role/katta-access-bucket-tagged-session-role"
-#  }
-#}
-#aws iam create-role --role-name katta-access-bucket-tagged-session-role --assume-role-policy-document file://...
-#{
-#  "Version" : "2012-10-17",
-#  "Statement" : {
-#    "Effect" : "Allow",
-#    "Principal" : {
-#      "AWS" : "arn:aws:iam::**************:role/katta-access-bucket-web-identity-role"
-#    },
-#    "Action" : [ "sts:AssumeRole", "sts:TagSession" ],
-#    "Condition" : {
-#      "ForAnyValue:StringEquals" : {
-#        "sts:TransitiveTagKeys" : "${aws:RequestTag/Vault}"
-#      }
-#    }
-#  }
-#}
-#aws iam put-role-policy --role-name katta-access-bucket-tagged-session-role --policy-name katta-access-bucket-tagged-session-role --policy-document file://...
-#{
-#  "Version" : "2012-10-17",
-#  "Statement" : [ {
-#    "Effect" : "Allow",
-#    "Action" : [ "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads", "s3:GetBucketVersioning", "s3:ListBucketVersions" ],
-#    "Resource" : "arn:aws:s3:::katta-${aws:PrincipalTag/Vault}"
-#  }, {
-#    "Effect" : "Allow",
-#    "Action" : [ "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListMultipartUploadParts", "s3:AbortMultipartUpload" ],
-#    "Resource" : "arn:aws:s3:::katta-${aws:PrincipalTag/Vault}/*"
-#  } ]
-#}
+katta setup aws --realmUrl "${REALM_URL}"
 ```
 
-### Setup AWS: STS storage profile
+### AWS S3 Storage Profile for STS Access Mode
 
 Uploads an STS storage profile to Katta Server (requires the `admin` role). The command derives the role ARNs from `--awsAccountId`
 and `--roleNamePrefix` (default `katta-`), so they must match the roles created by `katta setup aws`. `--region` is the region
 pre-selected in the client, `--regions` the list of regions a vault creator may choose from; `--bucketPrefix` (default `katta-`) must
 match the prefix used in the IAM policies.
 
+:::tip
+Alternatively, creating storage profiles in Katta Web is also supported for users with the admin role.
+:::
+
 Once the profile exists, users with the `create-vault` role can create vaults for it: Katta Server provisions the S3 bucket on the fly
-and hands out short-lived STS credentials scoped to that single bucket. Authentication uses the browser-based Authorization Code flow
-unless `--accessToken` is supplied. The command prints the created profile as JSON.
+and hands out short-lived STS credentials scoped to that single bucket. The command prints the created profile as JSON.
+
+:::info
+Authentication uses the browser-based Authorization Code flow unless `--accessToken` is supplied.
+:::
 
 ```bash
 export REALM_URL=[your Keycloak realm URL, e.g. https://keycloak.example.com/realms/cryptomator]
@@ -179,31 +184,10 @@ export TOKEN_URL=${REALM_URL}/protocol/openid-connect/token
 export AUTH_URL=${REALM_URL}/protocol/openid-connect/auth
 export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
 export AWS_ACCOUNT_ID=[your AWS Account ID]
-katta "storageprofile" "aws" "sts" "--tokenUrl" "${TOKEN_URL}" "--authUrl" "${AUTH_URL}" "--hubUrl" "${HUB_URL}" "--name" "AWS S3 STS" "--awsAccountId" "${AWS_ACCOUNT_ID}" "--region" "eu-central-1" "--regions" "eu-central-1"
-#Please login on REALM_URL/protocol/openid-connect/auth?response_type=code&state=RpFS8LGiFNcERvJ_&client_id=cryptomator&code_challenge_method=S256&code_challenge=wco4JVUg6pA-BMV_PFEJu7Xb1LgglADHUPP3VLb2rIc&redirect_uri=http%3A%2F%2F127.0.0.1%3A59468%2F6cn7pzR43drFgn-r
-# The created storage profile is printed as JSON. The server assigns the "id".
-#{
-#  "id" : "29109070-8807-470c-8f28-61ac3eece4ca",
-#  "name" : "AWS S3 STS",
-#  "protocol" : "S3STS",
-#  "archived" : false,
-#  "endpoint" : null,
-#  "pathStyleAccessEnabled" : false,
-#  "storageClass" : "STANDARD",
-#  "region" : "eu-central-1",
-#  "regions" : [ "eu-central-1" ],
-#  "bucketPrefix" : "katta-",
-#  "stsRoleCreateBucketClient" : "arn:aws:iam::**************:role/katta-create-bucket",
-#  "stsRoleCreateBucketHub" : "arn:aws:iam::**************:role/katta-create-bucket",
-#  "stsEndpoint" : null,
-#  "stsRoleAccessBucketAssumeRoleWithWebIdentity" : "arn:aws:iam::**************:role/katta-access-bucket-web-identity-role",
-#  "stsRoleAccessBucketAssumeRoleTaggedSession" : "arn:aws:iam::**************:role/katta-access-bucket-tagged-session-role",
-#  "stsDurationSeconds" : null,
-#  "stsSessionTag" : "Vault"
-#}
+katta storageprofile aws sts --tokenUrl "${TOKEN_URL}" --authUrl "${AUTH_URL}" --hubUrl "${HUB_URL}" --name "AWS S3 STS" --awsAccountId "${AWS_ACCOUNT_ID}" --region "eu-central-1" --regions "eu-central-1"
 ```
 
-### Setup AWS: static storage profile
+### AWS S3 Storage Profile for Static Access Mode
 
 Uploads a static storage profile to Katta Server (requires the `admin` role). _Static Storage Access Mode_ needs no OIDC provider or
 IAM roles — S3 is reached with long-lived access keys that the vault creator supplies when creating the vault. Use this for an
@@ -211,52 +195,34 @@ existing bucket, or when STS is not an option. `--region`/`--regions` and `--buc
 profile. The command prints the created profile as JSON.
 
 ```bash
-katta "storageprofile" "aws" "static" "--hubUrl" "${HUB_URL}" "--name" "AWS S3 Static" "--region" "eu-west-1" "--regions" "eu-west-1" "--regions" "eu-west-2" "--regions" "eu-west-3"
-#Please login on ${AUTH_URL}?code_challenge=kD0HEjaJ-epu_GN7-Pf6NE6f7EDvTl1vvt77cFulssM&code_challenge_method=S256&client_id=cryptomator&state=DgHh0TPhlQtge0gb&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A65298%2F_joIZopLjbkANf-F
-# The created storage profile is printed as JSON. The server assigns the "id".
-#{
-#  "id" : "5755b607-373c-44af-af7d-63f6776bb8f0",
-#  "name" : "AWS S3 Static",
-#  "protocol" : "S3STATIC",
-#  "archived" : false,
-#  "endpoint" : null,
-#  "pathStyleAccessEnabled" : false,
-#  "storageClass" : "STANDARD",
-#  "region" : "eu-west-1",
-#  "regions" : [ "eu-west-1", "eu-west-2", "eu-west-3" ],
-#  "bucketPrefix" : "katta-"
-#}
+katta storageprofile aws static --hubUrl "${HUB_URL}" --name "AWS S3 Static" --region "eu-west-1" --regions "eu-west-1" --regions "eu-west-2" --regions "eu-west-3"
 ```
 
+:::tip
 For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 static` instead, which additionally requires `--endpointUrl`.
+:::
 
-## Setup MinIO storage profile with Katta Admin CLI
+## Setup MinIO
 
-MinIO is configured directly in MinIO rather than through the CLI (see [Setup MinIO](#setup-minio) below), so there is no
-`katta setup minio` equivalent of `katta setup aws`. The CLI only uploads the storage profile:
+#### OIDC Provider and Roles
 
-* `katta storageprofile minio sts` — STS profile. Pass the endpoint URL and the three role ARNs from `mc idp openid ls` (one each for
+`katta setup minio` prepares the MinIO server so Keycloak-issued tokens can be exchanged for temporary S3 credentials:
+
+:::info
+Only required for _STS Storage Access Mode_.
+:::
+
+### MinIO S3 Storage Profile for STS Access Mode
+
+Run `katta storageprofile minio sts` to create a STS storage profile. Pass the endpoint URL and the three role ARNs from `mc idp openid ls` (one each for
   the `cryptomator`, `cryptomatorhub` and `cryptomatorvaults` clients). MinIO scopes bucket access per vault through the
   `${jwt:client_id}` policy variable and does not support role chaining or tagged sessions, so the AWS-only fields
   (`stsRoleAccessBucketAssumeRoleTaggedSession`, `stsSessionTag`) are left unset.
-* `katta storageprofile s3 static` — static profile for a MinIO endpoint reached with long-lived access keys.
 
-Run `--help` on either command for the full option list:
+### MinIO S3 Storage Profile for Static Access Mode
 
-```shell
-katta storageprofile minio sts --help
-katta storageprofile s3 static --help
-```
+Run `katta storageprofile s3 static` to create a static storage profile for a MinIO endpoint reached with long-lived access keys.
 
-see also [README](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme).
-
-## Setup MinIO without Katta Admin CLI
-
-
-
-A full working example with MinIO can be found
-in [docker-compose-hub-keycloak-minio.yml](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml).
-The json files can be found under [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/)
 
 ### Setup MinIO
 
@@ -354,7 +320,7 @@ mc idp openid ls myminio
 
 See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
 
-## Appendix: Setup without the Katta Admin CLI (deprecated)
+## Appendix: Manual Setup without Katta Admin CLI (deprecated)
 
 :::warning Deprecated
 
@@ -406,8 +372,9 @@ aws iam get-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam:
 
 ### Setup AWS: roles
 
-Add role for creating buckets with prefix `katta` and uploading `vault.uvf`, adapt OIDC provider in trust
-policy and bucket prefix in permission policy. Add roles for role chaining, adapt OIDC provider in trust policy and bucket prefix in permission policy.
+1. Add role for creating buckets with prefix `katta` and uploading `vault.uvf`.
+2. Adapt OIDC provider in trust policy and bucket prefix in permission policy. 
+3. Add roles for role chaining, adapt OIDC provider in trust policy and bucket prefix in permission policy.
 
 ```shell
 aws iam create-role --role-name katta-createbucket --assume-role-policy-document file://src/main/resources/katta/setup/aws_sts/createbuckettrustpolicy.json
@@ -445,30 +412,7 @@ aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::**************:ro
 
 ### Hub configuration (manual AWS setup)
 
-See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The
-configured prefix must match the ones configured in
-the AWS/MinIO setup. Take the role ARNs from the AWS/MinIO setup.
-
-### AWS cleanup
-
-```shell
-aws iam delete-role-policy --role-name katta-createbucket --policy-name katta-createbucket
-aws iam delete-role --role-name katta-createbucket 
-aws iam delete-role-policy --role-name katta_chain_01 --policy-name katta_chain_01
-aws iam delete-role --role-name katta_chain_01
-aws iam delete-role-policy --role-name katta_chain_02 --policy-name katta_chain_02
-aws iam delete-role --role-name katta_chain_02
-```
-
-### Storage profiles via the backend API
-
-#### API documentation
-
-See http://localhost:8080/q/openapi?format=json or http://localhost:8080/q/swagger-ui/
-
-#### Examples
-
-See [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup).
+See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties). The  configured prefix must match the ones configured in the AWS/MinIO setup. Take the role ARNs from the AWS/MinIO setup.
 
 #### Upload storage profiles
 
