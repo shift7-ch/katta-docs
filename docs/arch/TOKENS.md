@@ -1,7 +1,7 @@
 ---
 id: tokens
-title: Katta Token Management
-sidebar_position: 3
+title: Token Management
+sidebar_position: 4
 ---
 
 # Katta Token Management
@@ -9,7 +9,7 @@ sidebar_position: 3
 :::note
 
 This document describes the use of scoped tokens for storage access on an in-depth conceptual level.
-See the [Katta Overview](introduction/OVERVIEW.md) for a mid-level conceptual overview of Katta.
+See the [Katta Overview](OVERVIEW.md) for a mid-level conceptual overview of Katta.
 
 :::
 

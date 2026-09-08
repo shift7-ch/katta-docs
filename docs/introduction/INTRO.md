@@ -1,17 +1,17 @@
 ---
 id: intro
-title: Katta Introduction
+title: Introduction
 sidebar_position: 1
 ---
 
-# Katta Introduction
+# Introduction
 
 Katta brings zero-config storage management and zero-knowledge key management for teams and organizations.
 
 It easily integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
 As usual, your favorite cloud service remains your free choice [^1].
 
-[^1]: In Static Storage Access Mode, any S3-compatible provider works; STS Storage Access Mode currently supports AWS S3 and MinIO. See [Katta S3 Modes](OVERVIEW.md#katta-s3-modes).
+[^1]: In Static Storage Access Mode, any S3-compatible provider works; STS Storage Access Mode currently supports AWS S3 and MinIO. See [Katta S3 Modes](../arch/OVERVIEW.md#katta-s3-modes).
 
 Katta consists of Katta Server and Katta Desktop:
 
@@ -28,7 +28,7 @@ This documentation only covers the Katta-specific parts going beyond the upstrea
 This documentation contains, in increasing level of technical depth:
 
 * [Why Katta?](COMPARISON.md) — what Katta adds compared to bare cloud storage
-* [Katta Overview](OVERVIEW.md) — concepts: vaults, S3 modes, storage profiles, roles
+* [Katta Overview](../arch/OVERVIEW.md) — concepts: vaults, S3 modes, storage profiles, roles
 * [Storage Provider Setup](setup/SERVER_SETUP.md) — connect Katta Server to AWS or MinIO
 * [Katta Desktop Setup](setup/DESKTOP_CLIENT.md) — install Katta Desktop on macOS or Windows
 * [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md) — common pitfalls

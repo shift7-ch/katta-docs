@@ -19,7 +19,7 @@ This document describes step-by-step how to set up Katta Desktop on macOS or Win
 * Create a new vault
 * Add files to a vault
 
-See the [Katta Overview](../introduction/OVERVIEW.md) for a conceptual overview.
+See the [Katta Overview](../arch/OVERVIEW.md) for a conceptual overview.
 
 :::
 
@@ -199,6 +199,6 @@ bucket in the background; opening a file downloads and decrypts it on demand.
 :::info Zero-knowledge, end-to-end encrypted
 
 Everything you put in a vault is encrypted on your computer before it is uploaded, and decrypted again only on the computer of a
-vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See the [Security Architecture](../arch/SECURITY.md) and [E2E-Encrypted Data Sync](../introduction/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
+vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See the [Security Architecture](../arch/SECURITY.md) and [E2E-Encrypted Data Sync](../arch/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
 
 :::

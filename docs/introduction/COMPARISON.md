@@ -73,5 +73,5 @@ Mountain Duck provides interoperable access to Cryptomator Vaults in any storage
 | Desktop Sync                  | ✔️            | –               | ✅️                           |
 | Automatic Access Grant        | –             | –               | ✅️                           |
 
-See the [Katta Overview](OVERVIEW.md) for how these concepts fit together, and the [Glossary](GLOSSARY.md) for how Katta terms map to their upstream counterparts.
+See the [Katta Overview](../arch/OVERVIEW.md) for how these concepts fit together, and the [Glossary](GLOSSARY.md) for how Katta terms map to their upstream counterparts.
 

@@ -40,4 +40,4 @@ configuration files, tokens, and upstream documentation:
 | —                    | `cryptomatorvaults` (Keycloak client)                                                                            | Katta-specific client holding per-vault client scopes and roles; target of the token exchange. See [Token Management](arch/TOKENS.md). |
 
 The Keycloak realm roles `user`, `create-vault`, `admin`, and `syncer` are inherited from upstream as well — see
-[Katta Roles](OVERVIEW.md#katta-roles).
+[Katta Roles](../arch/OVERVIEW.md#katta-roles).

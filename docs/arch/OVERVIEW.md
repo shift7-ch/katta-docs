@@ -1,7 +1,7 @@
 ---
 id: overview
-title: Katta Overview
-sidebar_position: 3
+title: Overview
+sidebar_position: 1
 ---
 
 # Katta Overview
@@ -12,7 +12,7 @@ This document gives a mid-level technical overview over Katta usage scenarios.
 
 :::
 
-:::info Upstream reading
+:::tip Upstream reading
 
 This page builds on concepts from the upstream documentation:
 [vaults and vault management](https://docs.cryptomator.org/hub/vault-management/) in Cryptomator Hub and
@@ -230,7 +230,7 @@ Katta Server creates the bucket on its behalf. The Desktop Client is not affecte
 
 ## Glossary
 
-Terms used throughout this documentation are defined in the [Glossary](GLOSSARY.md), which also maps Katta terms to their upstream counterparts.
+Terms used throughout this documentation are defined in the [Glossary](../introduction/GLOSSARY.md), which also maps Katta terms to their upstream counterparts.
 
 ## Key Overview
 
