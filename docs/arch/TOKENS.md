@@ -296,9 +296,9 @@ In this way, only users with the corresponding client role get the claims requir
 ### Keycloak Realm Diff to Cryptomator Hub (aka. Upstream)
 
 The
-[baseline Katta Keycloak realm definition](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/dev-realm.json)
+[baseline Katta Keycloak realm definition](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/cryptomator-realm.json)
 has several differences to the
-corresponding [upstream Keycloak realm definition](https://github.com/cryptomator/hub/blob/main/backend/src/main/resources/dev-realm.json).
+corresponding [upstream Keycloak realm definition](https://github.com/cryptomator/hub/blob/develop/backend/src/main/resources/cryptomator-realm.json).
 
 | Diff                                                                                       | Motivation                                                                                                                                                                                                         |
 |--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
