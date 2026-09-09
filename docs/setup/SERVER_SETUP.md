@@ -133,6 +133,10 @@ katta storageprofile minio sts --help
 katta storageprofile s3 static --help
 ```
 
+:::note[Authentication]
+The `storageprofile` and `accesstoken` commands require the `admin` role. Make sure to log in with an admin user when prompted from the CLI to open the authorization URL. 
+:::
+
 ### Setup AWS
 
 Setting up AWS as a storage provider takes two steps: configure the AWS-side trust and roles (only for _STS Storage Access Mode_), then
