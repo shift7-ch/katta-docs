@@ -90,7 +90,7 @@ Note over Katta Client: { aud: "cryptomatorvaults", client_id: <vaultId> }
 Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
 Note over STS: IdP: client_id=cryptomatorvaults -> policy: ${jwt:client_id}
 STS -->> Katta Client: (10) AccessKeyId, SecretKey
-Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta<vaultId>/*"}
+Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta-<vaultId>/*"}
 else AWS STS
 Note over Katta Client: { "aud": "cryptomatorvaults", "https://aws.amazon.com/tags": {"principal_tags":{"<vaultId>":[""]},"TransitiveTagKeys":["<vaultId>"]}, ...}
 Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
@@ -99,7 +99,7 @@ Note over Katta Client: { Action: [sts:AssumeRole, sts:TagSession], Resource: "a
 Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta_chain_02", tag.name=VaultRequested, tag.value=<vaultId>)
 Note over STS: "Condition": { "ForAnyValue:StringEquals": { "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}" } }
 STS -->> Katta Client: (12) AccessKeyId, SecretKey
-Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta<vaultId>/*"}
+Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta-<vaultId>/*"}
 end
 Katta Client ->> S3: (13) /list-bucket
 

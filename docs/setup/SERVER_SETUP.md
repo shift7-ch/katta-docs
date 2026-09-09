@@ -219,7 +219,7 @@ Documentation
 
 #### Policy and OIDC Provider
 
-Add a role for creating buckets with prefix `katta` and uploading the vault template (`vault.uvf` and the root directory objects), as well as read/write
+Add a role for creating buckets with prefix `katta-` and uploading the vault template (`vault.uvf` and the root directory objects), as well as read/write
 access to buckets through the `client_id` claim in the JWT token.
 
 :::info
