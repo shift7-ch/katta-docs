@@ -1,10 +1,27 @@
 ---
-id: comparison
-title: Why Katta?
-sidebar_position: 2
+title: Introduction
+sidebar_position: 1
+description: What Katta is, what it consists of, and why an organization runs it instead of a hosted file-sync service.
 ---
 
-## Deploy Katta as a Cloud Storage Solution
+# Introduction
+
+Katta brings zero-config storage management and zero-knowledge key management for teams and organizations.
+
+It integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
+As usual, your favorite cloud service remains your free choice [^1].
+
+[^1]: In Static Storage Access Mode, any S3-compatible provider works; STS Storage Access Mode currently supports AWS S3 and MinIO. See [S3 Modes](concepts.md#s3-modes).
+
+Katta consists of Katta Server and Katta Desktop:
+
+* Katta Desktop is based on [Mountain Duck](https://mountainduck.io/) and [Katta Client Library](https://github.com/shift7-ch/katta-clientlib),
+* Katta Server is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).
+
+This documentation covers the Katta-specific parts only. The upstream documentation covers the rest:
+
+* [Cryptomator Documentation](https://docs.cryptomator.org/) — vault handling, Hub deployment, user and group management
+* [Mountain Duck Help](https://docs.mountainduck.io/mountainduck/) — client installation, interface, and file synchronization
 
 :::info[Cryptomator]
 The Cryptomator ecosystem provides:
@@ -14,6 +31,8 @@ The Cryptomator ecosystem provides:
 * *Zero-Knowledge Key Management*: key material is uploaded to the server only in end-to-end-encrypted fashion.
   Even with access to the stored encrypted keys, an attacker cannot decrypt the data keys without access to the key encryption keys.
 :::
+
+## Why Katta?
 
 Organizations run Katta instead of a hosted file-sync service:
 
@@ -25,7 +44,7 @@ Organizations run Katta instead of a hosted file-sync service:
   (AES-256-GCM and AES-SIV-512, per the open [Unified Vault Format](https://github.com/encryption-alliance/unified-vault-format)). A
   compromise of Katta Server, its database, its backups, or the storage bucket exposes only ciphertext and organizational metadata —
   never plaintext or key material. In _Static Storage Access Mode_ even the S3 credentials are end-to-end encrypted inside the vault
-  metadata. See the [Security Architecture](../arch/SECURITY.md) threat model.
+  metadata. See the threat model in [Security](architecture/security.md).
 * **Self-hosted, no third-party processor.** Katta Server (backend, Keycloak, and PostgreSQL, with an optional bundled MinIO for
   evaluation) ships as a Helm chart and runs in your own Kubernetes cluster or cloud account. Nothing outside your infrastructure
   sits in the path of your plaintext, and there is no external service to depend on for availability.
@@ -35,7 +54,7 @@ Organizations run Katta instead of a hosted file-sync service:
 * **Access control that follows membership.** In _STS Storage Access Mode_, vault membership is mirrored to Keycloak and clients
   exchange their OIDC token ([RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html)) for short-lived S3 credentials scoped to a
   single vault's bucket (AWS STS or MinIO STS; AWS additionally uses role chaining). No component holds standing storage
-  credentials, and removing a member revokes their storage access. See [Katta Token Management](../arch/TOKENS.md).
+  credentials, and removing a member revokes their storage access. See [Tokens](architecture/tokens.md).
 * **Sync client.** Katta Desktop (based on [Mountain Duck](https://mountainduck.io/)) mounts vaults natively
   on macOS and Windows with synchronization built in.
 * **Open and standards-based.** Katta Server and the [Katta Client Library](https://github.com/shift7-ch/katta-clientlib) are open
@@ -44,13 +63,9 @@ Organizations run Katta instead of a hosted file-sync service:
   black box.
 * **Governance and auditability.** A server operator can see the membership graph and audit-log events for compliance reporting,
   while remaining cryptographically unable to read vault contents. Vault owners hold recovery keys, and the
-  [Web of Trust](../arch/SECURITY.md#granting-access) guards against a malicious server substituting user keys.
+  [Web of Trust](architecture/security.md#granting-access) guards against a malicious server substituting user keys.
 
-See [Storage Provider Setup](../setup/SERVER_SETUP.md#storage-provider-setup) to connect Katta Server to AWS or MinIO, and
-[Desktop Setup](../setup/DESKTOP_CLIENT.md) to roll out Katta Desktop to users.
-
-
-## Comparison with Cryptomator Hub and Mountain Duck
+## What Katta adds to Cryptomator Hub and Mountain Duck
 
 Mountain Duck provides interoperable access to Cryptomator Vaults in any storage location, including S3-compatible object storage. Katta adds the following features beyond client-side data encryption and zero knowledge key management of Cryptomator Hub:
 
@@ -70,5 +85,12 @@ Mountain Duck provides interoperable access to Cryptomator Vaults in any storage
 | Desktop Sync                  | ✔️            | –               | ✅️                           |
 | Automatic Access Grant        | –             | –               | ✅️                           |
 
-See the [Katta Overview](../arch/OVERVIEW.md) for how these concepts fit together, and the [Glossary](GLOSSARY.md) for how Katta terms map to their upstream counterparts.
+## Where to go next
 
+* To use Katta, install [Katta Desktop](user-guide/desktop-setup.md) — see the [User Guide](user-guide/index.md).
+* To administer a Katta Server, read the [Admin Guide](admin-guide/index.md).
+* To run one yourself, read the [Self-Hosting Guide](self-hosting-guide/index.md).
+* To learn how it works internally, read [Architecture](architecture/index.md).
+
+Start with [Concepts](concepts.md) either way — every guide assumes its vocabulary. Unsure what a term
+means? Check the [Glossary](glossary.md), which also maps Katta terms to their upstream counterparts.

@@ -1,8 +1,8 @@
 {
   "label": "Architecture",
-  "position": 3,
+  "position": 6,
   "link": {
     "type": "doc",
-    "id": "arch/index"
+    "id": "architecture/index"
   }
 }

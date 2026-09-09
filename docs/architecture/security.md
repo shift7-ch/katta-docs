@@ -1,15 +1,15 @@
 ---
-id: security
-title: Security Architecture
-sidebar_position: 3
+title: Security
+sidebar_position: 4
+description: The cryptographic keys, what Katta Server stores, how access is granted, and the threat model.
 ---
 
-# Katta Security Architecture
+# Security
 
 :::note
 
 This document describes Katta's security model at a mid-level: the cryptographic keys, what the server stores, and what each party can and cannot
-access. For the token and IAM details of storage access control, see [Katta Token Management](TOKENS.md). For the file format cryptography, see the
+access. For the token and IAM details of storage access control, see [Tokens](tokens.md). For the file format cryptography, see the
 [Unified Vault Format (UVF) specification](https://github.com/encryption-alliance/unified-vault-format).
 
 :::
@@ -21,7 +21,7 @@ access. For the token and IAM details of storage access control, see [Katta Toke
 * **Zero-knowledge key management**: all secret key material on Katta Server is stored end-to-end encrypted. The server cannot decrypt it, and neither
   can anyone with access to its database or backups.
 * **Almost zero trust storage management**: Katta Server holds no storage credentials of its own. Where it acts on storage at all, it receives
-  short-lived, down-scoped credentials from the client (see [Tokens with Inline Policy](TOKENS.md#tokens-with-inline-policy-for-s3-bucket-creation-and-template-upload)).
+  short-lived, down-scoped credentials from the client (see [Tokens with Inline Policy](tokens.md#tokens-with-inline-policy-for-s3-bucket-creation-and-template-upload)).
 
 ## Key Overview
 
@@ -45,7 +45,7 @@ PBES2-HS512+A256KW (Account Key). In the bucket, file contents are encrypted wit
 [AES-SIV-512](https://github.com/encryption-alliance/unified-vault-format/blob/develop/file%20name%20encryption/AES-SIV-512-B64URL.md) —
 the `fileFormat: AES-256-GCM-32k` and `nameFormat: AES-SIV-512-B64URL` formats of the UVF specification.
 
-The retrieval flows for these keys (login, device setup, recovery) are shown in [Katta Architecture](ARCHITECTURE.md).
+The retrieval flows for these keys (login, device setup, recovery) are shown in [User Keys](user-keys.md).
 
 ## What Katta Server Stores
 
@@ -70,7 +70,7 @@ only transports and stores the resulting JWE — it cannot grant itself (or anyo
 
 The remaining attack surface is key substitution: a malicious server could serve a forged public key for a user. Katta mitigates this with the Web of
 Trust inherited from Cryptomator Hub: user key pairs include an ECDSA P-384 signing key, and users can verify each other's keys, building signature
-chains that are checked before access is granted (managed in the Web Client; see the feature comparison in the [Katta Overview](OVERVIEW.md#comparison-of-katta-web-and-katta-desktop)).
+chains that are checked before access is granted (managed in the Web Client; see the feature comparison in the [Concepts](../concepts.md#what-katta-web-and-katta-desktop-can-do)).
 Automatic Access Grant runs on vault owners' clients: a scheduler periodically checks for members awaiting access and grants it by encrypting the member
 key to their public key — client-side, like any manual grant. When the vault's `maxWotDepth` is configured (`org.cryptomator.automaticAccessGrant` in the
 vault metadata), a candidate's public key is only accepted if it carries a signature chain that verifies against the granting owner's own signing key and
@@ -83,7 +83,7 @@ Encryption protects confidentiality; storage access control additionally protect
 
 * _Static Storage Access Mode_: access to the bucket is controlled by the static S3 credentials, which are shared only inside the end-to-end encrypted `vault.uvf` vault metadata.
 * _STS Storage Access Mode_: vault membership is mirrored to Keycloak, and clients exchange their OIDC tokens for temporary S3 access tokens scoped to a single vault's
-  bucket. No component holds standing storage credentials. See [Katta Token Management](TOKENS.md) for the full flow.
+  bucket. No component holds standing storage credentials. See [Tokens](tokens.md) for the full flow.
 
 ## Threat Model Summary
 
@@ -100,6 +100,6 @@ access to — Katta's guarantees concern the server and infrastructure side.
 ## Further Reading
 
 * [Unified Vault Format specification](https://github.com/encryption-alliance/unified-vault-format) — file format cryptography
-* [Katta Token Management](TOKENS.md) — scoped tokens, IAM data models, inline policies
+* [Tokens](tokens.md) — scoped tokens, IAM data models, inline policies
 * [Cryptomator Hub security docs](https://docs.cryptomator.org/) and the upstream Security Architecture draft in
   [cryptomator/docs#55](https://github.com/cryptomator/docs/pull/55/files) — upstream foundations Katta builds on

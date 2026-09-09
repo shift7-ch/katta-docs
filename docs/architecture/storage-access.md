@@ -1,95 +1,12 @@
 ---
-id: architecture
-title: Architecture
-sidebar_position: 2
+title: Storage Access
+sidebar_position: 3
+description: How the client authenticates, obtains storage credentials, unlocks a vault, and syncs data end-to-end encrypted.
 ---
 
-# Katta Architecture
+# Storage Access
 
-:::note
-
-This document gives a mid-level overview of Katta Architecture through the two central client-side runtime flows: how the Katta
-Desktop Client retrieves the user's keys (first login, new device, and account recovery), and how it authenticates and accesses a
-vault's storage (OIDC login, token exchange, STS or static storage credentials, and vault unlock). Each diagram is followed by a
-step-by-step walkthrough.
-
-For the components and roles involved, see the [Katta Overview](OVERVIEW.md). For the cryptographic keys and the
-server's trust boundary, see the [Security Architecture](SECURITY.md); for scoped tokens and the storage IAM data model, see
-[Katta Token Management](TOKENS.md).
-
-:::
-
-## Flow to retrieve user keys
-
-This flow shows how the client obtains the user's private [user key pair](SECURITY.md) on a given device. The user key pair is
-generated once (at first login) and never leaves the client in plaintext; Katta Server only stores it as JWEs — one encrypted to each
-registered device key, and one encrypted with the [Account Key](SECURITY.md) for device-independent recovery.
-
-1. The user opens a connection. The session retrieves the user's account information from Katta API Server and looks in the local
-   password store (OS keychain) for a **device key** saved by a previous session.
-2. **A device key is available.** The client requests the device-specific user keys — the JWE encrypted to this device — from the
-   server.
-    * If the server responds `404 Not Found`, this device is not registered on the server. The session prompts for the Account Key,
-      recovers the user keys from the Account-Key–encrypted JWE, and uploads a fresh device-specific JWE.
-    * Otherwise the server returns the device JWE and the session decrypts it with the device key.
-3. **No device key is available** (new device, or the keychain entry was lost).
-    * If user keys already exist on the server, this is a new device: the session prompts for the Account Key and recovers the user
-      keys from the Account-Key–encrypted JWE.
-    * If no user keys exist on the server, this is a brand-new user: the session generates an Account Key, prompts for a device name,
-      generates the user key pair, and uploads it encrypted with the Account Key. The Account Key is shown to the user once and must be
-      stored safely (e.g. in a password manager).
-    * The session then generates a new device key, uploads a device-specific JWE of the user keys, and saves the device key to the
-      password store so subsequent sessions take the fast path in step 2.
-4. The session returns the decrypted user keys to the caller.
-
-```mermaid
-sequenceDiagram
-    actor user as User
-    activate user
-    participant session as Session
-    activate session
-    user ->> session: Open Connection
-    participant katta as Katta API Server
-    activate katta
-    session ->> katta: Retrieve user information
-    participant keychain as Password Store
-    session ->>+ keychain: Retrieve device keys
-    keychain ->>- session: Previously saved device key
-    alt Use saved device key
-        user ->> katta: Retrieve device specific user keys
-        opt : 404 Not found
-            Note over user, katta: Device key not found on server
-            session ->> user: Prompt for account key
-            user ->> session: Input account key
-            session ->> session: Recover user keys
-            session ->> katta: Upload device specific user keys
-        end
-        katta ->> session: Return device specific user keys
-        session ->> session: Decrypt with device key
-    else Device key not available
-        alt Recover user keys
-            Note over user, katta: Setting up new device
-            session ->> user: Prompt for account key
-            user ->> session: Input account key
-            session ->> session: Recover user keys
-        else No user keys stored on Katta Server
-            Note over user, katta: Setting up new user keys and account key
-            session ->> user: Generate account key and prompt for device name
-            user ->> session: Input device name
-            session ->> session: Generate user key pair
-            session ->> katta: Upload user keys with account key
-            session ->> session: Generate new device key
-        end
-        session ->> katta: Upload device specific user keys
-        session ->> keychain: Save device keys
-    end
-    session ->> user: Return user keys
-    deactivate katta
-    deactivate session
-    deactivate user
-```
-
-## Flow to authenticate and access vaults
+## Authenticating and Unlocking a Vault
 
 This flow shows the Katta Desktop Client from opening a connection to displaying an unlocked vault. It uses the `cryptomator`
 Keycloak client.
@@ -98,13 +15,13 @@ Keycloak client.
    configuration.
 2. **Authentication.** The client runs an OpenID Connect login against Keycloak, obtains the OIDC tokens (ID, access, refresh), and
    stores them in the local password store.
-3. **User keys.** The client runs the [Flow to retrieve user keys](#flow-to-retrieve-user-keys) described above to get the user's
+3. **User keys.** The client runs the [User Keys](user-keys.md) flow to get the user's
    private keys on this device.
 4. **Sync.** The client pulls the storage configurations (`GET /api/storageprofile`) and the vaults the user may access
    (`GET /api/vaults/accessible`).
 5. **Token refresh / exchange.** If the OIDC tokens have expired they are refreshed. When a vault-scoped token is required, the client
    asks Katta Server to perform an OAuth 2.0 Token Exchange with Keycloak (targeting the `cryptomatorvaults` client) and returns a
-   scoped access token. See [Token Management](TOKENS.md).
+   scoped access token. See [Tokens](tokens.md).
 6. **Temporary storage credentials (STS Storage Access Mode only).** The client calls `AssumeRoleWithWebIdentity` on the STS API with
    the exchanged, vault-scoped access token to obtain temporary S3 tokens, optionally followed by a second `AssumeRole` for role
    chaining. In _Static Storage Access Mode_ this step is skipped and the S3 static access tokens come from the vault metadata instead.
@@ -201,4 +118,44 @@ sequenceDiagram
     client ->>+ User: Display Vault
     deactivate client
 ```
+
+## E2E-Encrypted Data Sync
+
+The following diagram illustrates the interactions when Katta Client syncs data in a vault in *Static Storage Access Mode*:
+
+![Interaction diagram: data access in Static Storage Access Mode](../img/overview/DataAccessStatic_Interaction.drawio.png)
+
+In words:
+
+* `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint
+  etc.)), as well as the encryption keys; it is stored encrypted in Katta Server Backend.
+* With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
+
+The following diagram illustrates the interactions when Katta Client syncs data in a vault in _STS Storage Access Mode_:
+
+![Interaction diagram: data access in STS Storage Access Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
+
+In words:
+
+* `vault.uvf` (vault metadata) contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom
+  endpoint), as
+  well as the encryption keys; it is stored encrypted in Katta Server.
+* The OIDC access token that is used to communicate with Katta Server is exchanged for a token with vault-specific claims
+* When sent to STS, the vault-specific claims will be evaluated to issue temporary fine-grained S3 credentials giving access to the vault's bucket only
+* With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
+
+The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
+
+![Activity diagram: end-to-end-encrypted data sync](../img/overview/DataAccess_Activity.drawio.png)
+
+In words:
+
+* A user opens the vault in [Mountain Duck User Interface](https://docs.mountainduck.io/mountainduck/interface/)
+* If Katta Client does not have a valid OIDC access token, it refreshes it or starts
+  an [OIDC Authorization Code Grant Flow](https://www.rfc-editor.org/rfc/rfc6749#page-24), asking the user to authenticate in the browser against Keycloak to
+  issue a new access token.
+* `vault.uvf` (vault metadata) JWE is fetched from Katta Server Backend and
+* decrypted with the Vault Member Key; the keys for data encryption/decryption are extracted, and the access configuration is extracted and stored in
+  a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/).
+  The other actions directly correspond to the interactions described above.
 

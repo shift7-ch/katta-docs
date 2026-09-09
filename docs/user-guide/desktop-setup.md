@@ -1,7 +1,7 @@
 ---
-id: desktop-client-setup
 title: Desktop Setup
-sidebar_position: 2
+sidebar_position: 1
+description: Install Katta Desktop on macOS or Windows, sign in, set up your Account Key, and create your first vault.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -19,13 +19,13 @@ This document describes step-by-step how to set up Katta Desktop on macOS or Win
 * Create a new vault
 * Add files to a vault
 
-See the [Katta Overview](../arch/OVERVIEW.md) for a conceptual overview.
+See [Concepts](../concepts.md) for the vocabulary this page uses.
 
 :::
 
 :::info[Prerequisite]
 
-This page assumes a running Katta Server [setup](SERVER_SETUP.md) with at least one storage profile configured, and a user account
+This page assumes a running Katta Server with at least one [storage profile](../admin-guide/storage-profiles.md) configured, and a user account
 with the `create-vaults` role.
 
 :::
@@ -136,7 +136,7 @@ it here to unlock your key pair on this device.
 
 :::info[Authorized Devices]
 You can review the apps and devices authorized with your Account Key on your profile page in Katta Web. See
-[Flow to retrieve user keys](../arch/ARCHITECTURE.md#flow-to-retrieve-user-keys) for what happens behind the scenes.
+[User Keys](../architecture/user-keys.md) for what happens behind the scenes.
 :::
 
 ## Create a new vault
@@ -164,7 +164,7 @@ Once authenticated, Katta Server is mounted as a location (for example *Katta â€
 </Tabs>
 
 **2. Name it and choose a storage profile.** Enter a name for the vault and pick a **storage profile** from the dropdown. The list
-contains the storage locations your administrator configured (see [Storage Provider Setup](SERVER_SETUP.md#storage-provider-setup)); the value in
+contains the storage locations your administrator configured (see [Storage Profiles](../admin-guide/storage-profiles.md)); the value in
 parentheses is the region the bucket is created in. Select **Create Vault**.
 
 <Tabs groupId="os" queryString>
@@ -197,5 +197,5 @@ bucket in the background; opening a file downloads and decrypts it on demand.
 
 :::info[Zero-knowledge, end-to-end encrypted]
 Everything you put in a vault is encrypted on your computer before it is uploaded, and decrypted again only on the computer of a
-vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See the [Security Architecture](../arch/SECURITY.md) and [E2E-Encrypted Data Sync](../arch/OVERVIEW.md#e2e-encrypted-data-sync-in-static-and-sts-storage-access-modes) for details.
+vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See [Security](../architecture/security.md) and [E2E-Encrypted Data Sync](../architecture/storage-access.md#e2e-encrypted-data-sync) for details.
 :::
