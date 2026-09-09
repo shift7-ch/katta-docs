@@ -104,7 +104,14 @@ Supported storage backend configurations are:
 
 ### Katta Admin CLI Usage
 
-Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme) to configure a Katta Server including its S3 storage backend. Use `--help` to print available commands.
+Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme) to configure a Katta Server including its S3 storage backend. 
+
+#### Installation
+
+Follow the [installation instructions](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#installation) for macOS or Linux.
+
+#### Usage
+Use `--help` to print available commands.
 
 ```bash
 katta --help
