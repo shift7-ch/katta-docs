@@ -47,7 +47,7 @@ Organizations run Katta instead of a hosted file-sync service:
   while remaining cryptographically unable to read vault contents. Vault owners hold recovery keys, and the
   [Web of Trust](../arch/SECURITY.md#granting-access) guards against a malicious server substituting user keys.
 
-See [Storage Provider Setup](../setup/SERVER_SETUP.md) to connect Katta Server to AWS or MinIO, and
+See [Storage Provider Setup](../setup/SERVER_SETUP.md#storage-provider-setup) to connect Katta Server to AWS or MinIO, and
 [Desktop Setup](../setup/DESKTOP_CLIENT.md) to roll out Katta Desktop to users.
 
 

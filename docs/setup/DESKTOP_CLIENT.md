@@ -164,7 +164,7 @@ Once authenticated, Katta Server is mounted as a location (for example *Katta â€
 </Tabs>
 
 **2. Name it and choose a storage profile.** Enter a name for the vault and pick a **storage profile** from the dropdown. The list
-contains the storage locations your administrator configured (see [Storage Provider Setup](SERVER_SETUP.md)); the value in
+contains the storage locations your administrator configured (see [Storage Provider Setup](SERVER_SETUP.md#storage-provider-setup)); the value in
 parentheses is the region the bucket is created in. Select **Create Vault**.
 
 <Tabs groupId="os" queryString>

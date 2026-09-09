@@ -81,7 +81,7 @@ Katta Server Admins can define the storage profiles according to their infrastru
 another company uses a low-cost S3 provider supporting only _Static Storage Access Mode_,
 and yet another company has their own MinIO instance.
 
-See [Storage Provider Setup](../setup/SERVER_SETUP.md) for the configuration options.
+See [Storage Provider Setup](../setup/SERVER_SETUP.md#storage-provider-setup) for the configuration options.
 
 ### Unified Vault Format (UVF) and `vault.uvf` (Vault Metadata)
 

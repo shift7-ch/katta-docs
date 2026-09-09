@@ -29,7 +29,7 @@ This documentation contains, in increasing level of technical depth:
 
 * [Why Katta?](COMPARISON.md) — what Katta adds compared to bare cloud storage
 * [Katta Overview](../arch/OVERVIEW.md) — concepts: vaults, S3 modes, storage profiles, roles
-* [Storage Provider Setup](../setup/SERVER_SETUP.md) — connect Katta Server to AWS or MinIO
+* [Server Setup](../setup/SERVER_SETUP.md) — deploy Katta Server and configure storage in AWS or MinIO
 * [Katta Desktop Setup](../setup/DESKTOP_CLIENT.md) — install Katta Desktop on macOS or Windows
 * [FAQ & Troubleshooting](../setup/TROUBLESHOOTING.md) — common pitfalls
 * [Katta Architecture](../arch/ARCHITECTURE.md) — authentication and key retrieval flows

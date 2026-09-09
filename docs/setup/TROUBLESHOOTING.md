@@ -45,4 +45,4 @@ mc: <ERROR> Unable to add OpenID IDP config to server. Client ID XYZ is present 
 ```
 
 This is not a problem for Katta's setup: leave the claim specifying the vault unset or pointing to a non-existing vault.
-See [Storage Provider Setup](SERVER_SETUP.md#setup-minio) for the full MinIO configuration.
+See [Server Setup](SERVER_SETUP.md#setup-minio) for the full MinIO configuration.

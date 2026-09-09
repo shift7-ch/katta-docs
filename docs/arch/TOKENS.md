@@ -183,7 +183,7 @@ Web Client hands Katta Server temporary credentials that are:
 
 * **short-lived**: requested with the minimal `DurationSeconds` of 900 seconds,
 * **role-restricted**: issued for the create-bucket role of the storage profile, whose permission policy is limited to the configured bucket prefix
-  (see [Storage Provider Setup](../setup/SERVER_SETUP.md)),
+  (see [Storage Provider Setup](../setup/SERVER_SETUP.md#storage-provider-setup)),
 * **downscoped by an inline session policy** to exactly the new vault's bucket and the template objects.
 
 The effective permissions are the [intersection of the role's permission policy and the inline session policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session).
