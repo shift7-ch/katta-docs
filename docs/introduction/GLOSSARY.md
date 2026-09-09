@@ -38,6 +38,8 @@ configuration files, tokens, and upstream documentation:
 | —                    | `cryptomator` (Keycloak client)                                                                                  | OIDC client used by Katta Desktop and the Admin CLI.                                                                                   |
 | —                    | `cryptomatorhub` (Keycloak client)                                                                               | OIDC client used by Katta Web.                                                                                                         |
 | —                    | `cryptomatorvaults` (Keycloak client)                                                                            | Katta-specific client holding per-vault client scopes and roles; target of the token exchange. See [Token Management](../arch/TOKENS.md). |
+| —                    | `cryptomatorhub-system` (Keycloak client)                                                                        | Service account the Katta Server Backend uses to synchronize vault membership to Keycloak. Inherited from upstream.                    |
+| —                    | `cryptomatorhub-cli` (Keycloak client)                                                                           | Service account whose user is listed like a regular Katta user, so the Cryptomator CLI can be granted vault access. Inherited from upstream. |
 
-The Keycloak realm roles `user`, `create-vaults`, `admin`, and `syncer` are inherited from upstream as well — see
+The Keycloak realm roles `user`, `create-vaults` and `admin` are inherited from upstream as well — see
 [Katta Roles](../arch/OVERVIEW.md#katta-roles).

@@ -255,10 +255,12 @@ The vault template is encrypted on the user's machine before any upload; whoever
 
 ### Keycloak Data Model and Katta Server Backend to Keycloak Sync
 
-Upstream (Cryptomator Hub) uses realm roles for controlling access to backend services. Currently, there are `user`, `admin` , `create-vault` and `syncer`
-roles.
+Upstream (Cryptomator Hub) uses realm roles for controlling access to backend services. Currently, there are the `user`, `create-vaults` and `admin` roles.
 These roles must be in the `realm_access.roles` claim of the access token issued by the `cryptomator` and `cryptomatorhub` clients, as it is used to call the
 backend API.
+The privileged access that the Katta Server Backend needs for the synchronization described below does not come from a realm role: the backend
+authenticates as the `cryptomatorhub-system` service account client (`hub.keycloak.system-client-id`), which holds the `realm-management` client roles
+`realm-admin` and `view-system`. The client itself is inherited from upstream; Katta additionally grants it the `admin` realm role.
 Therefore, we use client roles added to client scopes instead of realm roles to control storage access to vaults.
 
 The following diagram shows the data model used in Keycloak:
@@ -295,22 +297,19 @@ In this way, only users with the corresponding client role get the claims requir
 
 ### Keycloak Realm Diff to Cryptomator Hub (aka. Upstream)
 
-The
-[baseline Katta Keycloak realm definition](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/cryptomator-realm.json)
-has several differences to the
-corresponding [upstream Keycloak realm definition](https://github.com/cryptomator/hub/blob/develop/backend/src/main/resources/cryptomator-realm.json).
+The realm deployed by Katta Server is rendered from the Helm chart's
+[realm template](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/templates/_realm.tpl). It has several differences to the
+corresponding [upstream realm template](https://github.com/cryptomator/hub/blob/develop/chart/templates/_realm.tpl):
 
-| Diff                                                                                       | Motivation                                                                                                                                                                                                         |
-|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| additional permissions `manage-users` and `manage-clients` for `syncer` role               | Required for Katta Server Backend to Keycloak synchronization                                                                                                                                                      |
-| add client roles for `realm-management` client                                             | Needs to be present if `realm-management` client is re-defined, although the Keycloak defaults are used.                                                                                                           |
-| remove `oidc-usermodel-client-role-mapper` from `cryptomator` and `cryptomatorhub` clients | Client roles must not be added by default to access tokens for `cryptomator` client. As we add one client role per vault, the token would grow with the amount of vaults and quickly hit token size limits at AWS. |
-| add `x-katta-action:oauth` to `redirectUris` of `cryptomator` client                       | Custom URL scheme used by _Katta Desktop_ to receive the authorization code of the OAuth Authorization Code Flow.                                                                                                  |
-| add `oidc-audience-mapper`                                                                 | `aud` claim is required for STS                                                                                                                                                                                    |
-| remove `roles` scope from default client scopes in `cryptomator` client                    | `roles` scope adds client roles under `realm_access.cryptomator_vaults.roles`                                                                                                                                      |
-| add `basic` scope to default client scopes in `cryptomator` client                         | `sub` claim is required for STS [^3]                                                                                                                                                                               |
-| add `cryptomatorvaults` client                                                             | We use separate client for vault-specific client scopes and roles to keep these data separate from the data as used upstream.                                                                                      |
-| add `realm-management` client                                                              | Allowing token exchange from `cryptomator` to `cryptomatorvaults` client needs to be defined in the `realm-management` client.                                                                                     |
+| Diff                                                                                                                                                          | Motivation                                                                                                                                                                                                                                                                            |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| add `cryptomatorvaults` client, with `standard.token.exchange.enabled` and its default client scopes restricted to `basic`                                     | Separate client holding the vault-specific client scopes and roles, keeping these data apart from the data used upstream; it is the target of the token exchange. Restricting the default scopes keeps the per-vault client roles out of the token — with one client role per vault the token would otherwise grow with the number of vaults and quickly hit token size limits at AWS. The `basic` scope has to be listed explicitly because the list is overridden, and it carries the `sub` claim required for STS.[^3] |
+| add `oidc-audience-mapper` to `cryptomatorhub` (audience `cryptomator`) and to `cryptomator` (audiences `cryptomator` and `cryptomatorvaults`)                | `aud` claim is required for STS                                                                                                                                                                                                                                                       |
+| add `oidc-usermodel-realm-role-mapper` to the `cryptomator` client                                                                                             | Upstream defines no protocol mappers on this client; the backend API expects the realm roles in the `realm_access.roles` claim.                                                                                                                                                       |
+| remove the `client roles` mapper (`oidc-usermodel-client-role-mapper`, claim `resource_access.${client_id}.roles`) from the `cryptomatorhub` client            | Client roles must not be added to access tokens by default, for the same token size reason as above.                                                                                                                                                                                  |
+| add `x-katta-action:oauth` to `redirectUris` of the `cryptomator` client                                                                                      | Custom URL scheme used by _Katta Desktop_ to receive the authorization code of the OAuth Authorization Code Flow.                                                                                                                                                                     |
+
+Apart from these, the template differs from upstream in branding only (`displayName`, `loginTheme` and client display names).
 
 For more details, see the tests in the `keycloak` module of Katta Server.
 
