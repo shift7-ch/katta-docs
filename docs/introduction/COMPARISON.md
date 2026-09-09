@@ -25,7 +25,7 @@ Organizations run Katta instead of a hosted file-sync service:
   (AES-256-GCM and AES-SIV-512, per the open [Unified Vault Format](https://github.com/encryption-alliance/unified-vault-format)). A
   compromise of Katta Server, its database, its backups, or the storage bucket exposes only ciphertext and organizational metadata —
   never plaintext or key material. In _Static Storage Access Mode_ even the S3 credentials are end-to-end encrypted inside the vault
-  metadata. See the [Security Architecture](arch/SECURITY.md) threat model.
+  metadata. See the [Security Architecture](../arch/SECURITY.md) threat model.
 * **Self-hosted, no third-party processor.** Katta Server (backend, Keycloak, and PostgreSQL, with an optional bundled MinIO for
   evaluation) ships as a Helm chart and runs in your own Kubernetes cluster or cloud account. Nothing outside your infrastructure
   sits in the path of your plaintext, and there is no external service to depend on for availability.
@@ -35,7 +35,7 @@ Organizations run Katta instead of a hosted file-sync service:
 * **Access control that follows membership.** In _STS Storage Access Mode_, vault membership is mirrored to Keycloak and clients
   exchange their OIDC token ([RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html)) for short-lived S3 credentials scoped to a
   single vault's bucket (AWS STS or MinIO STS; AWS additionally uses role chaining). No component holds standing storage
-  credentials, and removing a member revokes their storage access. See [Katta Token Management](arch/TOKENS.md).
+  credentials, and removing a member revokes their storage access. See [Katta Token Management](../arch/TOKENS.md).
 * **No extra sync subscription or client.** Katta Desktop (based on [Mountain Duck](https://mountainduck.io/)) mounts vaults natively
   on macOS and Windows with synchronization built in. Your only recurring cost is the S3 storage and traffic you would pay anyway —
   there is no per-seat or per-gigabyte markup on top.
@@ -45,10 +45,10 @@ Organizations run Katta instead of a hosted file-sync service:
   black box.
 * **Governance and auditability.** A server operator can see the membership graph and audit-log events for compliance reporting,
   while remaining cryptographically unable to read vault contents. Vault owners hold recovery keys, and the
-  [Web of Trust](arch/SECURITY.md#granting-access) guards against a malicious server substituting user keys.
+  [Web of Trust](../arch/SECURITY.md#granting-access) guards against a malicious server substituting user keys.
 
-See [Storage Provider Setup](setup/SERVER_SETUP.md) to connect Katta Server to AWS or MinIO, and
-[Desktop Setup](setup/DESKTOP_CLIENT.md) to roll out Katta Desktop to users.
+See [Storage Provider Setup](../setup/SERVER_SETUP.md) to connect Katta Server to AWS or MinIO, and
+[Desktop Setup](../setup/DESKTOP_CLIENT.md) to roll out Katta Desktop to users.
 
 
 ## Comparison with Cryptomator Hub and Mountain Duck

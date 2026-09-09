@@ -29,11 +29,11 @@ This documentation contains, in increasing level of technical depth:
 
 * [Why Katta?](COMPARISON.md) — what Katta adds compared to bare cloud storage
 * [Katta Overview](../arch/OVERVIEW.md) — concepts: vaults, S3 modes, storage profiles, roles
-* [Storage Provider Setup](setup/SERVER_SETUP.md) — connect Katta Server to AWS or MinIO
-* [Katta Desktop Setup](setup/DESKTOP_CLIENT.md) — install Katta Desktop on macOS or Windows
-* [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md) — common pitfalls
-* [Katta Architecture](arch/ARCHITECTURE.md) — authentication and key retrieval flows
-* [Security Architecture](arch/SECURITY.md) — keys, zero-knowledge boundaries, threat model
-* [Katta Token Management](arch/TOKENS.md) — deep dive into scoped tokens and IAM data models
+* [Storage Provider Setup](../setup/SERVER_SETUP.md) — connect Katta Server to AWS or MinIO
+* [Katta Desktop Setup](../setup/DESKTOP_CLIENT.md) — install Katta Desktop on macOS or Windows
+* [FAQ & Troubleshooting](../setup/TROUBLESHOOTING.md) — common pitfalls
+* [Katta Architecture](../arch/ARCHITECTURE.md) — authentication and key retrieval flows
+* [Security Architecture](../arch/SECURITY.md) — keys, zero-knowledge boundaries, threat model
+* [Katta Token Management](../arch/TOKENS.md) — deep dive into scoped tokens and IAM data models
 
 Unsure what a term means? Check the [Glossary](GLOSSARY.md), which also maps Katta terms to their upstream counterparts.

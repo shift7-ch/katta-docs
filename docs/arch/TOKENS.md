@@ -178,12 +178,12 @@ attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
 
 Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials
 of its own. The only moment it acts on storage is bucket creation for the Web Client in _STS Storage Access Mode_ — a browser cannot create a bucket and use it right away, as
-S3 does not offer bucket creation and setting CORS as a joint operation (see [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)). For this single operation, the
+S3 does not offer bucket creation and setting CORS as a joint operation (see [FAQ & Troubleshooting](../setup/TROUBLESHOOTING.md)). For this single operation, the
 Web Client hands Katta Server temporary credentials that are:
 
 * **short-lived**: requested with the minimal `DurationSeconds` of 900 seconds,
 * **role-restricted**: issued for the create-bucket role of the storage profile, whose permission policy is limited to the configured bucket prefix
-  (see [Storage Provider Setup](setup/SERVER_SETUP.md)),
+  (see [Storage Provider Setup](../setup/SERVER_SETUP.md)),
 * **downscoped by an inline session policy** to exactly the new vault's bucket and the template objects.
 
 The effective permissions are the [intersection of the role's permission policy and the inline session policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session).
@@ -249,7 +249,7 @@ The vault template is encrypted on the user's machine before any upload; whoever
   ending in `/`) and nothing else.
 * _Static Storage Access Mode_: the bucket already exists, and the client uploads the template directly with the static credentials provided by the user — the Web Client
   from the browser (after verifying the bucket is empty; this requires the bucket CORS settings described in
-  [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)), the Desktop Client via its S3 connection.
+  [FAQ & Troubleshooting](../setup/TROUBLESHOOTING.md)), the Desktop Client via its S3 connection.
 
 ## Keycloak Architecture
 

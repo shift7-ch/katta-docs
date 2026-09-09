@@ -81,7 +81,7 @@ Katta Server Admins can define the storage profiles according to their infrastru
 another company uses a low-cost S3 provider supporting only _Static Storage Access Mode_,
 and yet another company has their own MinIO instance.
 
-See [Storage Provider Setup](setup/SERVER_SETUP.md) for the configuration options.
+See [Storage Provider Setup](../setup/SERVER_SETUP.md) for the configuration options.
 
 ### Unified Vault Format (UVF) and `vault.uvf` (Vault Metadata)
 
@@ -90,7 +90,7 @@ directories
 on a per-file basis. It is based on the year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/en/latest/misc/vault-format-history/).
 It will allow in the future for implementation
 of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/key-rotation.md)
-(see also the [Security Architecture](arch/SECURITY.md)).
+(see also the [Security Architecture](SECURITY.md)).
 
 [Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
 contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
@@ -177,7 +177,7 @@ In words:
 * A Katta Server admin (role `admin`) needs to define the possible S3 endpoints for Katta _Static Storage Access Mode_ where users can create vaults.
   Admins upload storage profiles via the backend API and can inspect them in the Web Client.
 * To create a vault in _Static Storage Access Mode_ in Katta Web, a bucket first needs to be created manually ([AWS console](https://aws.amazon.com/console/)
-  or [AWS CLI](https://aws.amazon.com/cli/)) with the correct bucket CORS settings (see [FAQ & Troubleshooting](setup/TROUBLESHOOTING.md)).
+  or [AWS CLI](https://aws.amazon.com/cli/)) with the correct bucket CORS settings (see [FAQ & Troubleshooting](../setup/TROUBLESHOOTING.md)).
 * A Katta user (role `create-vaults`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
   Vault Owner.
 * Finally, Katta Client verifies the configuration and uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
@@ -233,4 +233,4 @@ Terms used throughout this documentation are defined in the [Glossary](../introd
 ## Key Overview
 
 The cryptographic keys used in Katta — where they are stored, how they are encrypted, and what each party can access — are described in the
-[Security Architecture](arch/SECURITY.md).
+[Security Architecture](SECURITY.md).

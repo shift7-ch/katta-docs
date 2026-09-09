@@ -11,7 +11,7 @@ This document describes step-by-step how to set up Katta Server including the co
 
 * Storage providers: MinIO and AWS
 * Modes: Static and STS Storage Access Mode.
-  See the [Katta Overview](arch/OVERVIEW.md) for a conceptual overview.
+  See the [Katta Overview](../arch/OVERVIEW.md) for a conceptual overview.
 :::
 
 ## Deploying Katta Server
