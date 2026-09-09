@@ -36,9 +36,8 @@ Organizations run Katta instead of a hosted file-sync service:
   exchange their OIDC token ([RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html)) for short-lived S3 credentials scoped to a
   single vault's bucket (AWS STS or MinIO STS; AWS additionally uses role chaining). No component holds standing storage
   credentials, and removing a member revokes their storage access. See [Katta Token Management](../arch/TOKENS.md).
-* **No extra sync subscription or client.** Katta Desktop (based on [Mountain Duck](https://mountainduck.io/)) mounts vaults natively
-  on macOS and Windows with synchronization built in. Your only recurring cost is the S3 storage and traffic you would pay anyway —
-  there is no per-seat or per-gigabyte markup on top.
+* **Sync client.** Katta Desktop (based on [Mountain Duck](https://mountainduck.io/)) mounts vaults natively
+  on macOS and Windows with synchronization built in.
 * **Open and standards-based.** Katta Server and the [Katta Client Library](https://github.com/shift7-ch/katta-clientlib) are open
   source (AGPL-3.0), built on the proven Cryptomator Hub and Cyberduck codebases and on open standards — S3, OpenID Connect, JWE,
   RFC 8693 token exchange, and the vendor-independent Unified Vault Format. The cryptography is auditable rather than a proprietary
