@@ -221,7 +221,7 @@ For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 sta
 Documentation
 
 * [MinIO OpenID Connect Access Management](https://min.io/docs/minio/linux/administration/identity-access-management/oidc-access-management.html)
-* [MinIO Client Reference `mc idp openid`](https://min.io/docs/minio/linux/reference/minio-mc/mc-idp-openid.html)
+* [MinIO Client Reference `mc admin config set`](https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config-set.html)
 * [MinIO Security Token Service `AssumeRoleWithWebIdentity`](https://min.io/docs/minio/linux/developers/security-token-service/AssumeRoleWithWebIdentity.html)
 
 #### Policy and OIDC Provider
@@ -251,9 +251,11 @@ Requires MinIO admin credentials, passed with `--accessKey` / `--secretKey`.
 :::
 
 :::info
-Because the MinIO Client (`mc`) API is incomplete ([minio/minio#16151](https://github.com/minio/minio/issues/16151)), `katta setup
-minio` does **not** register the OIDC providers itself. It prints the `mc alias set`, `mc idp openid add` (one provider per client,
-named `${roleNamePrefix}${clientId}`) and `mc admin service restart` commands for you to run against the MinIO server.
+The MinIO Admin API used by the Katta Admin CLI (through `minio-java`) cannot configure an OpenID identity provider — the
+`set-config-kv` endpoint expects an encrypted payload that `minio-java` does not implement (unlike `minio-go`/`mc`), and
+`minio/minio` has been archived read-only since April 2026. `katta setup minio` therefore does **not** register the OIDC
+providers itself. It prints the `mc alias set`, `mc admin config set … identity_openid:${roleNamePrefix}${clientId}` (one
+provider per client) and `mc admin service restart` commands for you to run against the MinIO server.
 :::
 
 ```bash
@@ -264,10 +266,37 @@ export MINIO_URL=[your MinIO URL, e.g. http://localhost:9000]
 katta setup minio --hubUrl "${HUB_URL}" --endpointUrl "${MINIO_URL}" --accessKey "${MINIO_ROOT_USER}" --secretKey "${MINIO_ROOT_PASSWORD}"
 ```
 
+Then run the commands it prints. They look like this (client IDs and the Keycloak discovery URL are taken from
+`${hubUrl}/api/config`):
+
+```bash
+mc alias set myminio "${MINIO_URL}" "${MINIO_ROOT_USER}" "${MINIO_ROOT_PASSWORD}"
+
+mc admin config set myminio identity_openid:katta-cryptomator \
+    config_url="https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomator" \
+    client_secret="ignore-me" \
+    role_policy="katta-createbucketpolicy"
+mc admin config set myminio identity_openid:katta-cryptomatorhub \
+    config_url="https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomatorhub" \
+    client_secret="ignore-me" \
+    role_policy="katta-createbucketpolicy"
+mc admin config set myminio identity_openid:katta-cryptomatorvaults \
+    config_url="https://keycloak.example.com/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomatorvaults" \
+    client_secret="ignore-me" \
+    role_policy="katta-accessbucketpolicy"
+mc admin service restart myminio
+```
+
+MinIO prints the generated `RoleARN` for each configured provider to its server log on (re)start — look for lines such as
+`RoleARN: arn:minio:iam:::role/…`. Inspect the stored provider config with `mc admin config get myminio identity_openid`.
+
 ### MinIO S3 Storage Profile for STS Access Mode
 
-Create an STS storage profile. Pass the endpoint URL and the three role ARNs from `mc idp openid ls` (one each for
-  the `cryptomator`, `cryptomatorhub` and `cryptomatorvaults` clients). MinIO scopes bucket access per vault through the
+Create an STS storage profile. Pass the endpoint URL and the three role ARNs logged by MinIO on restart (one each for the
+  `cryptomator`, `cryptomatorhub` and `cryptomatorvaults` clients). MinIO scopes bucket access per vault through the
   `${jwt:client_id}` policy variable and does not support role chaining or tagged sessions, so the AWS-only fields
   (`stsRoleAccessBucketAssumeRoleTaggedSession`, `stsSessionTag`) are left unset.
 
