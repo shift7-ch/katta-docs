@@ -23,7 +23,9 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 * Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
 
 :::info[S3 Bucket]
-One vault corresponds to a single bucket.
+One vault corresponds to a single bucket named `${bucketPrefix}${vaultId}` with a
+random UUID. The number of vaults is therefore bounded by the number of buckets the provider allows per account or
+project. Several providers cap this in the low hundreds by default and raise it on request.
 :::
 
 A vault is initialized with a *vault template* consisting of the vault metadata file (`vault.uvf`) and the representation of the root folder under the data
@@ -40,6 +42,7 @@ directory `d`:
 
 For more details,
 see [example directory structure](https://github.com/encryption-alliance/unified-vault-format/blob/develop/file%20name%20encryption/AES-SIV-512-B64URL.md#example-directory-structure).
+
 
 ## S3 Storage
 
