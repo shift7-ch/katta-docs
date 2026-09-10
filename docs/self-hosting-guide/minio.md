@@ -161,11 +161,11 @@ The printed `mc admin config set` commands create one OpenID provider configurat
 `identity_openid:katta-<client-id>`. Each points at the realm discovery document from `${hubUrl}/api/config` and binds one of the
 two policies above:
 
-| Provider configuration | Client | `role_policy` | Storage profile field |
-|---|---|---|---|
-| `identity_openid:katta-cryptomator` | `cryptomator` (Katta Desktop) | `katta-createbucketpolicy` | `stsRoleCreateBucketClient` |
-| `identity_openid:katta-cryptomatorhub` | `cryptomatorhub` (Katta Web) | `katta-createbucketpolicy` | `stsRoleCreateBucketHub` |
-| `identity_openid:katta-cryptomatorvaults` | `cryptomatorvaults` (vault access) | `katta-accessbucketpolicy` | `stsRoleAccessBucket` |
+| Provider configuration                    | Client                             | `role_policy`              | Storage profile field       |
+|-------------------------------------------|------------------------------------|----------------------------|-----------------------------|
+| `identity_openid:katta-cryptomator`       | `cryptomator` (Katta Desktop)      | `katta-createbucketpolicy` | `stsRoleCreateBucketClient` |
+| `identity_openid:katta-cryptomatorhub`    | `cryptomatorhub` (Katta Web)       | `katta-createbucketpolicy` | `stsRoleCreateBucketHub`    |
+| `identity_openid:katta-cryptomatorvaults` | `cryptomatorvaults` (vault access) | `katta-accessbucketpolicy` | `stsRoleAccessBucket`       |
 
 The `client_secret` is a placeholder. MinIO requires the field, and the Katta clients are public. MinIO derives one `RoleARN` per
 provider configuration and logs it on restart. Those three ARNs are what the storage profile references.
