@@ -6,6 +6,10 @@ description: How the client authenticates, obtains storage credentials, unlocks 
 
 # Storage Access
 
+:::tip[Katta Desktop]
+See the [Katta Desktop Guide](../user-guide/desktop-setup.md#authenticate-with-katta-server) for user instructions.
+:::
+
 ## Authenticating and Unlocking a Vault
 
 This flow shows the Katta Desktop Client from opening a connection to displaying an unlocked vault. It uses the `cryptomator`

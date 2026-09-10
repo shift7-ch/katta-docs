@@ -6,6 +6,10 @@ description: What happens when a user creates a vault, in Static and in STS Stor
 
 # Vault Creation
 
+:::tip[Katta Desktop]
+See the [Katta Desktop Guide](../user-guide/desktop-setup.md#create-a-new-vault) for user instructions.
+:::
+
 ## Static Storage Access Mode
 
 The following diagram illustrates the interactions when a user creates a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage-access):

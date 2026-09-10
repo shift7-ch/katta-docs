@@ -6,6 +6,10 @@ description: How the Katta Desktop client obtains the user's key pair — first 
 
 # User Keys
 
+:::tip[Katta Desktop]
+See the [Katta Desktop Guide](../user-guide/desktop-setup.md#set-up-your-account-key) for user instructions.
+:::
+
 This flow shows how the client obtains the user's private [user key pair](security.md) on a given device. The user key pair is
 generated once (at first login) and never leaves the client in plaintext; Katta Server only stores it as JWEs — one encrypted to each
 registered device key, and one encrypted with the [Account Key](security.md) for device-independent recovery.
