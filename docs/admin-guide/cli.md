@@ -11,7 +11,34 @@ Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/ad
 
 ## Installation
 
-Follow the [installation instructions](https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#installation) for macOS or Linux.
+### macOS (Homebrew)
+
+Requires Apple Silicon (arm64).
+
+```bash
+brew tap shift7-ch/katta
+brew trust shift7-ch/katta
+brew install katta
+```
+
+Upgrade with `brew upgrade katta`.
+
+### Linux (Debian/Ubuntu)
+
+```bash
+curl -fsSLO https://github.com/shift7-ch/katta-clientlib/releases/latest/download/katta_amd64.deb
+sudo apt install ./katta_amd64.deb
+```
+
+### Linux (Fedora/RHEL/openSUSE)
+
+```bash
+sudo rpm -i https://github.com/shift7-ch/katta-clientlib/releases/latest/download/katta.x86_64.rpm
+```
+
+The `.deb` and `.rpm` packages install `katta` to `/usr/bin/katta` and a bash
+completion script to `/usr/share/bash-completion/completions/katta`. They are
+built for x86_64/amd64 only.
 
 ## Usage
 Use `--help` to print available commands.
