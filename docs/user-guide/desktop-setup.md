@@ -9,8 +9,6 @@ import TabItem from '@theme/TabItem';
 
 # Desktop Setup
 
-:::note
-
 This document describes step-by-step how to set up Katta Desktop on macOS or Windows, covering:
 
 * Install Katta Desktop
@@ -20,8 +18,6 @@ This document describes step-by-step how to set up Katta Desktop on macOS or Win
 * Add files to a vault
 
 See [Concepts](../concepts.md) for the vocabulary this page uses.
-
-:::
 
 :::info[Prerequisite]
 
