@@ -25,9 +25,55 @@ access.
 
 ## Key Overview
 
-The following diagram shows the cryptographic keys used in Katta, where they are stored, and how they are encrypted or signed:
+The following diagram shows how the cryptographic keys used in Katta unlock one another:
 
-![Overview of the cryptographic keys used in Katta](../img/overview/key-overview.drawio.png)
+```mermaid
+flowchart TB
+    subgraph keystore["Device keystore — locked/unlocked outside Katta"]
+        devkey["Private Device Key<br/>Public Device Key"]
+    end
+
+    userkeys["Private User Key<br/>Private Signer Key"]
+    accoukey["Account Key"]
+    membekey["Vault Member Key"]
+    recovkey["Private Vault Recovery Key"]
+    trusted["Public User Key / Public Signer Key<br/>of a trusted user"]
+    uvf["vault.uvf payload<br/><i>Katta Server and S3 bucket</i>"]
+
+    devkey -- decrypts --> userkeys
+    accoukey -- decrypts --> userkeys
+    userkeys -- decrypts --> accoukey
+    userkeys -- decrypts --> memberkey
+    userkeys -- decrypts --> recovkey
+    userkeys -- "decrypts<br/>(Private Signer Key)" --> trusted
+    membekey -- decrypts --> uvf
+    recovkey -- decrypts --> uvf
+
+    classDef outside stroke-dasharray:5 5
+    class accoukey,recovkey outside
+```
+
+A dashed border marks a key the user also holds outside Katta, in word form. The Account Key sits on both ends of an
+arrow because either form opens the other: the word form decrypts the user keys, and the private user key decrypts the
+copy held on Katta Server.
+
+Where each item is stored, what encrypts it, and how many of it exist:
+
+| Stored item                           | Where                   | Encrypted with                  | How many                         |
+|---------------------------------------|-------------------------|---------------------------------|----------------------------------|
+| `vault.uvf` payload                   | Katta Server, S3 bucket | Vault Member Key                | 1 per vault                      |
+| `vault.uvf` payload                   | Katta Server, S3 bucket | Private Vault Recovery Key      | 1 per vault                      |
+| Public User Key, Public Signer Key    | Katta Server            | not encrypted                   | 1 per user                       |
+| Private User Key, Private Signer Key  | Katta Server            | Account Key                     | 1 per user                       |
+| Account Key                           | Katta Server            | Private User Key                | 1 per user                       |
+| Public Device Key                     | Katta Server            | not encrypted                   | 1 per device of each user        |
+| Private User Key, Private Signer Key  | Katta Server            | Private Device Key              | 1 per device of each user        |
+| Vault Member Key                      | Katta Server            | Public User Key                 | 1 per vault member of each vault |
+| Private Vault Recovery Key            | Katta Server            | Public User Key                 | 1 per vault admin of each vault  |
+| Public User Key, Public Signer Key    | Katta Server            | Private Signer Key              | 1 per trusted other user         |
+| Private Device Key, Public Device Key | Device Key Store        | Private Key Store (Browser, OS) | 1 per device                     |
+
+The cryptographic detail of each key:
 
 | Key                    | Type                                                                                                                                                                                | Generated                                    | Stored                                                                                                                          |
 |------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
