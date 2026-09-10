@@ -22,9 +22,9 @@ description: Katta terms, and how they map to their Cryptomator Hub and Mountain
 
 [^1]: [Vault Metadata Specification](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md)
 
-## Katta and Upstream Naming
+## Katta Server and Upstream Naming
 
-Katta is built on Cryptomator Hub, Mountain Duck, and Cyberduck. Many identifiers — Keycloak realm and client names, configuration
+Katta Server is built on Cryptomator Hub. Many identifiers — Keycloak realm and client names, configuration
 keys, API paths — still carry the upstream names. The following table maps Katta terms to what you will encounter in
 configuration files, tokens, and upstream documentation:
 
