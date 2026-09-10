@@ -22,10 +22,8 @@ In Katta, data is shared in units called vaults. Only members of the vault have 
 * The vault keys are uploaded to Katta Server only after encryption on your machine.
 * Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
 
-:::info
-
-One vault corresponds to one bucket (root directory).
-
+:::info[S3 Bucket]
+One vault corresponds to a single bucket.
 :::
 
 A vault is initialized with a *vault template* consisting of the vault metadata file (`vault.uvf`) and the representation of the root folder under the data
