@@ -135,7 +135,7 @@ You can review the apps and devices authorized with your Account Key on your pro
 ## Create a new vault
 
 :::tip[Katta Web]
-Creating a new vault in Katta Web is also supported, but the S3 bucket must already exist.
+Creating a new vault in Katta Web is also supported with [limitations](../architecture/vault-creation.md).
 :::
 
 Once authenticated, Katta Server is mounted as a location (for example *Katta – demo.katta.cloud*).
