@@ -26,7 +26,7 @@ settings, and upload to it in one shot — and S3 does not offer bucket creation
 user's behalf; server-side calls are not subject to browser CORS restrictions.
 
 The **Desktop Client** is not a browser and is not bound by CORS, so it does not involve Katta Server: it assumes the `stsRoleCreateBucketClient` role and
-creates the bucket itself. See [Tokens](../architecture/tokens.md#s3-bucket-creation-katta-s3-sts-only) for the full flow.
+creates the bucket itself. See [Tokens](../architecture/tokens.md#scoped-tokens-for-s3-storage-access) for the full flow.
 
 ## MinIO: setting CORS on a bucket does not work
 
