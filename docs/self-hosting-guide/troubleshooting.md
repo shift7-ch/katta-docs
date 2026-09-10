@@ -6,11 +6,11 @@ description: Common setup pitfalls — CORS on the bucket, CSP on the server, an
 
 # Troubleshooting
 
-Most setup pitfalls in Katta are CORS-related, because the Web Client talks to the S3 endpoint directly from the browser.
+Most setup pitfalls in Katta are CORS-related, because Katta Web talks to the S3 endpoint directly from the browser.
 
-## Vault creation from the Web Client fails in _Static Storage Access Mode_
+## Vault creation from Katta Web fails in _Static Storage Access Mode_
 
-In _Static Storage Access Mode_, the Web Client uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
+In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
 
 * The **bucket CORS settings** must allow requests from the Katta Web origin. Create the bucket and set its CORS configuration before creating the vault
   ([AWS console](https://aws.amazon.com/console/) or [AWS CLI](https://aws.amazon.com/cli/)).
@@ -18,10 +18,10 @@ In _Static Storage Access Mode_, the Web Client uploads the vault template to th
   [`application.properties`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties);
   see [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for a full example.
 
-## Why does Katta Server create the bucket for the Web Client in STS Storage Access Mode?
+## Why does Katta Server create the bucket for Katta Web in STS Storage Access Mode?
 
-Only the **Web Client** delegates bucket creation to Katta Server, and only because it runs in a browser. A browser cannot create a bucket, configure its CORS
-settings, and upload to it in one shot — and S3 does not offer bucket creation and CORS configuration as a joint operation. So the Web Client assumes the
+Only **Katta Web** delegates bucket creation to Katta Server, and only because it runs in a browser. A browser cannot create a bucket, configure its CORS
+settings, and upload to it in one shot — and S3 does not offer bucket creation and CORS configuration as a joint operation. So the Katta Web assumes the
 `stsRoleCreateBucketHub` role and hands the resulting temporary credentials to Katta Server, which creates the bucket and uploads the vault template on the
 user's behalf; server-side calls are not subject to browser CORS restrictions.
 

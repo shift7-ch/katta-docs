@@ -95,6 +95,6 @@ The following table captures the current state of implemented features:
 | Archive Vaults                               | ✅        | ❌            |
 
 [^1]: Conceptually, the only limitation is that a browser cannot create a bucket and configure its CORS settings in one shot, since S3 does not offer bucket
-creation and CORS configuration as a joint operation. Hence, in _Static Storage Access Mode_ the Web Client can only use pre-existing, CORS-configured buckets, while in _STS Storage Access Mode_
+creation and CORS configuration as a joint operation. Hence, in _Static Storage Access Mode_ Katta Web can only use pre-existing, CORS-configured buckets, while in _STS Storage Access Mode_
 Katta Server creates the bucket on its behalf. The Desktop Client is not affected.
 

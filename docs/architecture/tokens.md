@@ -165,9 +165,8 @@ attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
 ### Motivation
 
 Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials
-of its own. The only moment it acts on storage is bucket creation for the Web Client in _STS Storage Access Mode_ — a browser cannot create a bucket and use it right away, as
-S3 does not offer bucket creation and setting CORS as a joint operation (see [Troubleshooting](../self-hosting-guide/troubleshooting.md)). For this single operation, the
-Web Client hands Katta Server temporary credentials that are:
+of its own. The only moment it acts on storage is bucket creation for Katta Web in _STS Storage Access Mode_ — a browser cannot create a bucket and use it right away, as
+S3 does not offer bucket creation and setting CORS as a joint operation (see [Troubleshooting](../self-hosting-guide/troubleshooting.md)). For this single operation, Katta Web hands Katta Server temporary credentials that are:
 
 * **short-lived**: requested with the minimal `DurationSeconds` of 900 seconds,
 * **role-restricted**: issued for the create-bucket role of the storage profile, whose permission policy is limited to the configured bucket prefix
@@ -180,9 +179,9 @@ Notably, the credentials contain no read permission on object contents (`s3:GetO
 
 ### S3 Bucket Creation (Katta S3 STS only)
 
-In the **Web Client** ([`CreateVault.vue`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/frontend/src/components/CreateVault.vue)):
+In **Katta Web** ([`CreateVault.vue`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/frontend/src/components/CreateVault.vue)):
 
-1. The Web Client calls [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) directly at the
+1. Katta Web calls [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) directly at the
    STS endpoint of the storage profile (AWS or MinIO), with the user's OIDC access token as web identity, the storage profile's `stsRoleCreateBucketHub`
    role ARN, `DurationSeconds: 900`, the vault ID as `RoleSessionName` — and the following inline session policy, with `<bucket>` replaced by the new vault's
    bucket name (`<bucketPrefix><vaultId>`):
@@ -214,7 +213,7 @@ In the **Web Client** ([`CreateVault.vue`](https://github.com/shift7-ch/katta-se
    ```
 
 2. STS returns temporary credentials whose permissions are the intersection of the create-bucket role's permission policy and this session policy.
-3. The Web Client sends the temporary credentials together with the client-side encrypted vault template (`vault.uvf`, root directory hash, `dir.uvf`), the
+3. Katta Web sends the temporary credentials together with the client-side encrypted vault template (`vault.uvf`, root directory hash, `dir.uvf`), the
    region, and the storage profile ID to Katta Server (`PUT /api/storage/{vaultId}`, see
    [`StorageResource`](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/java/org/cryptomator/hub/api/katta/StorageResource.java)).
 4. Katta Server checks that the bucket does not exist yet, creates it, uploads the vault template, and applies the storage profile's bucket settings
@@ -225,17 +224,16 @@ The **Desktop Client** is not subject to browser CORS restrictions, so it does n
 `stsRoleCreateBucketClient` role itself and creates the bucket and uploads the vault template directly
 (see [`HubUVFVaultProvider`](https://github.com/shift7-ch/katta-clientlib/blob/main/hub/src/main/java/cloud/katta/protocols/hub/HubUVFVaultProvider.java)).
 Here the create-bucket role's permission policy (bucket prefix) is the effective restriction. This is also why the storage profile carries two create-bucket
-role ARNs: `stsRoleCreateBucketHub` (assumed by the Web Client, credentials passed to Katta Server) and `stsRoleCreateBucketClient` (assumed by the Desktop
-Client directly).
+role ARNs: `stsRoleCreateBucketHub` (assumed by Katta Web, credentials passed to Katta Server) and `stsRoleCreateBucketClient` (assumed by the Katta Desktop directly).
 
 ### S3 Template Upload (Katta S3 STS and Static)
 
 The vault template is encrypted on the user's machine before any upload; whoever performs the upload never sees plaintext.
 
-* _STS Storage Access Mode_: the upload rides on the bucket-creation credentials described above — performed by Katta Server for the Web Client and by the Desktop Client
+* _STS Storage Access Mode_: the upload rides on the bucket-creation credentials described above — performed by Katta Server for Katta Web and by Katta Desktop
   itself. The session policy's `s3:PutObject` statement matches exactly the template objects (`vault.uvf`, `dir.uvf`, and the root directory placeholder
   ending in `/`) and nothing else.
-* _Static Storage Access Mode_: the bucket already exists, and the client uploads the template directly with the static credentials provided by the user — the Web Client
+* _Static Storage Access Mode_: the bucket already exists, and the client uploads the template directly with the static credentials provided by the user — Katta Web
   from the browser (after verifying the bucket is empty; this requires the bucket CORS settings described in
-  [Troubleshooting](../self-hosting-guide/troubleshooting.md)), the Desktop Client via its S3 connection.
+  [Troubleshooting](../self-hosting-guide/troubleshooting.md)), the Katta Desktop via its S3 connection.
 

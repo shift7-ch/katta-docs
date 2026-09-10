@@ -34,7 +34,7 @@ In words:
 * A technical admin needs to prepare OIDC trust and roles in AWS or MinIO IAM and define an _STS Storage Access Mode_ storage profile in Katta Server.
 * Katta Desktop refreshes the user's access token.
 * The access token is sent to STS with an inline policy in order to issue temporary credentials that allow for the creation of a specific bucket.
-* In the Web Client, the temporary S3 credentials are sent to Katta Server, which calls S3 to create the corresponding bucket on the user's behalf. This is
+* In Katta Web, the temporary S3 credentials are sent to Katta Server, which calls S3 to create the corresponding bucket on the user's behalf. This is
   necessary because a browser cannot create a bucket and use it right away (CORS restrictions). The Desktop Client is not bound by CORS and creates the bucket
   itself, without involving Katta Server.
 * Finally, Katta Desktop then uploads the `vault.uvf` with the access configuration, and the vault members are synced to Keycloak.
