@@ -6,7 +6,7 @@ description: Prepare a MinIO server so Keycloak-issued tokens can be exchanged f
 
 # MinIO
 
-This page prepares the MinIO side of _STS Storage Access Mode_: the two MinIO policies Katta needs, and the OIDC providers that
+Prepare the MinIO configuration of _STS Storage Access Mode_: the two MinIO policies Katta needs, and the OIDC providers that
 trust Keycloak. Do this before you upload an STS storage profile, because the profile references the resulting role ARNs.
 
 :::info
@@ -14,19 +14,12 @@ _Static Storage Access Mode_ needs none of this. It reaches MinIO with long-live
 can go straight to [Storage Profiles](../admin-guide/storage-profiles.md).
 :::
 
-## Reference
-
-
-* [MinIO OpenID Connect Access Management](https://min.io/docs/minio/linux/administration/identity-access-management/oidc-access-management.html)
-* [MinIO Client Reference `mc admin config set`](https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config-set.html)
-* [MinIO Security Token Service `AssumeRoleWithWebIdentity`](https://min.io/docs/minio/linux/developers/security-token-service/AssumeRoleWithWebIdentity.html)
-
 ## Policy and OIDC Provider
 
 Add a role for creating buckets with prefix `katta-` and uploading the vault template (`vault.uvf` and the root directory objects), as well as read/write
 access to buckets through the `client_id` claim in the JWT token.
 
-`katta setup minio` prepares the MinIO server so Keycloak-issued tokens can be exchanged for temporary S3 credentials. It reads the
+Using [Katta Admin CLI](../admin-guide/cli.md), `katta setup minio` prepares the MinIO server so Keycloak-issued tokens can be exchanged for temporary S3 credentials. It reads the
 Keycloak URL, realm and client IDs from `${hubUrl}/api/config` and then creates (or updates) two MinIO policies via the MinIO Admin API:
 * a **bucket creation** policy (`--createBucketPolicyName`, default `katta-createbucketpolicy`) allowing `s3:CreateBucket` and
   versioning/policy reads on `arn:aws:s3:::katta-*` plus `s3:PutObject` for the vault template (`katta-*/*/` and `katta-*/*.uvf`),
@@ -86,6 +79,13 @@ mc admin service restart myminio
 
 MinIO prints the generated `RoleARN` for each configured provider to its server log on (re)start — look for lines such as
 `RoleARN: arn:minio:iam:::role/…`. Inspect the stored provider config with `mc admin config get myminio identity_openid`.
+
+## Reference
+
+* [MinIO OpenID Connect Access Management](https://min.io/docs/minio/linux/administration/identity-access-management/oidc-access-management.html)
+* [MinIO Client Reference `mc admin config set`](https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config-set.html)
+* [MinIO Security Token Service `AssumeRoleWithWebIdentity`](https://min.io/docs/minio/linux/developers/security-token-service/AssumeRoleWithWebIdentity.html)
+
 
 ## Next step
 
