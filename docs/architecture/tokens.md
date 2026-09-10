@@ -94,23 +94,23 @@ Katta Client ->> S3: (13) /list-bucket
 
 ```
 
-1. User opens vault in Katta client, client opens browser.
+1. User opens vault in Katta Desktop, client opens browser.
 2. Keycloak redirects user to login and authorization prompt.
 3. User enters user name and password.
-4. Keycloak redirects user back to Katta client with single-use authorization code.
-5. Katta client calls `/token` endpoint with authorization code.
+4. Keycloak redirects user back to Katta Desktop with single-use authorization code.
+5. Katta Desktop calls `/token` endpoint with authorization code.
 6. Keycloak returns OIDC access token and refresh token for client `cryptomator`
-7. Katta client sends OIDC access token for client `cryptomator` exchange to `audience: cryptomatorvaults` client using `/token` endpoint with
+7. Katta Desktop sends OIDC access token for client `cryptomator` exchange to `audience: cryptomatorvaults` client using `/token` endpoint with
    `grant_type: urn:ietf:params:oauth:grant-type:token-exchange`, requesting `scope: <vaultId>`.
 8. Keycloak returns access token for OIDC access token with vault-specific claims added by protocol mappers in the requested scope.
-9. Katta client sends scoped OIDC access token to
+9. Katta Desktop sends scoped OIDC access token to
    STS [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html).
 10. STS returns temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
     * AWS: the temporary role is tagged with the `vaultId`.
     * MinIO: the credentials allow access to one bucket.
-11. AWS only: Katta client sends AWS credentials to STS in order to assume role.
+11. AWS only: Katta Desktop sends AWS credentials to STS in order to assume role.
 12. AWS only: AWS sends credentials to access giving access to one bucket from the session tags.
-13. Katta client accesses S3 storage with temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
+13. Katta Desktop accesses S3 storage with temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
 
 ## IAM Data Model
 

@@ -121,7 +121,7 @@ sequenceDiagram
 
 ## E2E-Encrypted Data Sync
 
-The following diagram illustrates the interactions when Katta Client syncs data in a vault in *Static Storage Access Mode*:
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in *Static Storage Access Mode*:
 
 ![Interaction diagram: data access in Static Storage Access Mode](../img/overview/DataAccessStatic_Interaction.drawio.png)
 
@@ -129,9 +129,9 @@ In words:
 
 * `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint
   etc.)), as well as the encryption keys; it is stored encrypted in Katta Server Backend.
-* With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
+* With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
-The following diagram illustrates the interactions when Katta Client syncs data in a vault in _STS Storage Access Mode_:
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in _STS Storage Access Mode_:
 
 ![Interaction diagram: data access in STS Storage Access Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
 
@@ -142,7 +142,7 @@ In words:
   well as the encryption keys; it is stored encrypted in Katta Server.
 * The OIDC access token that is used to communicate with Katta Server is exchanged for a token with vault-specific claims
 * When sent to STS, the vault-specific claims will be evaluated to issue temporary fine-grained S3 credentials giving access to the vault's bucket only
-* With the encryption keys from `vault.uvf`, Katta Client encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
+* With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
 The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
 
@@ -151,7 +151,7 @@ The following diagram illustrates the flow of actions to sync data in an end-to-
 In words:
 
 * A user opens the vault in [Mountain Duck User Interface](https://docs.mountainduck.io/mountainduck/interface/)
-* If Katta Client does not have a valid OIDC access token, it refreshes it or starts
+* If Katta Desktop does not have a valid OIDC access token, it refreshes it or starts
   an [OIDC Authorization Code Grant Flow](https://www.rfc-editor.org/rfc/rfc6749#page-24), asking the user to authenticate in the browser against Keycloak to
   issue a new access token.
 * `vault.uvf` (vault metadata) JWE is fetched from Katta Server Backend and
