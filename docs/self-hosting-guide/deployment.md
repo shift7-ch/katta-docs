@@ -17,9 +17,11 @@ provider setup on the following pages assumes a running server. Configuration fo
 networking, Application Load Balancers, an ECS cluster running Keycloak and the Katta Server, RDS PostgreSQL databases,
 Route53 records and ACM certificates, and an ECR pull-through cache for the container images.
 
-Prerequisites: a domain registered in AWS Route53, Docker, and the AWS CLI with configured credentials. Deployment parameters
+:::warning[Prerequisites]
+A domain registered in AWS Route53, Docker, and the AWS CLI with configured credentials. Deployment parameters
 (`dns_suffix`, database passwords, client secrets, `github_token`, …) are supplied as `TF_VAR_*` environment variables or a
 `terraform.tfvars` file.
+:::
 
 ```bash
 terraform workspace new katta
@@ -31,8 +33,10 @@ terraform apply --auto-approve
 
 Tear the deployment down with `terraform destroy --auto-approve` (note the 7-day grace period on AWS Secrets Manager deletions).
 
+:::info
 See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full variable reference and for example CSP and
 `application.properties` settings ([ecs.tf](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf)).
+:::
 
 ## Helm chart (Kubernetes)
 
@@ -66,8 +70,11 @@ helm install katta oci://ghcr.io/shift7-ch/charts/katta-server \
 
 Key values sections: `urls` (public hostnames for Hub, Keycloak, and the S3 API — `urls.s3.public` must be a dedicated host served
 at the root), `ingress` (`nginx` or `traefik`, TLS), `hub` (database connection, admin credentials, telemetry), `keycloak` (realm
-bootstrap), `postgres` and `minio` (can be disabled to use external services, e.g. via `hub.database.jdbcUrl`). See the
-[chart README](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/README.md) for the complete values reference.
+bootstrap), `postgres` and `minio` (can be disabled to use external services, e.g. via `hub.database.jdbcUrl`). 
+
+:::info
+See the chart [README](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/README.md) for the complete values reference.
+:::
 
 ## Docker Compose
 
