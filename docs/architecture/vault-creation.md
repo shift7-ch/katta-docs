@@ -12,7 +12,7 @@ See the [Katta Desktop Guide](../user-guide/desktop-setup.md#create-a-new-vault)
 
 ## Static Storage Access Mode
 
-The following diagram illustrates the interactions when a user creates a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage-access):
+The following diagram illustrates the interactions when a user creates a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage):
 
 ```mermaid
 sequenceDiagram
@@ -42,7 +42,7 @@ In words:
 
 ## STS Storage Access Mode
 
-The following diagram illustrates the interactions when a user creates a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage-access):
+The following diagram illustrates the interactions when a user creates a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage):
 
 ```mermaid
 sequenceDiagram

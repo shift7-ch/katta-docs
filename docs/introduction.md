@@ -6,7 +6,7 @@ description: What Katta is, what it consists of, and why an organization runs it
 
 # Introduction
 
-Deploy Katta as a Cloud Storage Solution with zero-config storage management and zero-knowledge key management for teams and organizations. Katta integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP. Your favorite [cloud storage](concepts.md#s3-storage-access) remains your free choice. Katta consists of _Katta Server_ and _Katta Desktop_:
+Deploy Katta as a Cloud Storage Solution with zero-config storage management and zero-knowledge key management for teams and organizations. Katta integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP. Your favorite [cloud storage](concepts.md#s3-storage) remains your free choice. Katta consists of _Katta Server_ and _Katta Desktop_:
 
 * **Katta Desktop** is based on [Mountain Duck](https://mountainduck.io/) and [Katta Client Library](https://github.com/shift7-ch/katta-clientlib),
 * **Katta Server** is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).

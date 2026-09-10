@@ -127,7 +127,7 @@ sequenceDiagram
 
 ### Static Storage Access Mode
 
-The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage-access):
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage):
 * `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint etc.)), as well as the encryption keys; it is stored encrypted in Katta Server.
 * With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
@@ -142,7 +142,7 @@ sequenceDiagram
 
 ### STS Storage Access Mode
 
-The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage-access):
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage):
 * `vault.uvf` (vault metadata) contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom
   endpoint), as
   well as the encryption keys; it is stored encrypted in Katta Server.

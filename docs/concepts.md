@@ -53,7 +53,7 @@ Katta currently supports both **Static Storage Access Mode** and **STS Storage A
 Use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in the frontend.
 
 :::tip[S3 Third Party Providers]
-Beside AWS, you can use any [S3 Storage Provider](self-hosting-guide/providers.md).
+Beside AWS, you can use any [S3 Storage Provider](admin-guide/providers.md).
 :::
 
 Creating a vault on a static storage profile with Katta Desktop asks for two Access Key ID and Secret Access Key pairs.

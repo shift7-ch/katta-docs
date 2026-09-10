@@ -6,7 +6,7 @@ description: Scoped tokens for S3 storage access — the STS flow, the AWS and M
 
 # Tokens
 
-This page describes the use of scoped tokens for [storage access](../concepts.md#s3-storage-access) on an in-depth conceptual level.
+This page describes the use of scoped tokens for [storage access](../concepts.md#s3-storage) on an in-depth conceptual level.
 
 ## Scoped Tokens for S3 Storage Access
 
@@ -513,7 +513,7 @@ Notably, the credentials contain no read permission on object contents (`s3:GetO
 
 #### STS Storage Access Mode
 
-The following steps describe how _Katta Web_ creates a new S3 bucket in [_STS Storage Access Mode_](../concepts.md#s3-storage-access):
+The following steps describe how _Katta Web_ creates a new S3 bucket in [_STS Storage Access Mode_](../concepts.md#s3-storage):
 
 1. Katta Web calls [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) directly at the
    STS endpoint of the storage profile ([AWS](../self-hosting-guide/aws.md) or [MinIO](../self-hosting-guide/minio.md)), with the user's OIDC access token as web identity, the storage profile's `stsRoleCreateBucketHub`
@@ -552,7 +552,7 @@ The following steps describe how _Katta Web_ creates a new S3 bucket in [_STS St
 4. Katta Server creates the bucket using S3 API.
 
 :::note[Katta Desktop]
-_Katta Desktop_ assumes the `stsRoleCreateBucketClient` role from the storage profile itself and creates the bucket and uploads the vault template directly.
+_Katta Desktop_ assumes the `katta-create-bucket` role from the storage profile itself and creates the bucket and uploads the vault template directly.
 Here the create-bucket role's permission policy (bucket prefix) is the effective restriction. This is also why the storage profile carries two create-bucket
 role ARNs:
 - `stsRoleCreateBucketHub` (assumed by Katta Web, credentials passed to Katta Server)

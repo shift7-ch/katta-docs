@@ -8,7 +8,7 @@ description: Define where users can create vaults — upload an AWS S3 or MinIO 
 
 This guide shows how to create a storage profile using the [Admin CLI](cli.md). Katta Storage Profiles are created by administrators to define the available storage locations for users to create vaults in, e.g.
 
-* STS or Static [Storage Access Mode](../concepts.md#s3-storage-access)
+* STS or Static [Storage Access Mode](../concepts.md#s3-storage)
 * S3 endpoint
 * Default region and available regions
 * Provider-specific settings (e.g. [path-style-requests](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#path-style-access))
