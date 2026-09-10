@@ -26,9 +26,6 @@ with the `create-vaults` role.
 
 :::
 
-The screenshots are shown per platform in **macOS** / **Windows** tabs; the selected platform is remembered across the page.
-_Two Windows screenshots are still pending._
-
 ## Install Katta Desktop
 
 Download Katta Desktop from the Katta Web application of your Katta Server and install it:
@@ -92,7 +89,7 @@ After a successful sign-in the browser passes the authorization code back to Kat
 ## Set up your Account Key
 
 The first time you authenticate on a device, Katta Desktop handles your **Account Key** — a high-entropy secret that protects your
-personal key pair and lets you recover it on other apps, browsers, and devices. Katta Server never sees the Account Key.
+personal key pair and lets you recover it on other apps, browsers, and devices. Katta Server never sees the Account Key. Refer to [User Keys](../architecture/user-keys.md).
 
 **New user.** Katta Desktop generates the Account Key. Copy it to a safe place, for example a password manager. Then confirm the
 dialog:
@@ -138,7 +135,7 @@ You can review the apps and devices authorized with your Account Key on your pro
 ## Create a new vault
 
 :::tip[Katta Web]
-Alternatively, creating a new vault in Katta Web is also supported.
+Creating a new vault in Katta Web is also supported, but the S3 bucket must already exist.
 :::
 
 Once authenticated, Katta Server is mounted as a location (for example *Katta – demo.katta.cloud*).
