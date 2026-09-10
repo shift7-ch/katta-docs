@@ -9,15 +9,7 @@ import TabItem from '@theme/TabItem';
 
 # Desktop Setup
 
-This document describes step-by-step how to set up Katta Desktop on macOS or Windows, covering:
-
-* Install Katta Desktop
-* Authenticate with Katta Server
-* Set up your Account Key
-* Create a new vault
-* Add files to a vault
-
-See [Concepts](../concepts.md) for the vocabulary this page uses.
+This document describes step-by-step how to set up and use Katta Desktop on macOS or Windows. See [Concepts](../concepts.md) for the vocabulary this page uses.
 
 :::info[Prerequisite]
 
