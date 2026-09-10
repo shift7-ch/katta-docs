@@ -50,16 +50,20 @@ Katta currently supports two modes for both S3 providers:
   :::tip[S3 Third Party Providers]
   You can use any [S3 Storage Provider](self-hosting-guide/providers.md).
   :::
-* **STS Storage Access Mode**: use STS to have fine-grained permissions;
+
+* **STS Storage Access Mode**: use STS to have fine-grained permissions:
   - **Vault Creation**: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
   - **Storage Access**: only vault users can access storage.
 
-:::note[Interoperability]
-Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
+  :::note[In-Depth]
+  Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about STS Storage Access Mode.
+  :::
 
-* [AWS](self-hosting-guide/aws.md)
-* [MinIO](self-hosting-guide/minio.md)
-:::
+  Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
+
+  * [AWS](self-hosting-guide/aws.md)
+  * [MinIO](self-hosting-guide/minio.md)
+
 
 ## Unified Vault Format (UVF)
 
