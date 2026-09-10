@@ -41,51 +41,41 @@ directory `d`:
 For more details,
 see [example directory structure](https://github.com/encryption-alliance/unified-vault-format/blob/develop/file%20name%20encryption/AES-SIV-512-B64URL.md#example-directory-structure).
 
-## S3 Modes
+## S3 Storage Access
 
 Katta currently supports two modes for both S3 providers:
 
 * **Static Storage Access Mode**: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
   the frontend.
+  :::tip[S3 Third Party Providers]
+  You can use any [S3 Storage Provider](self-hosting-guide/providers.md).
+  :::
 * **STS Storage Access Mode**: use STS to have fine-grained permissions;
-  - vault creation: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
-  - storage access: only vault users can access storage.
+  - **Vault Creation**: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
+  - **Storage Access**: only vault users can access storage.
 
-If you want to use Static Storage Access mode, you can use any S3 Provider - see the [list](https://docs.cyberduck.io/protocols/s3/).
-
+:::note[Interoperability]
 Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
 
-* [AWS](https://aws.amazon.com/s3/)
-* [MinIO](https://min.io/)
+* [AWS](self-hosting-guide/aws.md)
+* [MinIO](self-hosting-guide/minio.md)
+:::
 
 ## Unified Vault Format (UVF)
 
 The [Unified Vault Format (UVF)](https://github.com/encryption-alliance/unified-vault-format) defines a common vendor-independent standard for encrypted
-directories
-on a per-file basis. It is based on the year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/en/latest/misc/vault-format-history/).
-It will allow in the future for implementation
-of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/key-rotation.md)
+directories on a per-file basis. It is based on the year-long proven [Cryptomator Vault Format](https://docs.cryptomator.org/misc/vault-format-history/),
+adding support of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md#encrypted-content)
 (see also [Security](architecture/security.md)).
 
 [Vault Metadata (`vault.uvf`)](https://github.com/encryption-alliance/unified-vault-format/tree/develop/vault%20metadata#readme)
-contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
+contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points used in Katta:
 
 * `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enabled for this vault and defines the maximum length (
   see [Web of Trust](https://docs.cryptomator.org/hub/admin-guide/web-of-trust/)).
-* `cloud.katta.storage` (Katta only): defines the bucket location and further storage settings
-  like [S3 Versioning](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html); the user will have access to their vaults in Katta Desktop
-  by [Bookmarks](https://docs.cyberduck.io/cyberduck/bookmarks/). So the information required to create such bookmarks is contained in this section of the
-  encrypted `vault.uvf` file (which is also stored encrypted in the Katta Server for convenience).
+* `cloud.katta.storage` (Katta only): defines the vault name, bucket location and [static access tokens](#s3-storage-access) if any.
 
-The contents of `vault.uvf` contain the information required to create a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/)
-for the vault in the Katta Desktop.
-The contents of `vault.uvf` come from the following sources:
-
-* storage profile (value or allowed values for user selection)
-* user input (e.g. vault name) or user selection (e.g. S3 region or automatic access grant) at vault creation
-* generated (key material)
-
-## What Katta Web and Katta Desktop Can Do
+## Feature Comparison of Katta Web and Katta Desktop
 
 The following table captures the current state of implemented features:
 
