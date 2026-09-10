@@ -12,7 +12,7 @@ Katta uses the Keycloak realm roles `user`, `create-vaults` and `admin`, inherit
 * Katta User: the [`user`](https://docs.cryptomator.org/hub/user-group-management/#roles) role allows to login to Katta Server Frontend
 * Katta Vault Creator: [`create-vaults`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users allowed to create vault in Katta Server
 * Katta Admin: [`admin`](https://docs.cryptomator.org/hub/vault-management/#create-a-vault) users have administrative permissions in the Katta Server Frontend /
-  Katta Server Backend API, they can configure the Katta Server and they can
+  Katta Server API, they can configure the Katta Server and they can
   upload storage profiles.
 * Katta Vault Member: the key material to decrypt and encrypt the vault data is shared with Vault Members. See
   also [Vault Details](https://docs.cryptomator.org/hub/vault-management/#vault-details).

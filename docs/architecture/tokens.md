@@ -33,7 +33,7 @@ Therefore, we use [RFC 8693 token exchange](https://www.rfc-editor.org/rfc/rfc86
 
 Katta S3 STS is based on the following components and their responsibilities:
 
-- _Katta Server Backend_: synchronizes vault access to Keycloak
+- _Katta Server_: synchronizes vault access to Keycloak
 - _Keycloak_: provides tokens based on the user's roles
 - _AWS/MinIO IAM_: gives trust to Keycloak realms and defines the mapping from claims issued to dynamic roles
 - _AWS/MinIO STS_: issues temporary credentials with privileges defined in IAM

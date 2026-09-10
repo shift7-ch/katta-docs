@@ -7,12 +7,12 @@ description: The Keycloak realm behind Katta — data model, membership sync, to
 # Keycloak
 
 
-## Keycloak Data Model and Katta Server Backend to Keycloak Sync
+## Keycloak Data Model and Katta Server to Keycloak Sync
 
 Upstream (Cryptomator Hub) uses realm roles for controlling access to backend services. Currently, there are the `user`, `create-vaults` and `admin` roles.
 These roles must be in the `realm_access.roles` claim of the access token issued by the `cryptomator` and `cryptomatorhub` clients, as it is used to call the
 backend API.
-The privileged access that the Katta Server Backend needs for the synchronization described below does not come from a realm role: the backend
+The privileged access that the Katta Server needs for the synchronization described below does not come from a realm role: the backend
 authenticates as the `cryptomatorhub-system` service account client (`hub.keycloak.system-client-id`), which holds the `realm-management` client roles
 `realm-admin` and `view-system`. The client itself is inherited from upstream; Katta additionally grants it the `admin` realm role.
 Therefore, we use client roles added to client scopes instead of realm roles to control storage access to vaults.
@@ -30,7 +30,7 @@ get the claims mapped in by the vault-specific (hard-coded) protocol mapper.
 
 The following table lists the events that sync data to Keycloak in line with this data model:
 
-| Vault Server Backend Event    | Sync to Keycloak                                                                                                                            |
+| Vault Server Event            | Sync to Keycloak                                                                                                                            |
 |-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | Create vault                  | Create optional client scope and client role in `cryptomatorvaults` both with name `<vaultId>` and add protocol mapper to the client scope. |
 | Share vault access with user  | Add client role `<vaultId>` in `cryptomatorvaults` client to user.                                                                          |

@@ -14,7 +14,7 @@ provider setup on the following pages assumes a running server. Configuration fo
 ## Terraform (AWS)
 
 [katta-terraform](https://github.com/shift7-ch/katta-terraform) provisions a complete Katta Server deployment on AWS: VPC and
-networking, Application Load Balancers, an ECS cluster running Keycloak and the Katta Server backend, RDS PostgreSQL databases,
+networking, Application Load Balancers, an ECS cluster running Keycloak and the Katta Server, RDS PostgreSQL databases,
 Route53 records and ACM certificates, and an ECR pull-through cache for the container images.
 
 Prerequisites: a domain registered in AWS Route53, Docker, and the AWS CLI with configured credentials. Deployment parameters
@@ -37,7 +37,7 @@ See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full
 ## Helm chart (Kubernetes)
 
 The [katta-server](https://github.com/shift7-ch/katta-server) repository ships a Helm chart, published as an OCI artifact at
-`ghcr.io/shift7-ch/charts/katta-server`. It deploys the Katta Server backend (required) and, enabled by default, Keycloak and
+`ghcr.io/shift7-ch/charts/katta-server`. It deploys the Katta Server (required) and, enabled by default, Keycloak and
 PostgreSQL; a bundled MinIO can optionally be enabled for demos. Chart signatures can be verified with `cosign`.
 
 Local demo on a single-node cluster (kind, minikube, k3d, Docker Desktop) with the bundled MinIO, using the `values-demo.yaml` from
