@@ -43,26 +43,56 @@ see [example directory structure](https://github.com/encryption-alliance/unified
 
 ## S3 Storage Access
 
-Katta currently supports two modes for both S3 providers:
+Katta currently supports both **Static Storage Access Mode** and **STS Storage Access Mode** for S3 providers.
 
-* **Static Storage Access Mode**: use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in
-  the frontend.
-  :::tip[S3 Third Party Providers]
-  You can use any [S3 Storage Provider](self-hosting-guide/providers.md).
-  :::
+### Static Storage Access Mode
 
-* **STS Storage Access Mode**: use STS to have fine-grained permissions:
-  - **Vault Creation**: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
-  - **Storage Access**: only vault users can access storage.
+Use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in the frontend.
 
-  :::note[In-Depth]
-  Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about STS Storage Access Mode.
-  :::
+:::tip[S3 Third Party Providers]
+Beside AWS, you can use any [S3 Storage Provider](self-hosting-guide/providers.md).
+:::
 
-  Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
+Creating a vault on a static storage profile with Katta Desktop asks for two Access Key ID and Secret Access Key pairs.
+They serve different purposes and need different permissions.
 
-  * [AWS](self-hosting-guide/aws.md)
-  * [MinIO](self-hosting-guide/minio.md)
+* **Bucket access**, asked for first, is stored in the encrypted vault metadata. Every member of the vault receives this
+  pair and
+  uses it to work with the vault. It needs `ListBucket`, `GetObject`, `PutObject` and `DeleteObject` permission on every
+  bucket that is created referencing the storage profile.
+* **Bucket creation**, asked for second, is used once by the vault creator to create the bucket and upload the vault
+  template. It
+  needs permission to create buckets.
+
+The same key pair can be used for both. The access pair may create buckets but does not have to, so where the provider
+allows keys
+to be scoped, issue it without that permission.
+
+:::info[Katta Web]
+Creating a vault in Katta Web does use the same Access Key ID and Secret Access Key to create the bucket and vault
+template as stored in the vault metadata.
+:::
+
+:::warning
+The access pair is handed to every member of the vault. Issue a dedicated pair per vault where the provider supports it
+and prefer [_STS Storage Access Mode_](#s3-storage-access) with AWS or MinIO when per-user credentials are required.
+:::
+  
+
+### STS Storage Access Mode
+
+Use STS to have fine-grained permissions:
+- **Vault Creation**: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
+- **Storage Access**: only vault users can access storage.
+
+:::note[In-Depth]
+Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about STS Storage Access Mode.
+:::
+
+Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
+
+* [AWS](self-hosting-guide/aws.md)
+* [MinIO](self-hosting-guide/minio.md)
 
 
 ## Unified Vault Format (UVF)
