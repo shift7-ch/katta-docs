@@ -127,7 +127,14 @@ The following diagram illustrates the interactions when Katta Desktop syncs data
 * `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint etc.)), as well as the encryption keys; it is stored encrypted in Katta Server.
 * With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
-![Interaction diagram: data access in Static Storage Access Mode](../img/overview/DataAccessStatic_Interaction.drawio.png)
+```mermaid
+sequenceDiagram
+    participant client as Katta Client
+    participant server as Katta Server
+    participant s3 as S3
+    client ->> server: get vault.uvf<br/>incl. S3 AccessKeyId + SecretKey
+    client ->> s3: get/upload encrypted data
+```
 
 ### STS Storage Access Mode
 
@@ -139,7 +146,18 @@ The following diagram illustrates the interactions when Katta Desktop syncs data
 * When sent to STS, the vault-specific claims will be evaluated to issue temporary fine-grained S3 credentials giving access to the vault's bucket only
 * With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
-![Interaction diagram: data access in STS Storage Access Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
+```mermaid
+sequenceDiagram
+    participant client as Katta Client
+    participant server as Katta Server
+    participant keycloak as Keycloak
+    participant sts as STS
+    participant s3 as S3
+    client ->> server: get vault.uvf
+    client ->> keycloak: exchange OIDC access token
+    client ->> sts: get temporary restricted S3 credentials
+    client ->> s3: get/upload encrypted data
+```
 
 ## Comparison of Flow to Access Vaults in both _Static_ and _STS Storage Access Modes_
 
@@ -151,4 +169,22 @@ The following diagram illustrates the flow of actions to sync data in an end-to-
 * `vault.uvf` (vault metadata) JWE is fetched from Katta Server and
 * decrypted with the Vault Member Key to get the keys for data encryption/decryption and storage access configuration.
 
-![Activity diagram: end-to-end-encrypted data sync](../img/overview/DataAccess_Activity.drawio.png)
+```mermaid
+flowchart TB
+    start(( ))
+    open("open bookmark in Katta Client<br/><i>User</i>")
+    auth("OAuth token refresh or<br/>OAuth<br/>Authorization Code Flow<br/><i>Keycloak</i>")
+    fetch("get <code>vault.uvf</code><br/><i>Katta Server</i>")
+    decrypt("decrypt vault.uvf and<br/>extract key material<br/>for file and content<br/>encryption/decryption")
+    mode{" "}
+    staticCreds("extract static S3 credentials<br/>from <code>vault.uvf</code>")
+    exchange("exchange access token<br/>for vault-specific access token<br/><i>Keycloak</i>")
+    temp("get temporary,<br/>bucket-specific credentials<br/>from AWS/MinIO STS<br/><i>STS</i>")
+    sync("list/fetch/decrypt data<br/>from bucket,<br/>encrypt and upload data<br/><i>S3</i>")
+    stop((( )))
+
+    start --> open --> auth --> fetch --> decrypt --> mode
+    mode -- "[static]" --> staticCreds --> sync
+    mode -- "[STS]" --> exchange --> temp --> sync
+    sync --> stop
+```

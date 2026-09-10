@@ -10,7 +10,20 @@ description: What happens when a user creates a vault, in Static and in STS Stor
 
 The following diagram illustrates the interactions when a user creates a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage-access):
 
-![Interaction diagram: vault creation in Static Storage Access Mode](../img/overview/VaultCreationStatic_Interaction.drawio.png)
+```mermaid
+sequenceDiagram
+    actor admin as Katta Server Admin
+    actor owner as Katta Vault Owner
+    participant client as Katta Client
+    participant server as Katta Server
+    participant s3 as S3
+    admin ->> server: create storage profile
+    owner ->> s3: create bucket
+    owner ->> s3: put bucket CORS
+    owner ->> client: create vault
+    client ->> s3: upload vault template incl. vault.uvf
+    client ->> server: upload vault.uvf
+```
 
 In words:
 
@@ -27,7 +40,23 @@ In words:
 
 The following diagram illustrates the interactions when a user creates a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage-access):
 
-![Interaction diagram: vault creation in STS Storage Access Mode](../img/overview/VaultCreationSTS_Interaction.drawio.png)
+```mermaid
+sequenceDiagram
+    actor admin as Katta Server Admin
+    participant client as Katta Client
+    participant iam as IAM
+    participant server as Katta Server
+    participant keycloak as Keycloak
+    participant sts as STS
+    participant s3 as S3
+    admin ->> iam: prepare OIDC trust and roles
+    admin ->> server: upload storage profile
+    client ->> keycloak: refresh OIDC access token
+    client ->> sts: get temporary restricted S3 credentials<br/>with inline policy
+    client ->> server: create bucket and<br/>upload vault template incl. vault.uvf
+    server ->> s3: create bucket and<br/>upload vault template incl. vault.uvf
+    server ->> keycloak: sync roles
+```
 
 In words:
 
@@ -44,4 +73,27 @@ In words:
 
 The following diagram illustrates the flow of actions to create a vault in the two modes:
 
-![Activity diagram: vault creation in Static and STS Storage Access Mode](../img/overview/VaultCreation_Activity.drawio.png)
+```mermaid
+flowchart TB
+    start(( ))
+    profile("choose storage profile<br/><i>User</i>")
+    name("enter vault name<br/><i>User</i>")
+    mode1{" "}
+    creds("user enters S3 bucket name and credentials<br/><code>AccessKeyId</code> and <code>SecretKey</code><br/><i>User</i>")
+    encrypt("encrypt <code>vault.uvf</code>")
+    mode2{" "}
+    staticUpload("upload<br/>vault template to empty bucket<br/>with bucket credentials<br/><i>S3</i>")
+    stsToken("fetch<br/>temporary token<br/>with inline policy<br/><i>STS</i>")
+    stsUpload("create bucket<br/>and uploads vault template<br/>using temporary token<br/>from inline policy<br/><i>S3</i>")
+    join{" "}
+    final("upload<br/>encrypted <code>vault.uvf</code><br/><i>Katta Server</i>")
+    stop((( )))
+
+    start --> profile --> name --> mode1
+    mode1 -- "[static]" --> creds --> encrypt
+    mode1 -- "[STS]" --> encrypt
+    encrypt --> mode2
+    mode2 -- "[static]" --> staticUpload --> join
+    mode2 -- "[STS]" --> stsToken --> stsUpload --> join
+    join --> final --> stop
+```

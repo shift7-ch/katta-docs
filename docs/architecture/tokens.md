@@ -102,8 +102,8 @@ else AWS STS
 Note over Katta Client: { "aud": "cryptomatorvaults", "https://aws.amazon.com/tags": {"principal_tags":{"<vaultId>":[""]},"TransitiveTagKeys":["<vaultId>"]}, ...}
 Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
 STS -->> Katta Client: (10) AccessKeyId, SecretKey
-Note over Katta Client: { Action: [sts:AssumeRole, sts:TagSession], Resource: "arn:aws:iam::...:role/katta_chain_02"}
-Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta_chain_02", tag.name=VaultRequested, tag.value=<vaultId>)
+Note over Katta Client: { Action: [sts:AssumeRole, sts:TagSession], Resource: "arn:aws:iam::...:role/katta-access-bucket-tagged-session-role"}
+Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta-access-bucket-tagged-session-role", tag.name=VaultRequested, tag.value=<vaultId>)
 Note over STS: "Condition": { "ForAnyValue:StringEquals": { "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}" } }
 STS -->> Katta Client: (12) AccessKeyId, SecretKey
 Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta-<vaultId>/*"}
@@ -119,7 +119,117 @@ Katta Client ->> S3: (13) /list-bucket
 
 The following diagram shows the data model we use for [Policy-Based Access Control](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html) with [MinIO STS](../self-hosting-guide/minio.md#policy-and-oidc-provider):
 
-![Data model: MinIO policy-based access control](../img/MinIOSetup.drawio.png)
+```mermaid
+erDiagram
+    "MinIO IDP" ||--|| "MinIO Policy" : "role_policy"
+    "MinIO IDP" {
+        string name PK
+        string RoleArn FK
+    }
+    "MinIO Policy" {
+        string RoleArn PK
+        string name
+        string client_id
+        string statement
+    }
+```
+
+<details>
+<summary>Commands and policy documents annotating this model</summary>
+
+Attached to **MinIO IDP** — one identity provider per `role_policy`:
+
+```bash
+mc idp openid add myminio cryptomator \
+    config_url="http://localhost:8180/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomator" \
+    client_secret="ignore-me" \
+    role_policy="katta-createbucketpolicy"
+```
+
+```bash
+mc idp openid add myminio cryptomator \
+    config_url="http://localhost:8180/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomator" \
+    client_secret="ignore-me" \
+    role_policy="katta-accessbucketpolicy"
+```
+
+Attached to **MinIO Policy** — the canned policies the providers bind to:
+
+```bash
+mc admin policy create myminio katta-createbucketpolicy setup/minio_sts/createbucketpolicy.json
+mc admin policy create myminio katta-accessbucketpolicy setup/minio_sts/accessbucketpolicy.json
+```
+
+`createbucketpolicy.json`, the `statement` of the bucket creation policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:GetBucketPolicy",
+        "s3:PutBucketVersioning",
+        "s3:GetBucketVersioning"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-*/"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-*/*/",
+        "arn:aws:s3:::katta-*/vault.uvf"
+      ]
+    }
+  ]
+}
+```
+
+`accessbucketpolicy.json`, the `statement` of the vault access policy, evaluated against the `client_id` claim:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:GetBucketVersioning",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-${jwt:client_id}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:DeleteObject",
+        "s3:GetObject",
+        "s3:ListMultipartUploadParts",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-${jwt:client_id}/*"
+      ]
+    }
+  ]
+}
+```
+
+</details>
 
 OpenID Identities and Policies are installed once during Katta Server Setup (or before the corresponding storage profile(s) for a new storage location are
 uploaded).
@@ -147,7 +257,227 @@ The following diagram show the data model we use for [OIDC Federation](https://d
 to request [temporary security credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_control-access_assumerole.html)
 in [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html):
 
-![Data model: AWS IAM OIDC federation and role chaining](../img/AWSSetup.drawio.png)
+```mermaid
+erDiagram
+    "AWS OIDC Provider" ||--|{ "AWS IAM Role" : "Trust Relationships"
+    "AWS IAM Role" ||--|| "AWS Role Policy" : ""
+    "AWS OIDC Provider" {
+        string OIDCProviderArn PK
+        string clientId FK "multi-valued"
+        string url
+        string thumbprint "multi-valued"
+    }
+    "AWS IAM Role" {
+        string Arn PK
+        string Federated FK "multi-valued"
+    }
+    "AWS Role Policy" {
+        string RolePolicyId PK
+        string role_name FK
+        string policy_name
+    }
+```
+
+<details>
+<summary>Commands and policy documents annotating this model</summary>
+
+Attached to **AWS OIDC Provider**:
+
+```bash
+aws iam create-open-id-connect-provider \
+   --url https://keycloak.example.com/realms/cryptomator \
+   --client-id-list cryptomator cryptomatorhub \
+   --thumbprint-list <thumbprint>
+```
+
+The provider it creates:
+
+```json
+{
+    "Url": "keycloak.example.com/realms/cryptomator",
+    "ClientIDList": [
+        "cryptomatorhub",
+        "cryptomator"
+    ],
+    "ThumbprintList": [
+        "<thumbprint>"
+    ],
+    "CreateDate": "2023-11-13T13:51:32.729000+00:00",
+    "Tags": []
+}
+```
+
+Attached to **AWS IAM Role** — the `Federated` trust relationship:
+
+```bash
+aws iam create-role \
+  --role-name katta-create-bucket \
+  --assume-role-policy-document file://.../aws_stscreatebuckettrustpolicy.json
+```
+
+Trust policy granting web identity federation with session tagging:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": [
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak-staging.example.com/realms/cryptomator",
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak.example.com/realms/cryptomator"
+        ]
+      },
+      "Action": [
+        "sts:AssumeRoleWithWebIdentity",
+        "sts:TagSession"
+      ],
+      "Condition": {}
+    }
+  ]
+}
+```
+
+Trust policy granting web identity federation without session tagging:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": [
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak.example.com/realms/cryptomator",
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak-staging.example.com/realms/cryptomator"
+        ]
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {}
+    }
+  ]
+}
+```
+
+Trust policy for the second role in the chain, requiring the tag to be transitive:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::<account-id>:role/katta-access-bucket-web-identity-role"
+      },
+      "Action": [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ],
+      "Condition": {
+        "ForAnyValue:StringEquals": {
+          "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}"
+        }
+      }
+    }
+  ]
+}
+```
+
+Attached to **AWS Role Policy**:
+
+```bash
+aws iam put-role-policy \
+   --role-name katta-create-bucket \
+   --policy-name katta-create-bucket \
+   --policy-document file://.../aws_stscreatebucketpermissionpolicy.json
+```
+
+Permission policy for bucket creation and vault template upload:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:GetBucketPolicy",
+        "s3:PutBucketVersioning",
+        "s3:GetBucketVersioning",
+        "s3:GetAccelerateConfiguration",
+        "s3:PutAccelerateConfiguration",
+        "s3:GetEncryptionConfiguration",
+        "s3:PutEncryptionConfiguration"
+      ],
+      "Resource": "arn:aws:s3:::katta-*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-*/vault.uvf",
+        "arn:aws:s3:::katta-*/*/"
+      ]
+    }
+  ]
+}
+```
+
+Permission policy allowing the first role in the chain to assume the second:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ],
+      "Resource": "arn:aws:iam::<account-id>:role/katta-access-bucket-tagged-session-role"
+    }
+  ]
+}
+```
+
+Permission policy for vault access, scoped by the session tag:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:GetBucketVersioning"
+      ],
+      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/VaultRequested}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListMultipartUploadParts",
+        "s3:AbortMultipartUpload"
+      ],
+      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/VaultRequested}/*"
+    }
+  ]
+}
+```
+
+</details>
 
 An STS request with token issued by a configured OpenID Connect Provider (defined by `url`, `client_id`, `thumbprint`) returns credentials from Role Policies
 attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):

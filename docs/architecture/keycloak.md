@@ -19,7 +19,38 @@ Therefore, we use client roles added to client scopes instead of realm roles to 
 
 The following diagram shows the data model used in Keycloak:
 
-![Data model: Keycloak client scopes and roles synced per vault](../img/KeycloakSyncDataModel.drawio.png)
+```mermaid
+classDiagram
+    direction LR
+    class realm["cryptomator"] {
+        <<Realm>>
+    }
+    class clientCryptomator["cryptomator"] {
+        <<Client>>
+    }
+    class clientVaults["cryptomatorvaults"] {
+        <<Client>>
+    }
+    class clientScope["{vaultId}"] {
+        <<Client Scope>>
+    }
+    class clientRole["{vaultId}"] {
+        <<Client Role>>
+    }
+    class protocolMapper["aws/minio for {vaultId}"] {
+        <<Protocol Mapper>>
+    }
+    class user["{userId}"] {
+        <<User>>
+    }
+    realm -- clientCryptomator
+    realm -- clientVaults
+    clientScope "*" --> "1" realm
+    clientScope "1" --> "1" clientRole : client-level scope mapping
+    clientScope "*" --> clientVaults : optional client scope
+    protocolMapper "1" --> "1" clientScope
+    user "*" --> "0,1" clientRole
+```
 
 This means that only users with both
 
@@ -69,7 +100,38 @@ For more details, see the tests in the `keycloak` module of Katta Server.
 
 The following diagram shows the wiring of the Keycloak realm to allow token exchange:
 
-![Data model: Keycloak realm wiring for token exchange](../img/RealmDataModel.drawio.png)
+```mermaid
+classDiagram
+    direction TB
+    class clientVaults["cryptomatorvaults"] {
+        <<Client>>
+    }
+    class resource["client.resource.cryptomatorvaults"] {
+        <<Resource type Client>>
+    }
+    class realmManagement["realm-management"] {
+        <<Client>>
+    }
+    class scope["token-exchange"] {
+        <<Authorization Scope>>
+    }
+    class permission["token-exchange.permission.client.cryptomatorvaults"] {
+        <<Permission of type Scope Based>>
+    }
+    class policy["exchange"] {
+        <<Policy of type Client>>
+    }
+    class clientCryptomator["cryptomator"] {
+        <<client>>
+    }
+    clientVaults -- resource : [fine-grained permissions enabled for this client]
+    clientVaults -- permission : permissions.token-exchange<br/>[fine-grained permissions enabled for this client]
+    resource --> realmManagement : owner
+    resource "resources" -- "scopes" scope
+    scope -- permission : associated permission
+    permission "dependent policy" --> "associated policy" policy
+    policy --> clientCryptomator : clients
+```
 
 [^3]:  Keycloak 25 introduces mapper for `sub` claim in scope `basic`, the scope needs to added explicitly to the default scopes list as we override the
 list (in order to remove the `roles` scope),
