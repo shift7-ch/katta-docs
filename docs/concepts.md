@@ -73,7 +73,7 @@ of [Key Rotation](https://github.com/encryption-alliance/unified-vault-format/bl
 contains the key material to decrypt and encrypt data. UVF allows for vendor-specific extension points:
 
 * `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enabled for this vault and defines the maximum length (
-  see [Web of Trust](https://github.com/cryptomator/hub/pull/281)).
+  see [Web of Trust](https://docs.cryptomator.org/hub/admin-guide/web-of-trust/)).
 * `cloud.katta.storage` (Katta only): defines the bucket location and further storage settings
   like [S3 Versioning](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html); the user will have access to their vaults in Katta Desktop
   by [Bookmarks](https://docs.cyberduck.io/cyberduck/bookmarks/). So the information required to create such bookmarks is contained in this section of the
