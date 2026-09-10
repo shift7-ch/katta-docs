@@ -121,22 +121,17 @@ sequenceDiagram
 
 ## E2E-Encrypted Data Sync
 
-The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in *Static Storage Access Mode*:
+### Static Storage Access Mode
+
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage-access):
+* `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint etc.)), as well as the encryption keys; it is stored encrypted in Katta Server.
+* With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
 ![Interaction diagram: data access in Static Storage Access Mode](../img/overview/DataAccessStatic_Interaction.drawio.png)
 
-In words:
+### STS Storage Access Mode
 
-* `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint
-  etc.)), as well as the encryption keys; it is stored encrypted in Katta Server Backend.
-* With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
-
-The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in _STS Storage Access Mode_:
-
-![Interaction diagram: data access in STS Storage Access Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
-
-In words:
-
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage-access):
 * `vault.uvf` (vault metadata) contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom
   endpoint), as
   well as the encryption keys; it is stored encrypted in Katta Server.
@@ -144,18 +139,16 @@ In words:
 * When sent to STS, the vault-specific claims will be evaluated to issue temporary fine-grained S3 credentials giving access to the vault's bucket only
 * With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
+![Interaction diagram: data access in STS Storage Access Mode](../img/overview/DataAccessSTS_Interaction.drawio.png)
+
+## Comparison of Flow to Access Vaults in both _Static_ and _STS Storage Access Modes_
+
 The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
-
-![Activity diagram: end-to-end-encrypted data sync](../img/overview/DataAccess_Activity.drawio.png)
-
-In words:
-
-* A user opens the vault in [Mountain Duck User Interface](https://docs.mountainduck.io/mountainduck/interface/)
+* A user opens the vault in Katta Desktop.
 * If Katta Desktop does not have a valid OIDC access token, it refreshes it or starts
   an [OIDC Authorization Code Grant Flow](https://www.rfc-editor.org/rfc/rfc6749#page-24), asking the user to authenticate in the browser against Keycloak to
   issue a new access token.
-* `vault.uvf` (vault metadata) JWE is fetched from Katta Server Backend and
-* decrypted with the Vault Member Key; the keys for data encryption/decryption are extracted, and the access configuration is extracted and stored in
-  a [bookmark](https://docs.cyberduck.io/cyberduck/bookmarks/).
-  The other actions directly correspond to the interactions described above.
+* `vault.uvf` (vault metadata) JWE is fetched from Katta Server and
+* decrypted with the Vault Member Key to get the keys for data encryption/decryption and storage access configuration.
 
+![Activity diagram: end-to-end-encrypted data sync](../img/overview/DataAccess_Activity.drawio.png)
