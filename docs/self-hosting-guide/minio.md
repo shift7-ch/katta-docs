@@ -80,6 +80,102 @@ mc admin service restart myminio
 MinIO prints the generated `RoleARN` for each configured provider to its server log on (re)start — look for lines such as
 `RoleARN: arn:minio:iam:::role/…`. Inspect the stored provider config with `mc admin config get myminio identity_openid`.
 
+## Resources Created in MinIO
+
+:::info[Sample Configuration]
+These are sample configurations for resources automatically created with `katta setup minio` in MinIO for reference only.
+:::
+
+Everything below assumes the defaults `--roleNamePrefix katta-` and `--bucketPrefix katta-`. Substitute your own prefixes if you
+pass different values. The command creates **no buckets, no MinIO users, no service accounts and no access keys** — only the two
+canned policies. The three identity provider configurations are created by the `mc` commands it prints, not by the command itself.
+
+### Policy `katta-createbucketpolicy`
+
+Bound as `role_policy` to the identity providers for the `cryptomator` and `cryptomatorhub` clients, so that Katta Desktop and
+Katta Web can create the vault bucket and upload the vault template.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "s3:CreateBucket",
+      "s3:GetBucketPolicy",
+      "s3:PutBucketVersioning",
+      "s3:GetBucketVersioning"
+    ],
+    "Resource": "arn:aws:s3:::katta-*"
+  }, {
+    "Effect": "Allow",
+    "Action": "s3:PutObject",
+    "Resource": ["arn:aws:s3:::katta-*/*/", "arn:aws:s3:::katta-*/*.uvf"]
+  }]
+}
+```
+
+The second statement is deliberately narrow. It permits only the initial upload of the vault metadata file `vault.uvf` and the
+root directory objects, not writing arbitrary vault contents.
+
+### Policy `katta-accessbucketpolicy`
+
+Bound as `role_policy` to the identity provider for the `cryptomatorvaults` client. This is the only policy that grants read and
+write access to vault contents.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:ListBucketMultipartUploads",
+      "s3:GetBucketVersioning",
+      "s3:ListBucketVersions"
+    ],
+    "Resource": "arn:aws:s3:::katta-${jwt:client_id}"
+  }, {
+    "Effect": "Allow",
+    "Action": [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListMultipartUploadParts",
+      "s3:AbortMultipartUpload"
+    ],
+    "Resource": "arn:aws:s3:::katta-${jwt:client_id}/*"
+  }]
+}
+```
+
+Scoping to a single vault happens through the `${jwt:client_id}` policy variable. When a vault is created, Katta Server adds a
+protocol mapper to that vault's Keycloak client scope which sets the `client_id` claim of the exchanged access token to the vault
+UUID. The policy therefore resolves to the bucket `katta-<vault-id>` of the vault the token was exchanged for. Where AWS uses a
+chained role with a session tag, MinIO needs neither, because the claim already carries the vault identity.
+
+### Identity Provider Configurations
+
+The printed `mc admin config set` commands create one OpenID provider configuration per client, named
+`identity_openid:katta-<client-id>`. Each points at the realm discovery document from `${hubUrl}/api/config` and binds one of the
+two policies above:
+
+| Provider configuration | Client | `role_policy` | Storage profile field |
+|---|---|---|---|
+| `identity_openid:katta-cryptomator` | `cryptomator` (Katta Desktop) | `katta-createbucketpolicy` | `stsRoleCreateBucketClient` |
+| `identity_openid:katta-cryptomatorhub` | `cryptomatorhub` (Katta Web) | `katta-createbucketpolicy` | `stsRoleCreateBucketHub` |
+| `identity_openid:katta-cryptomatorvaults` | `cryptomatorvaults` (vault access) | `katta-accessbucketpolicy` | `stsRoleAccessBucket` |
+
+The `client_secret` is a placeholder. MinIO requires the field, and the Katta clients are public. MinIO derives one `RoleARN` per
+provider configuration and logs it on restart. Those three ARNs are what the storage profile references.
+
+### On re-runs
+
+A canned policy of the same name is replaced with the document above, so manual edits to it are lost. Passing a different
+`--createBucketPolicyName` or `--accessBucketPolicyName` adds a policy under the new name rather than renaming the old one, and
+existing provider configurations keep referring to the previous name until you re-run the printed `mc admin config set` commands.
+
 ## Reference
 
 * [MinIO OpenID Connect Access Management](https://min.io/docs/minio/linux/administration/identity-access-management/oidc-access-management.html)
