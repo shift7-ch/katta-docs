@@ -21,7 +21,7 @@ access.
 * **Zero-knowledge key management**: all secret key material on Katta Server is stored end-to-end encrypted. The server cannot decrypt it, and neither
   can anyone with access to its database or backups.
 * **Almost zero trust storage management**: Katta Server holds no storage credentials of its own. Where it acts on storage at all, it receives
-  short-lived, down-scoped credentials from the client (see [Tokens with Inline Policy](tokens.md#tokens-with-inline-policy-for-s3-bucket-creation-and-template-upload)).
+  short-lived, down-scoped credentials from the client (see [Tokens with Inline Policy](tokens.md#scoped-tokens-for-s3-storage-access)).
 
 ## Key Overview
 
@@ -70,7 +70,7 @@ only transports and stores the resulting JWE — it cannot grant itself (or anyo
 
 The remaining attack surface is key substitution: a malicious server could serve a forged public key for a user. Katta mitigates this with the Web of
 Trust inherited from Cryptomator Hub: user key pairs include an ECDSA P-384 signing key, and users can verify each other's keys, building signature
-chains that are checked before access is granted (managed in Katta Web; see the feature comparison in the [Concepts](../concepts.md#what-katta-web-and-katta-desktop-can-do)).
+chains that are checked before access is granted (managed in Katta Web; see the feature comparison in the [Concepts](../concepts.md#feature-comparison-of-katta-web-and-katta-desktop)).
 Automatic Access Grant runs on vault owners' clients: a scheduler periodically checks for members awaiting access and grants it by encrypting the member
 key to their public key — client-side, like any manual grant. When the vault's `maxWotDepth` is configured (`org.cryptomator.automaticAccessGrant` in the
 vault metadata), a candidate's public key is only accepted if it carries a signature chain that verifies against the granting owner's own signing key and
