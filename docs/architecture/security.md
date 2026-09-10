@@ -6,12 +6,12 @@ description: The cryptographic keys, what Katta Server stores, how access is gra
 
 # Security
 
-:::note
-
 This document describes Katta's security model at a mid-level: the cryptographic keys, what the server stores, and what each party can and cannot
-access. For the token and IAM details of storage access control, see [Tokens](tokens.md). For the file format cryptography, see the
-[Unified Vault Format (UVF) specification](https://github.com/encryption-alliance/unified-vault-format).
+access.
 
+:::note
+- For the token and IAM details of storage access control, see [Tokens](tokens.md).
+- For the file format cryptography, see the [Unified Vault Format (UVF) specification](https://github.com/encryption-alliance/unified-vault-format).
 :::
 
 ## Design Goals
