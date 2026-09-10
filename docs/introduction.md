@@ -6,17 +6,10 @@ description: What Katta is, what it consists of, and why an organization runs it
 
 # Introduction
 
-Katta brings zero-config storage management and zero-knowledge key management for teams and organizations.
+Deploy Katta as a Cloud Storage Solution with zero-config storage management and zero-knowledge key management for teams and organizations. Katta integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP. Your favorite [cloud storage](concepts.md#s3-storage-access) remains your free choice. Katta consists of _Katta Server_ and _Katta Desktop_:
 
-It integrates into your existing identity management incl. OpenID Connect, SAML, and LDAP.
-As usual, your favorite cloud service remains your free choice [^1].
-
-[^1]: In Static Storage Access Mode, any S3-compatible provider works; STS Storage Access Mode currently supports AWS S3 and MinIO. See [S3 Modes](concepts.md#s3-modes).
-
-Katta consists of Katta Server and Katta Desktop:
-
-* Katta Desktop is based on [Mountain Duck](https://mountainduck.io/) and [Katta Client Library](https://github.com/shift7-ch/katta-clientlib),
-* Katta Server is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).
+* **Katta Desktop** is based on [Mountain Duck](https://mountainduck.io/) and [Katta Client Library](https://github.com/shift7-ch/katta-clientlib),
+* **Katta Server** is based on [Cryptomator Hub](https://github.com/cryptomator/hub/).
 
 This documentation covers the Katta-specific parts only. The upstream documentation covers the rest:
 
@@ -65,7 +58,7 @@ Organizations run Katta instead of a hosted file-sync service:
   while remaining cryptographically unable to read vault contents. Vault owners hold recovery keys, and the
   [Web of Trust](architecture/security.md#granting-access) guards against a malicious server substituting user keys.
 
-## What Katta adds to Cryptomator Hub and Mountain Duck
+## Comparison with Cryptomator Hub and Mountain Duck
 
 Mountain Duck provides interoperable access to Cryptomator Vaults in any storage location, including S3-compatible object storage. Katta adds the following features beyond client-side data encryption and zero knowledge key management of Cryptomator Hub:
 
