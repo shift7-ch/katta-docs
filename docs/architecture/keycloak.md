@@ -38,8 +38,8 @@ The following table lists the events that sync data to Keycloak in line with thi
 
 ## Token Exchange
 
-We add a custom [oidc token exchange provider](https://www.keycloak.org/securing-apps/token-exchange) by implementing a
-Keycloak [service provider interface](https://www.keycloak.org/server/configuration-provider):
+We add a custom [OIDC Token Exchange Provider](https://www.keycloak.org/securing-apps/token-exchange) by implementing a
+Keycloak [Service Provider Interface (SPI)](https://www.keycloak.org/server/configuration-provider):
 
 - if both
     - if there is exactly one requested `scope`
