@@ -11,24 +11,23 @@ This guide shows how to create a storage profile using the [Admin CLI](cli.md). 
 * STS or Static [Storage Access Mode](../concepts.md#s3-storage)
 * S3 endpoint
 * Default region and available regions
-* Provider-specific settings (e.g. [path-style-requests](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#path-style-access))
 
-Katta Server Admins can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restricts vault creation to some zones,
+Administrators can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restricts vault creation to some zones,
 another company uses a low-cost S3 provider supporting only _Static Storage Access Mode_,
 and yet another company has their own [MinIO](../self-hosting-guide/minio.md) deployment.
 
 :::warning
-Uploading a profile requires the `admin` role.
+Configuring a storage profile requires the `admin` role.
 :::
+
+
+## AWS S3
+### STS Storage Access Mode
 
 :::info[Before you start]
 An _STS Storage Access Mode_ profile references IAM roles that must already exist. Prepare them first — see
-[AWS S3](../self-hosting-guide/aws.md) or [MinIO](../self-hosting-guide/minio.md) in the Self-Hosting Guide.
-_Static Storage Access Mode_ needs no such preparation.
+[AWS S3](../self-hosting-guide/aws.md). _Static Storage Access Mode_ needs no such preparation.
 :::
-
-
-## AWS S3, STS Storage Access Mode
 
 :::warning[Environment]
 The example below assumes the following variables set in your environment:
@@ -63,7 +62,7 @@ Authentication uses the browser-based Authorization Code flow unless `--accessTo
 katta storageprofile aws sts --tokenUrl "${TOKEN_URL}" --authUrl "${AUTH_URL}" --hubUrl "${HUB_URL}" --name "AWS S3 STS" --awsAccountId "${AWS_ACCOUNT_ID}" --region "eu-central-1" --regions "eu-central-1"
 ```
 
-## AWS S3, Static Storage Access Mode
+### Static Storage Access Mode
 
 :::warning[Environment]
 The example below assumes the following variables set in your environment:
@@ -85,7 +84,13 @@ katta storageprofile aws static --hubUrl "${HUB_URL}" --name "AWS S3 Static" --r
 For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 static` instead, which additionally requires `--endpointUrl`.
 :::
 
-## MinIO, STS Storage Access Mode
+## MinIO
+### STS Storage Access Mode
+
+:::info[Before you start]
+An _STS Storage Access Mode_ profile references IAM roles that must already exist. Prepare them first — see
+[MinIO](../self-hosting-guide/minio.md). _Static Storage Access Mode_ needs no such preparation.
+:::
 
 :::warning[Environment]
 The example below assumes the following variables set in your environment:
@@ -107,10 +112,223 @@ katta storageprofile minio sts --hubUrl "${HUB_URL}" --name "MinIO S3 STS" --end
   --stsRoleAccessBucket "arn:minio:iam:::role/…"
 ```
 
-## MinIO, Static Storage Access Mode
+## Generic S3 Provider
+### Static Storage Access Mode
 
-Create a static storage profile for a MinIO endpoint reached with long-lived access keys.
+Any provider with an S3-compatible API can be used to store vaults in _Static Storage Access Mode_. The vault creator
+supplies long-lived access keys, and no OpenID Connect identity provider (OIDC) or role setup is required on the storage
+side.
+
+:::warning[CORS]
+Some S3 providers do not support configuring bucket for CORS required to create buckets in Katta Web. In particular this applies to
+any provider built on OpenStack Swift S3-compat layer. See [Troubleshooting](../self-hosting-guide/troubleshooting.md#s3-bucket-cors-settings).
+:::
+
+Four options of `katta storageprofile s3 static` determine how buckets are located in the storage provider.
+
+* `--endpointUrl` is a fixed hostname. It is **not** rewritten per region and it must **not** contain a bucket name.
+* `--region` is used both as the AWS Signature Version 4 signing region and as the `LocationConstraint` sent when a
+  bucket is created. It has to be the region name the provider expects for buckets in the configured endpoint.
+* `--bucketPrefix` defaults to `katta-` and is prepended to the vault UUID to form the bucket name.
+* `--name` assign a custom storage profile name. Defaults to `S3 (Static) Storage Profile <endpointUrl>`
+
+:::info
+Requests are sent path-style, so the bucket name goes into the URL path rather than into the hostname. This is fixed for
+`katta storageprofile s3 static` and cannot be changed on the command line.
+:::
+
+:::tip
+Almost every provider below serves each region under its own hostname. Because a storage profile carries a single endpoint,
+create one storage profile per region and give it a name that includes the region.
+:::
+
+:::warning[Environment]
+All examples assume the Katta Server URL is exported once.
 
 ```bash
-katta storageprofile s3 static --hubUrl "${HUB_URL}" --name "MinIO S3 Static" --endpointUrl "${MINIO_URL}" --region "us-east-1"
+export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
+```
+:::
+
+### Wasabi
+
+Endpoints follow `https://s3.<region>.wasabisys.com` and the signing region is the region in the hostname. Wasabi
+documents
+path-style requests as the recommended form.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Wasabi (eu-central-1)" \
+  --endpointUrl "https://s3.eu-central-1.wasabisys.com" \
+  --region "eu-central-1"
+```
+
+Available regions: `us-east-1`, `us-east-2`, `us-central-1`, `us-west-1`, `us-west-2`, `ca-central-1`, `eu-west-1`,
+`eu-west-2`,
+`eu-west-3`, `eu-central-1`, `eu-central-2`, `eu-south-1`, `ap-northeast-1`, `ap-northeast-2`, `ap-southeast-1`,
+`ap-southeast-2`.
+
+* [Wasabi Service URLs for Storage Regions](https://docs.wasabi.com/docs/service-urls-for-wasabis-storage-regions)
+
+### Scaleway
+
+Endpoints follow `https://s3.<region>.scw.cloud`. Access keys are created per project in the Scaleway console.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Scaleway Object Storage (fr-par)" \
+  --endpointUrl "https://s3.fr-par.scw.cloud" \
+  --region "fr-par"
+```
+
+Available regions: `fr-par` (Paris), `nl-ams` (Amsterdam), `pl-waw` (Warsaw).
+
+* [Scaleway Object Storage Endpoints](https://www.scaleway.com/en/docs/object-storage/api-cli/object-storage-aws-cli/)
+
+### DigitalOcean Spaces
+
+Endpoints follow `https://<region>.digitaloceanspaces.com` and the region is the datacenter name. Spaces access keys are
+generated
+under API in the DigitalOcean control panel and are account-wide.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "DigitalOcean Spaces (fra1)" \
+  --endpointUrl "https://fra1.digitaloceanspaces.com" \
+  --region "fra1"
+```
+
+Available regions: `nyc3`, `sfo2`, `sfo3`, `ams3`, `sgp1`, `fra1`, `blr1`, `syd1`.
+
+* [DigitalOcean Spaces with AWS S3 SDKs](https://docs.digitalocean.com/products/spaces/reference/aws-sdks/)
+
+### Backblaze B2
+
+The S3-compatible endpoint follows `https://s3.<region>.backblazeb2.com`. The region is the one shown next to the bucket
+endpoint in
+the Backblaze account, for example `eu-central-003`.
+
+:::warning[Application Keys]
+Bucket-restricted application keys cannot create buckets, so the
+bucket creation pair has to be a key that covers all buckets.
+:::
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Backblaze B2 (eu-central-003)" \
+  --endpointUrl "https://s3.eu-central-003.backblazeb2.com" \
+  --region "eu-central-003"
+```
+
+* [Backblaze B2 S3-Compatible API](https://www.backblaze.com/docs/cloud-storage-s3-compatible-api)
+
+### Cloudflare R2
+
+The endpoint contains the Cloudflare account ID and there is no per-region hostname. R2 expects `auto` as the signing
+region and
+accepts it as a location constraint, so a single profile covers the whole account.
+
+```bash
+export CLOUDFLARE_ACCOUNT_ID=[your Cloudflare account ID]
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Cloudflare R2" \
+  --endpointUrl "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com" \
+  --region "auto"
+```
+
+* [Cloudflare R2 S3 API Compatibility](https://developers.cloudflare.com/r2/api/s3/api/)
+
+### Exoscale
+
+Endpoints follow `https://sos-<zone>.exo.io` and the signing region is the zone name.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Exoscale SOS (ch-gva-2)" \
+  --endpointUrl "https://sos-ch-gva-2.exo.io" \
+  --region "ch-gva-2"
+```
+
+Available zones: `ch-gva-2`, `ch-dk-2`, `at-vie-1`, `at-vie-2`, `de-fra-1`, `de-muc-1`, `bg-sof-1`, `hr-zag-1`.
+
+* [Exoscale Object Storage](https://community.exoscale.com/product/storage/object-storage/quick-start/)
+
+### Infomaniak
+
+Infomaniak serves several independent S3 endpoints and expects `us-east-1` as the signing region on all of them.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Infomaniak Public Cloud" \
+  --endpointUrl "https://s3.pub1.infomaniak.cloud" \
+  --region "us-east-1"
+```
+
+Public Cloud endpoints are `https://s3.pub1.infomaniak.cloud` and `https://s3.pub2.infomaniak.cloud`. Swiss Backup
+endpoints follow
+`https://s3.swiss-backup0N.infomaniak.com`, where the number is shown in the Infomaniak manager for the subscribed
+instance.
+
+* [Infomaniak Object Storage over S3](https://docs.infomaniak.cloud/documentation/06.object-storage/01.s3/)
+* [Infomaniak Swiss Backup over S3](https://www.infomaniak.com/en/support/faq/2519/swiss-backup-connect-object-storage-with-s3-protocol)
+
+### Hetzner
+
+Endpoints follow `https://<location>.your-objectstorage.com` and the signing region is the location.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "Hetzner Object Storage (fsn1)" \
+  --endpointUrl "https://fsn1.your-objectstorage.com" \
+  --region "fsn1"
+```
+
+Available locations: `fsn1` (Falkenstein), `nbg1` (Nuremberg), `hel1` (Helsinki).
+
+* [Hetzner Object Storage](https://docs.hetzner.com/storage/object-storage/overview)
+
+### OVHcloud
+
+Endpoints follow `https://s3.<region>.io.cloud.ovh.net` and the signing region is the region in the hostname. US regions
+are served
+under `io.cloud.ovh.us` instead.
+
+```bash
+katta storageprofile s3 static --hubUrl "${HUB_URL}" \
+  --name "OVHcloud Object Storage (gra)" \
+  --endpointUrl "https://s3.gra.io.cloud.ovh.net" \
+  --region "gra"
+```
+
+Available regions include `gra`, `sbg`, `rbx`, `bhs`, `de`, `uk`, `waw`, `sgp`, `eu-west-par`, `eu-south-mil`,
+`ca-east-tor`, `ap-south-mum` and `ap-southeast-syd`.
+
+* [OVHcloud Object Storage S3 Endpoints](https://help.ovhcloud.com/csm/en-public-cloud-storage-s3-getting-started?id=kb_article_view&sysparm_article=KB0047308)
+
+### Further Providers
+
+The same command works for any other S3-compatible endpoint. Substitute the endpoint and region below into the Wasabi
+example.
+
+| Provider                       | Endpoint                                             | Region                                         |
+|--------------------------------|------------------------------------------------------|------------------------------------------------|
+| Akamai (Linode) Object Storage | `https://<region>.linodeobjects.com`                 | region in the hostname, e.g. `eu-central-1`    |
+| Fastly Object Storage          | `https://<region>.object.fastlystorage.app`          | `us-east`, `us-west`, `eu-central`             |
+| Impossible Cloud               | `https://<region>.storage.impossibleapi.net`         | region in the hostname, e.g. `eu-central-2`    |
+| IONOS Cloud Object Storage     | `https://s3-eu-central-1.ionoscloud.com` (Frankfurt) | `de`, and elsewhere the region in the hostname |
+| Storadera                      | `https://s3.<region>.storadera.com`                  | region in the hostname, e.g. `eu-central-1`    |
+| Storj                          | `https://gateway.storjshare.io`                      | `auto`                                         |
+| Synology C2 Object Storage     | `https://<region>.s3.synologyc2.net`                 | region in the hostname, e.g. `eu-001`          |
+| Tigris                         | `https://fly.storage.tigris.dev`                     | `auto`                                         |
+
+
+## Archiving a Storage Profile
+
+The command prints the created profile as JSON, including the `id` assigned by Katta Server. Storage profiles are
+immutable. To
+correct one, archive it and upload a replacement. Archiving hides the profile from vault creation and leaves existing
+vaults intact.
+
+```bash
+katta storageprofile archive --hubUrl "${HUB_URL}" --uuid "[profile id from the JSON output]"
 ```
