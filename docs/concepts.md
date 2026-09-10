@@ -41,7 +41,7 @@ directory `d`:
 For more details,
 see [example directory structure](https://github.com/encryption-alliance/unified-vault-format/blob/develop/file%20name%20encryption/AES-SIV-512-B64URL.md#example-directory-structure).
 
-## S3 Storage Access
+## S3 Storage
 
 Katta currently supports both **Static Storage Access Mode** and **STS Storage Access Mode** for S3 providers.
 
