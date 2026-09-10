@@ -1,6 +1,6 @@
 ---
 title: Storage Profiles
-sidebar_position: 1
+sidebar_position: 2
 description: Define where users can create vaults — upload an AWS S3 or MinIO storage profile in Static or STS Storage Access Mode.
 ---
 

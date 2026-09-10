@@ -1,6 +1,6 @@
 ---
 title: Admin CLI
-sidebar_position: 3
+sidebar_position: 1
 description: Configure a Katta Server and its S3 storage backend from the command line.
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Roles
-sidebar_position: 2
+sidebar_position: 3
 description: Who can do what in Katta — the Keycloak realm roles and the per-vault roles.
 ---
 
