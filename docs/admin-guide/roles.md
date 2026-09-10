@@ -6,7 +6,7 @@ description: Who can do what in Katta — the Keycloak realm roles and the per-v
 
 # Roles
 
-Katta uses the Keycloak realm roles `user`, `create-vaults` and `admin`, inherited from Cryptomator Hub. Vault ownership and membership are managed per vault, not through realm roles.
+Katta uses the [Keycloak](../architecture/keycloak.md) realm roles `user`, `create-vaults` and `admin`, inherited from Cryptomator Hub. Vault ownership and membership are managed per vault, not through realm roles.
 
 
 * Katta User: the [`user`](https://docs.cryptomator.org/hub/user-group-management/#roles) role allows to login to Katta Server Frontend
