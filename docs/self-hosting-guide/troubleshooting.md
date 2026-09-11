@@ -20,7 +20,7 @@ The bucket S3 endpoint must allow requests from the Katta Web origin. Create the
 Some S3 providers do not support configuring bucket for CORS required to create buckets in Katta Web:
 
 - Any provider built on OpenStack Swift S3-compat layer.
-- For MinIO instead set the allowed origin globally when starting the server:
+- For [MinIO](minio.md) instead set the allowed origin globally when starting the server:
 
   ```bash
   export MINIO_API_CORS_ALLOW_ORIGIN=https://your-katta-server.example.com
