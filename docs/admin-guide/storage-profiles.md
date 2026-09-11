@@ -156,6 +156,10 @@ Endpoints follow `https://s3.<region>.wasabisys.com` and the signing region is t
 documents
 path-style requests as the recommended form.
 
+```tip
+Wasabi returns a wildcard CORS policy out of the box, so buckets need no CORS setup.
+```
+
 ```bash
 katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --name "Wasabi (eu-central-1)" \
