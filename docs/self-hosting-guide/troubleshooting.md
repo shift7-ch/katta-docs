@@ -53,6 +53,19 @@ export AWS_ENDPOINT_URL_S3=https://s3.example.com
   aws s3api put-bucket-cors --bucket <bucket-name> --cors-configuration file://cors.json
   ```
 
+:::note[Providers with a permissive default policy]
+Some providers answer with a wildcard CORS policy for every bucket and do not need any configuration. Wasabi, for example, returns `Access-Control-Allow-Origin: *` along with the methods and the `Etag` header required for the vault template upload. The wildcard origin is sufficient here because the requests are signed with headers rather than cookies.
+
+Send a preflight request to the bucket endpoint to check what a provider returns:
+
+```bash
+curl -s -i -X OPTIONS "https://s3.example.com/<bucket-name>/" \
+  -H "Origin: https://your-katta-web.example.com" \
+  -H "Access-Control-Request-Method: GET" \
+  -H "Access-Control-Request-Headers: authorization"
+```
+:::
+
 
 ### CSP settings of Katta Server
 The **CSP settings of Katta Server** must include the S3 endpoints of the storage profile. The configuration options can be found in
