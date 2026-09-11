@@ -17,8 +17,14 @@ In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 
 The bucket S3 endpoint must allow requests from the Katta Web origin. Create the bucket and set its CORS configuration **before** creating the vault.
 
 :::warning
-Some S3 providers do not support configuring bucket for CORS required to create buckets in Katta Web. In particular this applies to
-any provider built on OpenStack Swift S3-compat layer.
+Some S3 providers do not support configuring bucket for CORS required to create buckets in Katta Web:
+
+- Any provider built on OpenStack Swift S3-compat layer.
+- For MinIO instead set the allowed origin globally when starting the server:
+
+  ```bash
+  export MINIO_API_CORS_ALLOW_ORIGIN=https://your-katta-server.example.com
+  ```
 :::
 
 The sample below is using [AWS CLI](https://aws.amazon.com/cli/):
@@ -80,13 +86,6 @@ See [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs
 :::
 
 
-## MinIO: Setting CORS on a bucket does not work
-
-MinIO does not [support](https://min.io/docs/minio/linux/operations/concepts/thresholds.html#unsupported-s3-bucket-apis) the CORS configuration for buckets. Instead, set the allowed origin globally when starting the server:
-
-```bash
-export MINIO_API_CORS_ALLOW_ORIGIN=https://your-katta-server.example.com
-```
 
 ## MinIO: `Client ID XYZ is present with multiple OpenID configurations`
 
