@@ -42,7 +42,19 @@ export AWS_ENDPOINT_URL_S3=https://s3.example.com
 :::
 
 ```bash
-aws s3api put-bucket-cors --bucket <bucket-name> --cors-configuration '{"CORSRules":[{"AllowedOrigins":["https://your-katta-web.example.com"],"AllowedMethods":["GET","PUT","POST","DELETE","HEAD"],"AllowedHeaders":["*"],"ExposeHeaders":["ETag","x-amz-request-id","x-amz-id-2","x-amz-version-id"],"MaxAgeSeconds":3600}]}'
+aws s3api put-bucket-cors \
+  --bucket <bucket-name> \
+  --cors-configuration '{
+    "CORSRules": [
+      {
+        "AllowedOrigins": ["https://your-katta-web.example.com"],
+        "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+        "AllowedHeaders": ["*"],
+        "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2", "x-amz-version-id"],
+        "MaxAgeSeconds": 3600
+      }
+    ]
+  }'
 ```
 
 :::note[Providers with a permissive default policy]
