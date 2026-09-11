@@ -120,8 +120,7 @@ supplies long-lived access keys, and no OpenID Connect identity provider (OIDC) 
 side.
 
 :::warning[CORS]
-Some S3 providers do not support configuring bucket for CORS required to create buckets in Katta Web. In particular this applies to
-any provider built on OpenStack Swift S3-compat layer. See [Troubleshooting](../self-hosting-guide/troubleshooting.md#s3-bucket-cors-settings).
+To create buckets in Katta Web, buckets must be configured for CORS. See [Troubleshooting](../self-hosting-guide/troubleshooting.md#s3-bucket-cors-settings).
 :::
 
 Four options of `katta storageprofile s3 static` determine how buckets are located in the storage provider.
