@@ -41,27 +41,9 @@ export AWS_ENDPOINT_URL_S3=https://s3.example.com
 ```
 :::
 
-1. Save the rule to a file, for example `cors.json`:
-
-  ```json
-  {
-    "CORSRules": [
-      {
-        "AllowedOrigins": ["https://your-katta-web.example.com"],
-        "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-        "AllowedHeaders": ["*"],
-        "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2", "x-amz-version-id"],
-        "MaxAgeSeconds": 3600
-      }
-    ]
-  }
-  ```
-
-2. Then apply it to the bucket:
-
-  ```bash
-  aws s3api put-bucket-cors --bucket <bucket-name> --cors-configuration file://cors.json
-  ```
+```bash
+aws s3api put-bucket-cors --bucket <bucket-name> --cors-configuration '{"CORSRules":[{"AllowedOrigins":["https://your-katta-web.example.com"],"AllowedMethods":["GET","PUT","POST","DELETE","HEAD"],"AllowedHeaders":["*"],"ExposeHeaders":["ETag","x-amz-request-id","x-amz-id-2","x-amz-version-id"],"MaxAgeSeconds":3600}]}'
+```
 
 :::note[Providers with a permissive default policy]
 Some providers answer with a wildcard CORS policy for every bucket and do not need any configuration. Wasabi, for example, returns `Access-Control-Allow-Origin: *` along with the methods and the `Etag` header required for the vault template upload. The wildcard origin is sufficient here because the requests are signed with headers rather than cookies.
