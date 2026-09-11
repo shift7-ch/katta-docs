@@ -131,7 +131,4 @@ The following table captures the current state of implemented features:
 | Share vault with Members or Owners           | ✅        | ❌            |
 | Archive Vaults                               | ✅        | ❌            |
 
-[^1]: Conceptually, the only limitation is that a browser cannot create a bucket and configure its CORS settings in one shot, since S3 does not offer bucket
-creation and CORS configuration as a joint operation. Hence, in _Static Storage Access Mode_ Katta Web can only use pre-existing, CORS-configured buckets, while in _STS Storage Access Mode_
-Katta Server creates the bucket on its behalf. The Desktop Client is not affected.
-
+[^1]: See [Troubleshooting](self-hosting-guide/troubleshooting.md#s3-bucket-cors-settings) for CORS requirements.
