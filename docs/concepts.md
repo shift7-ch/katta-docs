@@ -78,7 +78,7 @@ template as stored in the vault metadata.
 
 :::warning
 The access pair is handed to every member of the vault. Issue a dedicated pair per vault where the provider supports it
-and prefer [_STS Storage Access Mode_](#s3-storage-access) with AWS or MinIO when per-user credentials are required.
+and prefer [_STS Storage Access Mode_](#s3-storage) with AWS or MinIO when per-user credentials are required.
 :::
   
 
@@ -110,7 +110,7 @@ contains the key material to decrypt and encrypt data. UVF allows for vendor-spe
 
 * `org.cryptomator.automaticAccessGrant` (upstream): defines whether automatic access grant is enabled for this vault and defines the maximum length (
   see [Web of Trust](https://docs.cryptomator.org/hub/admin-guide/web-of-trust/)).
-* `cloud.katta.storage` (Katta only): defines the vault name, bucket location and [static access tokens](#s3-storage-access) if any.
+* `cloud.katta.storage` (Katta only): defines the vault name, bucket location and [static access tokens](#s3-storage) if any.
 
 ## Feature Comparison of Katta Web and Katta Desktop
 
