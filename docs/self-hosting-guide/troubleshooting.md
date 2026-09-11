@@ -78,16 +78,3 @@ The **CSP settings of Katta Server** must include the S3 endpoints of the storag
 :::tip
 See [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) for a full example.
 :::
-
-
-
-## MinIO: `Client ID XYZ is present with multiple OpenID configurations`
-
-MinIO does not allow multiple OIDC provider configurations with the same client ID:
-
-```text
-mc: <ERROR> Unable to add OpenID IDP config to server. Client ID XYZ is present with multiple OpenID configurations.
-```
-
-This is not a problem for Katta's setup: leave the claim specifying the vault unset or pointing to a non-existing vault.
-See [MinIO](minio.md) for the full MinIO configuration.
