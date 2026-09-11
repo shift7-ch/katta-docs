@@ -10,6 +10,20 @@ Katta Server consists of the backend, the web frontend, and Keycloak. Deploy it 
 provider setup on the following pages assumes a running server. Configuration follows the upstream
 [Cryptomator Hub setup](https://docs.cryptomator.org/hub/).
 
+Three deployment options are available. They differ in how much surrounding infrastructure they provide and how much you are
+expected to operate yourself:
+
+| Option | Best for | Brings along | You provide |
+| --- | --- | --- | --- |
+| [Terraform](#terraform-aws) | Production on AWS, from scratch | VPC, load balancers, ECS, RDS, Route53, ACM, ECR | AWS account, Route53 domain |
+| [Helm chart](#helm-chart-kubernetes) | Production on an existing Kubernetes cluster | Katta Server, Keycloak and PostgreSQL, optionally MinIO | Cluster, ingress controller, TLS, hostnames |
+| [Docker Compose](#docker-compose) | Local testing and demos | Katta Server, Keycloak, MinIO, preconfigured storage profiles | Docker on a single machine |
+
+Terraform and the Helm chart are the maintained paths for production, so pick the one matching where you operate: Terraform if AWS is
+your target and you want the network and managed databases created for you, the Helm chart if you already run Kubernetes. The
+Docker Compose setup is a demo that ships with the test resources of the client library, with MinIO and storage profiles
+preseeded, to get a complete stack running on one machine in minutes.
+
 
 ## Terraform (AWS)
 
