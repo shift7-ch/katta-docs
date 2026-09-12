@@ -10,6 +10,10 @@ description: Common setup pitfalls — CORS on the bucket, CSP on the server, an
 
 In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work.
 
+:::tip[Katta Desktop]
+The following only applies to Katta Web. Katta Desktop is not subject to browser CORS restrictions.
+:::
+
 ### S3 Bucket CORS Settings
 
 The bucket S3 endpoint must allow requests from the Katta Web origin. Create the bucket and set its CORS configuration **before** creating the vault.
