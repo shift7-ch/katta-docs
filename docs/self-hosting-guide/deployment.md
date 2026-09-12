@@ -6,8 +6,8 @@ description: Deploy Katta Server with Terraform on AWS, the Helm chart on Kubern
 
 # Deployment
 
-Katta Server consists of the backend, the web frontend, and Keycloak. Deploy it independently of the storage provider: the storage
-provider setup on the following pages assumes a running server. Configuration follows the upstream
+Katta Server consists of the backend, the web frontend, and Keycloak. Deploy it independently of the storage provider: the [storage
+provider setup](../admin-guide/storage-profiles.md) assumes a running server. Configuration follows the upstream
 [Cryptomator Hub setup](https://docs.cryptomator.org/hub/).
 
 Three deployment options are available. They differ in how much surrounding infrastructure they provide and how much you are
