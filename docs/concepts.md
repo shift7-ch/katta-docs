@@ -131,4 +131,4 @@ The following table captures the current state of implemented features:
 | Share vault with Members or Owners           | ✅        | ❌            |
 | Archive Vaults                               | ✅        | ❌            |
 
-[^1]: See [Troubleshooting](self-hosting-guide/troubleshooting.md#s3-bucket-cors-settings) for CORS requirements.
+[^1]: See [Troubleshooting](self-hosting-guide/troubleshooting.md#vault-creation-from-katta-web-fails-in-_static-storage-access-mode_) for CORS requirements.
