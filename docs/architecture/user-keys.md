@@ -1,7 +1,7 @@
 ---
 title: User Keys
 sidebar_position: 1
-description: How the Katta Desktop client obtains the user's key pair — first login, a new device, and account recovery.
+description: How Katta Desktop obtains the user's key pair — first login, a new device, and account recovery.
 ---
 
 # User Keys

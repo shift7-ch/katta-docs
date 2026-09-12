@@ -79,7 +79,7 @@ settings, and upload to it in one shot — and S3 does not offer bucket creation
 `katta-create-bucket` role and hands the resulting temporary credentials to Katta Server, which creates the bucket and uploads the vault template on the
 user's behalf; server-side calls are not subject to browser CORS restrictions.
 
-The **Desktop Client** is not a browser and is not bound by CORS, so it does not involve Katta Server: it assumes the `katta-create-bucket` role and
+**Katta Desktop** is not a browser and is not bound by CORS, so it does not involve Katta Server: it assumes the `katta-create-bucket` role and
 creates the bucket itself. See [Tokens](tokens.md#scoped-tokens-for-s3-storage-access) for the full flow.
 :::
 

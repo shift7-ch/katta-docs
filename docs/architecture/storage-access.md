@@ -37,7 +37,7 @@ Keycloak client.
 ```mermaid
 sequenceDiagram
     actor User
-    participant client as Desktop Client
+    participant client as Katta Desktop
     participant katta as Katta API Server
     Note right of client: client_id=cryptomator
     activate client
