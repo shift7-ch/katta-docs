@@ -6,8 +6,6 @@ description: Common setup pitfalls — CORS on the bucket, CSP on the server, an
 
 # Troubleshooting
 
-Most setup pitfalls in Katta are CORS-related, because Katta Web talks to the S3 endpoint directly from the browser.
-
 ## Vault creation from Katta Web fails in _Static Storage Access Mode_
 
 In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work.
