@@ -135,7 +135,7 @@ create one storage profile per region and give it a name that includes the regio
 ### S3 Bucket CORS Settings
 
 The bucket S3 endpoint must allow requests from the Katta Web origin. Create the bucket and set its CORS 
-configuration **before** creating the vault in Katta Web with a _Static Storage Access Mode_ storage profile.
+configuration **before** creating the vault in Katta Web.
 
 :::note[Providers with a permissive default policy]
 Some providers answer with a wildcard CORS policy for every bucket and do not need any configuration. Wasabi, for example, returns `Access-Control-Allow-Origin: *` along with the methods and the `Etag` header required for the vault template upload. The wildcard origin is sufficient here because the requests are signed with headers rather than cookies.
@@ -150,15 +150,11 @@ curl -s -i -X OPTIONS "https://s3.example.com/<bucket-name>/" \
 ```
 :::
 
-:::warning
-Some S3 providers do not support configuring bucket for CORS required to create buckets in Katta Web:
+:::warning[Providers without support for the S3 CORS API]
+Providers that do not implement `PutBucketCors` answer with `501 NotImplemented` and cannot be used to create vaults in Katta Web. Use
+[Katta Desktop](../user-guide/desktop-setup.md) instead, which is not bound by browser CORS restrictions.
 
-- Any provider built on OpenStack Swift S3-compat layer.
-- For [MinIO](../self-hosting-guide/minio.md) instead set the allowed origin globally when starting the server:
-
-  ```bash
-  export MINIO_API_CORS_ALLOW_ORIGIN=https://your-katta-server.example.com
-  ```
+[MinIO](../self-hosting-guide/minio.md#allowed-origin-for-katta-web) does not implement the bucket CORS API either and takes the allowed origin as a server-wide setting.
 :::
 
 The sample below is using [AWS CLI](https://aws.amazon.com/cli/):
