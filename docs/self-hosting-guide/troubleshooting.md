@@ -8,26 +8,13 @@ description: Common setup pitfalls — CORS on the bucket, CSP on the server, an
 
 ## Vault creation from Katta Web fails in _Static Storage Access Mode_
 
-In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work.
+In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
 
 :::tip[Katta Desktop]
 The following only applies to Katta Web. Katta Desktop is not subject to browser CORS restrictions.
 :::
 
-### S3 Bucket CORS Settings
-
-:::note[Providers with a permissive default policy]
-Some providers answer with a wildcard CORS policy for every bucket and do not need any configuration. Wasabi, for example, returns `Access-Control-Allow-Origin: *` along with the methods and the `Etag` header required for the vault template upload. The wildcard origin is sufficient here because the requests are signed with headers rather than cookies.
-
-Send a preflight request to the bucket endpoint to check what a provider returns:
-
-```bash
-curl -s -i -X OPTIONS "https://s3.example.com/<bucket-name>/" \
-  -H "Origin: https://your-katta-web.example.com" \
-  -H "Access-Control-Request-Method: GET" \
-  -H "Access-Control-Request-Headers: authorization"
-```
-:::
+- **S3 Bucket CORS Settings**. The bucket S3 endpoint must allow requests from the Katta Web origin. Refer to [S3 Bucket CORS Settings](../admin-guide/storage-profiles.md#s3-bucket-cors-settings) in the _Admin Guide_ for setup instructions.
 
 The bucket S3 endpoint must allow requests from the Katta Web origin. Create the bucket and set its CORS configuration **before** creating the vault.
 
