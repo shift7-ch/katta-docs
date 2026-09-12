@@ -89,7 +89,20 @@ terraform destroy --auto-approve
 There is a 7-day grace period on AWS Secrets Manager deletions.
 :::
 
-## Helm chart (Kubernetes)
+### Content Security Policy (CSP) Settings
+
+The [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) deployment assembles
+the header from `'self'`, `*.amazonaws.com`, `api.katta.cloud`, the Keycloak origin and the entries of
+`hub_csp_additional_connect_src`. Set it with:
+
+```bash
+export TF_VAR_hub_csp_additional_connect_src="https://*.wasabisys.com"
+```
+
+S3 and STS endpoints on AWS are already covered by `*.amazonaws.com`, so only providers outside AWS need
+to be listed.
+
+## Helm Chart (Kubernetes)
 
 The [katta-server](https://github.com/shift7-ch/katta-server) repository ships a Helm chart, published as an OCI artifact at
 `ghcr.io/shift7-ch/charts/katta-server`. It deploys the Katta Server (required) and, enabled by default, Keycloak and
@@ -127,6 +140,26 @@ bootstrap), `postgres` and `minio` (can be disabled to use external services, e.
 See the chart [README](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/README.md) for the complete values reference.
 :::
 
+### Content Security Policy (CSP) Settings
+
+The chart appends `hub.config.additionalConnectSrc` to the sources it derives from `urls.kc.public` and `urls.s3.public`:
+
+```yaml
+hub:
+  config:
+    additionalConnectSrc:
+      - https://s3.amazonaws.com
+      - "https://*.wasabisys.com"
+```
+
+The deployment is annotated with a checksum of its configuration, so `helm upgrade` restarts the pod
+whenever the policy changes.
+
+:::warning
+`hub.config.contentSecurityPolicy` replaces the whole header and discards every source the chart derives,
+including the Keycloak origin. Use it only when specifying all directives yourself.
+:::
+
 ## Docker Compose
 
 For local testing, the `demo` profile in the [Docker Compose Configuration File](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml)
@@ -134,6 +167,24 @@ brings up Katta Server, Keycloak, and MinIO together with a matching set of stor
 [setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/).
 
 * [One-Stop Shop Demo with Docker Compose](https://github.com/shift7-ch/katta-clientlib#one-stop-shop-demo-with-docker-compose)
+
+### Content Security Policy (CSP) Settings
+
+The local setup in [katta-clientlib](https://github.com/shift7-ch/katta-clientlib) appends
+`CSP_CONNECT_SRC_EXTRA` to the sources it derives from the MinIO and Keycloak addresses. Set it in
+`.local.env` next to the other variables:
+
+```bash
+CSP_CONNECT_SRC_EXTRA=*.amazonaws.com https://*.wasabisys.com
+```
+
+Several sources are given space-separated in a single value. A variable exported in the shell takes
+precedence over the env file, which is convenient for a one-off run. Recreate the container to apply the
+change:
+
+```bash
+docker compose -f test/src/test/resources/docker-compose-hub-keycloak-minio.yml --profile local --env-file test/src/test/resources/.local.env up -d --force-recreate hub
+```
 
 ## Configuration
 
