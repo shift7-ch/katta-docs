@@ -312,6 +312,18 @@ Available zones: `ch-gva-2`, `ch-dk-2`, `at-vie-1`, `at-vie-2`, `de-fra-1`, `de-
 
 Infomaniak serves several independent S3 endpoints and expects `us-east-1` as the signing region on all of them.
 
+:::note[No CORS configuration over S3]
+Infomaniak Object Storage is built on OpenStack Swift, whose S3 layer does not implement `PutBucketCors`. Vaults on this profile have to be created in
+[Katta Desktop](../user-guide/desktop-setup.md).
+
+This affects every provider built on the OpenStack Swift S3-compatibility layer. On Swift, the
+allowed origin is set per container through the native Swift API rather than through S3:
+
+```bash
+swift post <container-name> --meta Access-Control-Allow-Origin:https://your-katta-web.example.com
+```
+:::
+
 ```bash
 katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --name "Infomaniak Public Cloud" \
