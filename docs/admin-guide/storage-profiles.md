@@ -131,11 +131,6 @@ Four options of `katta storageprofile s3 static` determine how buckets are locat
 * `--bucketPrefix` defaults to `katta-` and is prepended to the vault UUID to form the bucket name.
 * `--name` assign a custom storage profile name. Defaults to `S3 (Static) Storage Profile <endpointUrl>`
 
-:::info
-Requests are sent path-style, so the bucket name goes into the URL path rather than into the hostname. This is fixed for
-`katta storageprofile s3 static` and cannot be changed on the command line.
-:::
-
 :::tip
 Almost every provider below serves each region under its own hostname. Because a storage profile carries a single endpoint,
 create one storage profile per region and give it a name that includes the region.
