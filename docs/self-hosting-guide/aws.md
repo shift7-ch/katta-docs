@@ -91,24 +91,26 @@ Inline permission policy:
 ```json
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Action": [
-      "s3:CreateBucket",
-      "s3:GetBucketPolicy",
-      "s3:PutBucketVersioning",
-      "s3:GetBucketVersioning",
-      "s3:GetAccelerateConfiguration",
-      "s3:PutAccelerateConfiguration",
-      "s3:GetEncryptionConfiguration",
-      "s3:PutEncryptionConfiguration"
-    ],
-    "Resource": "arn:aws:s3:::katta-*"
-  }, {
-    "Effect": "Allow",
-    "Action": "s3:PutObject",
-    "Resource": ["arn:aws:s3:::katta-*/*/", "arn:aws:s3:::katta-*/*.uvf"]
-  }]
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:GetBucketPolicy"
+      ],
+      "Resource": "arn:aws:s3:::{}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::{}/*.uvf",
+        "arn:aws:s3:::{}/*/"
+      ]
+    }
+  ]
 }
 ```
 
