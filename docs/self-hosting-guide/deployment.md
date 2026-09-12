@@ -32,10 +32,39 @@ networking, Application Load Balancers, an ECS cluster running Keycloak and the 
 Route53 records and ACM certificates, and an ECR pull-through cache for the container images.
 
 :::warning[Prerequisites]
-A domain registered in AWS Route53, Docker, and the AWS CLI with configured credentials. Deployment parameters
-(`dns_suffix`, database passwords, client secrets, `github_token`, …) are supplied as `TF_VAR_*` environment variables or a
-`terraform.tfvars` file.
+A domain registered in AWS Route53 and Docker installed. Credentials for the AWS CLI are read from the environment:
+
+```bash
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+export AWS_SESSION_TOKEN=
+export AWS_DEFAULT_REGION=
+export AWS_USE_DUALSTACK_ENDPOINT=false
+```
 :::
+
+Deployment parameters are supplied either as `TF_VAR_*` environment variables or in a `terraform.tfvars` file copied from
+`terraform.tfvars.template`. The domain, the passwords and the client secrets have no usable defaults:
+
+```bash
+export TF_VAR_region=$AWS_DEFAULT_REGION
+export TF_VAR_dns_suffix=example.net
+export TF_VAR_keycloak_db_password=
+export TF_VAR_keycloak_admin_password=
+export TF_VAR_hub_db_password=
+export TF_VAR_hub_keycloak_system_client_secret=
+export TF_VAR_hub_keycloak_oidc_cryptomator_vaults_client_secret=
+```
+
+The ECR pull-through cache authenticates against the GitHub Container Registry even for public images, so a GitHub personal
+access token with the `read:packages` scope is required as well:
+
+```bash
+export TF_VAR_github_token=$(gh auth token)
+```
+
+The workspace name becomes the infix of the subdomains created, so `katta` below yields `hub.katta.example.net` and
+`keycloak.katta.example.net`:
 
 ```bash
 terraform workspace new katta
@@ -45,11 +74,19 @@ terraform plan
 terraform apply --auto-approve
 ```
 
-Tear the deployment down with `terraform destroy --auto-approve` (note the 7-day grace period on AWS Secrets Manager deletions).
-
 :::info
 See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full variable reference and for example CSP and
 `application.properties` settings ([ecs.tf](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf)).
+:::
+
+Tear the deployment down with:
+
+```bash
+terraform destroy --auto-approve
+```
+
+:::note[AWS Secrets Manager]
+There is a 7-day grace period on AWS Secrets Manager deletions.
 :::
 
 ## Helm chart (Kubernetes)
