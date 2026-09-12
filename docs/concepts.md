@@ -112,23 +112,25 @@ contains the key material to decrypt and encrypt data. UVF allows for vendor-spe
   see [Web of Trust](https://docs.cryptomator.org/hub/admin-guide/web-of-trust/)).
 * `cloud.katta.storage` (Katta only): defines the vault name, bucket location and [static access tokens](#s3-storage) if any.
 
-## Feature Comparison of Katta Web and Katta Desktop
+## Feature Comparison
 
 The following table captures the current state of implemented features:
 
-| Feature                                      | Katta Web | Katta Desktop |
-|----------------------------------------------|-----------|---------------|
-| Create Vault with S3 Static Access Tokens    | ✅[^1]    | ✅            |
-| Create Vault with S3 Temporary Access Tokens | ✅        | ✅            |
-| List Vaults                                  | ✅        | ✅            |
-| Decrypt Vault Contents                       | ❌        | ✅            |
-| Manual Access Grant                          | ✅        | ❌            |
-| Automatic Access Grant                       | ❌        | ✅            |
-| View Storage Profiles Details                | ✅        | ❌            |
-| Initial Setup creating User Keys             | ✅        | ✅            |
-| View/Reset Setup Code                        | ✅        | ❌            |
-| Manage Signature Chains (Web of Trust)       | ✅        | ❌            |
-| Share vault with Members or Owners           | ✅        | ❌            |
-| Archive Vaults                               | ✅        | ❌            |
+| Feature                                      | Katta Web | Katta Desktop | Admin CLI |
+|----------------------------------------------|-----------|---------------|-----------|
+| Create Vault with S3 Static Access Tokens    | ✅[^1]    | ✅            | ❌        |
+| Create Vault with S3 Temporary Access Tokens | ✅        | ✅            | ❌        |
+| List Vaults                                  | ✅        | ✅            | ❌        |
+| Decrypt Vault Contents                       | ❌        | ✅            | ❌        |
+| Manual Access Grant                          | ✅        | ❌            | ❌        |
+| Automatic Access Grant                       | ❌        | ✅            | ❌        |
+| View Storage Profiles Details                | ✅        | ❌            | ❌        |
+| Create Storage Profiles                      | ✅        | ❌            | ✅        |
+| Setup Storage Provider Integration           | ❌        | ❌            | ✅        |
+| Initial Setup creating User Keys             | ✅        | ✅            | ❌        |
+| View/Reset Setup Code                        | ✅        | ❌            | ❌        |
+| Manage Signature Chains (Web of Trust)       | ✅        | ❌            | ❌        |
+| Share vault with Members or Owners           | ✅        | ❌            | ❌        |
+| Archive Vaults                               | ✅        | ❌            | ❌        |
 
 [^1]: See [Troubleshooting](self-hosting-guide/troubleshooting.md#vault-creation-from-katta-web-fails-in-_static-storage-access-mode_) for CORS requirements.
