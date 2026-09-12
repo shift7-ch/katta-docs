@@ -64,7 +64,21 @@ const config: Config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        redirects: [ ],
+        redirects: [
+          // pre-restructure URLs
+          { from: '/introduction/intro', to: '/introduction' },
+          { from: '/introduction/comparison', to: '/introduction' },
+          { from: '/introduction/glossary', to: '/glossary' },
+          { from: '/arch', to: '/architecture' },
+          { from: '/arch/overview', to: '/concepts' },
+          { from: '/arch/architecture', to: '/architecture' },
+          { from: '/arch/security', to: '/architecture/security' },
+          { from: '/arch/tokens', to: '/architecture/tokens' },
+          { from: '/setup', to: '/self-hosting-guide' },
+          { from: '/setup/server-setup', to: '/self-hosting-guide' },
+          { from: '/setup/desktop-client-setup', to: '/user-guide/desktop-setup' },
+          { from: '/setup/troubleshooting', to: '/self-hosting-guide/troubleshooting' },
+        ],
       },
     ],
     [
@@ -106,20 +120,32 @@ const config: Config = {
       items: [
         {
           label: 'Introduction',
-          to: 'introduction/intro',
-          activeBasePath: 'introduction/',
+          to: 'introduction',
+          activeBaseRegex: '^/(introduction|concepts)/?$',
+          position: 'left',
+        },
+        {
+          label: 'User Guide',
+          to: 'user-guide',
+          activeBasePath: 'user-guide/',
+          position: 'left',
+        },
+        {
+          label: 'Admin Guide',
+          to: 'admin-guide',
+          activeBasePath: 'admin-guide/',
+          position: 'left',
+        },
+        {
+          label: 'Self-Hosting Guide',
+          to: 'self-hosting-guide',
+          activeBasePath: 'self-hosting-guide/',
           position: 'left',
         },
         {
           label: 'Architecture',
-          to: 'arch/architecture',
-          activeBasePath: 'arch/',
-          position: 'left',
-        },
-        {
-          label: 'Setup',
-          to: 'setup/server-setup',
-          activeBasePath: 'setup/',
+          to: 'architecture',
+          activeBasePath: 'architecture/',
           position: 'left',
         },
         {

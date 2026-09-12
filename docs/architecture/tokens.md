@@ -1,0 +1,584 @@
+---
+title: Tokens
+sidebar_position: 5
+description: Scoped tokens for S3 storage access — the STS flow, the AWS and MinIO IAM data models, and the inline policies for bucket creation.
+---
+
+# Tokens
+
+This page describes the use of scoped tokens for [storage access](../concepts.md#s3-storage) on an in-depth conceptual level.
+
+## Scoped Tokens for S3 Storage Access
+
+### Motivation
+
+[AWS STS AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html)
+and [MinIO STS AssumeRoleWithWebIdentity](https://docs.min.io/aistor/developers/security-token-service/assumerolewithwebidentity/#minio-sts-assumerolewithwebidentity)
+allow requesting temporary, limited-privilege credentials for users.
+To get fine-grained control access to S3 storage, we use OIDC access tokens scoped to
+one vault and use them to get access to one bucket (i.e. one vault) only.
+To keep our components zero-trust, we use no privileged broker to update [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html)
+when vaults are created or users are given access to vaults,
+i.e. we use a static mapping to exchange OIDC access tokens for temporary S3 credentials.
+The static mapping uses a claim in the access token to issue temporary credentials with a dynamic role giving access to the vault's bucket only.
+
+:::info[Token Exchange]
+AWS imposes size limits on session policies[^1] and rejects OIDC tokens that are too large[^2]. So the OIDC token must not grow with the number of vaults.
+Therefore, we use [RFC 8693 token exchange](https://www.rfc-editor.org/rfc/rfc8693) to get fine-grained access tokens before we go to STS.
+
+[^1]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html#reference_iam-limits-entity-length &rarr; `Role session policies`
+[^2]: https://docs.aws.amazon.com/AmazonS3/latest/developerguide/ErrorResponses.html#S3AccessGrantsErrorCodeList &rarr; `Serialized token too large for session`
+:::
+
+### High-Level Description
+
+Katta S3 STS is based on the following components and their responsibilities:
+
+- _Katta Server_: synchronizes vault access to Keycloak
+- _Keycloak_: provides tokens based on the user's roles
+- _AWS/MinIO IAM_: gives trust to Keycloak realms and defines the mapping from claims issued to dynamic roles
+- _AWS/MinIO STS_: issues temporary credentials with privileges defined in IAM
+- _AWS/MinIO S3_: checks the access right of the temporary credentials to give access to S3 buckets
+
+:::info[APIs and RFCs]
+Katta S3 STS combines the following standard APIs:
+
+- [OAuth 2.0 Authorization Code Grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.1): the user enters user and password in Keycloak to get OIDC access
+   and refresh tokens
+- [OAuth 2.0 Token Exchange](https://www.rfc-editor.org/rfc/rfc8693.html): the OIDC access token is exchanged for vault-specific OIDC access token
+- [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html): the OIDC access token is exchanged for
+   temporary credentials giving access to one vault only
+- [S3 API](https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html): S3 evaluates the credentials before data can be retrieved
+:::
+
+### Intermediate-Level Description
+
+At an intermediate level, the following diagrams show the token flow from login to S3 access:
+
+1. User opens vault in Katta Desktop, client opens browser.
+2. Keycloak redirects user to login and authorization prompt.
+3. User enters user name and password.
+4. Keycloak redirects user back to Katta Desktop with single-use authorization code.
+5. Katta Desktop calls `/token` endpoint with authorization code.
+6. Keycloak returns OIDC access token and refresh token for client `cryptomator`
+7. Katta Desktop sends OIDC access token for client `cryptomator` exchange to `audience: cryptomatorvaults` client using `/token` endpoint with
+   `grant_type: urn:ietf:params:oauth:grant-type:token-exchange`, requesting `scope: <vaultId>`.
+8. Keycloak returns access token for OIDC access token with vault-specific claims added by protocol mappers in the requested scope.
+9. Katta Desktop sends scoped OIDC access token to
+   STS [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html).
+10. STS returns temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
+    * AWS: the temporary role is tagged with the `vaultId`.
+    * MinIO: the credentials allow access to one bucket.
+11. AWS only: Katta Desktop sends AWS credentials to STS in order to assume role.
+12. AWS only: AWS sends credentials to access giving access to one bucket from the session tags.
+13. Katta Desktop accesses S3 storage with temporary `AccessKeyId`, `SecretAccessKey` and `SessionToken`.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Katta Client
+    participant Keycloak
+    participant STS
+    participant S3
+    Katta Client ->> Keycloak: (1) /authorize
+    Keycloak -->> Katta Client: (2) redirect
+    Katta Client --) User: (2) prompt in browser
+    User --) Keycloak: (3) User/Password
+    Keycloak --) Katta Client: (4) Authorization Code
+    Katta Client ->> Keycloak: (5): /token
+    Note over Keycloak: client_id: cryptomator
+    Keycloak -->> Katta Client: (6) access_token: OIDC Access Token (JWT)
+    Note over Katta Client: { aud: ["cryptomator", "cryptomatorvaults"], <br/>azp: "cryptomator, ... }
+    Katta Client --> Keycloak: (7) /token
+    Note over Keycloak: grant_type: token-exchange<br/>client_id: cryptomatorvaults <br/> subject_token: <access_token><br/> scope: <vaultId>
+    Keycloak -->> Katta Client: (8) exchanged_access_token: OIDC Access Token (JWT)
+alt MinIO STS
+Note over Katta Client: { aud: "cryptomatorvaults", client_id: <vaultId> }
+Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
+Note over STS: IdP: client_id=cryptomatorvaults -> policy: ${jwt:client_id}
+STS -->> Katta Client: (10) AccessKeyId, SecretKey
+Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta-<vaultId>/*"}
+else AWS STS
+Note over Katta Client: { "aud": "cryptomatorvaults", "https://aws.amazon.com/tags": {"principal_tags":{"<vaultId>":[""]},"TransitiveTagKeys":["<vaultId>"]}, ...}
+Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
+STS -->> Katta Client: (10) AccessKeyId, SecretKey
+Note over Katta Client: { Action: [sts:AssumeRole, sts:TagSession], Resource: "arn:aws:iam::...:role/katta-access-bucket-tagged-session-role"}
+Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta-access-bucket-tagged-session-role", tag.name=VaultRequested, tag.value=<vaultId>)
+Note over STS: "Condition": { "ForAnyValue:StringEquals": { "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}" } }
+STS -->> Katta Client: (12) AccessKeyId, SecretKey
+Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta-<vaultId>/*"}
+end
+Katta Client ->> S3: (13) /list-bucket
+
+
+```
+
+## IAM Data Model
+
+### MinIO IAM Data Model
+
+The following diagram shows the data model we use for [Policy-Based Access Control](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html) with [MinIO STS](../self-hosting-guide/minio.md#policy-and-oidc-provider):
+
+```mermaid
+erDiagram
+    "MinIO IDP" ||--|| "MinIO Policy" : "role_policy"
+    "MinIO IDP" {
+        string name PK
+        string RoleArn FK
+    }
+    "MinIO Policy" {
+        string RoleArn PK
+        string name
+        string client_id
+        string statement
+    }
+```
+
+<details>
+<summary>Commands and policy documents annotating this model</summary>
+
+Attached to **MinIO IDP** — one identity provider per `role_policy`:
+
+```bash
+mc idp openid add myminio cryptomator \
+    config_url="http://localhost:8180/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomator" \
+    client_secret="ignore-me" \
+    role_policy="katta-createbucketpolicy"
+```
+
+```bash
+mc idp openid add myminio cryptomator \
+    config_url="http://localhost:8180/realms/cryptomator/.well-known/openid-configuration" \
+    client_id="cryptomator" \
+    client_secret="ignore-me" \
+    role_policy="katta-accessbucketpolicy"
+```
+
+Attached to **MinIO Policy** — the canned policies the providers bind to:
+
+```bash
+mc admin policy create myminio katta-createbucketpolicy setup/minio_sts/createbucketpolicy.json
+mc admin policy create myminio katta-accessbucketpolicy setup/minio_sts/accessbucketpolicy.json
+```
+
+`createbucketpolicy.json`, the `statement` of the bucket creation policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:GetBucketPolicy",
+        "s3:PutBucketVersioning",
+        "s3:GetBucketVersioning"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-*/"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-*/*/",
+        "arn:aws:s3:::katta-*/vault.uvf"
+      ]
+    }
+  ]
+}
+```
+
+`accessbucketpolicy.json`, the `statement` of the vault access policy, evaluated against the `client_id` claim:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:GetBucketVersioning",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-${jwt:client_id}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:DeleteObject",
+        "s3:GetObject",
+        "s3:ListMultipartUploadParts",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-${jwt:client_id}/*"
+      ]
+    }
+  ]
+}
+```
+
+</details>
+
+OpenID Identities and Policies are installed once during Katta Server Setup (or before the corresponding storage profile(s) for a new storage location are
+uploaded).
+
+An STS request with a token issued by a configured OpenID Identity (defined by `config_url`, `client_id`, `client_secret`) returns credentials giving access to
+the linked
+`role_policy`, i.e.
+
+* *Bucket creation:* allows to create a new bucket within a certain prefix and to upload the vault template incl. the `vault.uvf` file, and to set bucket
+  versioning.
+* *Vault access:* allows reading and writing operations in the bucket as specified by the `client_id` claim in the JWT access token.
+
+MinIO has only a limited list
+of [OpenID Policy Variables](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html#minio-policy-variables-oidc)
+that can be evaluated
+in [Policy-Based Access Control](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html).
+
+:::note[Keycloak]
+Refer to [Keycloak](keycloak.md) on how the corresponding claim is added only to the access tokens of users which have access to the corresponding vault.
+:::
+
+### AWS IAM Data Model
+
+The following diagram show the data model we use for [OIDC Federation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html)
+to request [temporary security credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_control-access_assumerole.html)
+in [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html):
+
+```mermaid
+erDiagram
+    "AWS OIDC Provider" ||--|{ "AWS IAM Role" : "Trust Relationships"
+    "AWS IAM Role" ||--|| "AWS Role Policy" : ""
+    "AWS OIDC Provider" {
+        string OIDCProviderArn PK
+        string clientId FK "multi-valued"
+        string url
+        string thumbprint "multi-valued"
+    }
+    "AWS IAM Role" {
+        string Arn PK
+        string Federated FK "multi-valued"
+    }
+    "AWS Role Policy" {
+        string RolePolicyId PK
+        string role_name FK
+        string policy_name
+    }
+```
+
+<details>
+<summary>Commands and policy documents annotating this model</summary>
+
+Attached to **AWS OIDC Provider**:
+
+```bash
+aws iam create-open-id-connect-provider \
+   --url https://keycloak.example.com/realms/cryptomator \
+   --client-id-list cryptomator cryptomatorhub \
+   --thumbprint-list <thumbprint>
+```
+
+The provider it creates:
+
+```json
+{
+    "Url": "keycloak.example.com/realms/cryptomator",
+    "ClientIDList": [
+        "cryptomatorhub",
+        "cryptomator"
+    ],
+    "ThumbprintList": [
+        "<thumbprint>"
+    ],
+    "CreateDate": "2023-11-13T13:51:32.729000+00:00",
+    "Tags": []
+}
+```
+
+Attached to **AWS IAM Role** — the `Federated` trust relationship:
+
+```bash
+aws iam create-role \
+  --role-name katta-create-bucket \
+  --assume-role-policy-document file://.../aws_stscreatebuckettrustpolicy.json
+```
+
+Trust policy granting web identity federation with session tagging:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": [
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak-staging.example.com/realms/cryptomator",
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak.example.com/realms/cryptomator"
+        ]
+      },
+      "Action": [
+        "sts:AssumeRoleWithWebIdentity",
+        "sts:TagSession"
+      ],
+      "Condition": {}
+    }
+  ]
+}
+```
+
+Trust policy granting web identity federation without session tagging:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": [
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak.example.com/realms/cryptomator",
+          "arn:aws:iam::<account-id>:oidc-provider/keycloak-staging.example.com/realms/cryptomator"
+        ]
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {}
+    }
+  ]
+}
+```
+
+Trust policy for the second role in the chain, requiring the tag to be transitive:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::<account-id>:role/katta-access-bucket-web-identity-role"
+      },
+      "Action": [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ],
+      "Condition": {
+        "ForAnyValue:StringEquals": {
+          "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}"
+        }
+      }
+    }
+  ]
+}
+```
+
+Attached to **AWS Role Policy**:
+
+```bash
+aws iam put-role-policy \
+   --role-name katta-create-bucket \
+   --policy-name katta-create-bucket \
+   --policy-document file://.../aws_stscreatebucketpermissionpolicy.json
+```
+
+Permission policy for bucket creation and vault template upload:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:GetBucketPolicy",
+        "s3:PutBucketVersioning",
+        "s3:GetBucketVersioning",
+        "s3:GetAccelerateConfiguration",
+        "s3:PutAccelerateConfiguration",
+        "s3:GetEncryptionConfiguration",
+        "s3:PutEncryptionConfiguration"
+      ],
+      "Resource": "arn:aws:s3:::katta-*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::katta-*/vault.uvf",
+        "arn:aws:s3:::katta-*/*/"
+      ]
+    }
+  ]
+}
+```
+
+Permission policy allowing the first role in the chain to assume the second:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ],
+      "Resource": "arn:aws:iam::<account-id>:role/katta-access-bucket-tagged-session-role"
+    }
+  ]
+}
+```
+
+Permission policy for vault access, scoped by the session tag:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:GetBucketVersioning"
+      ],
+      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/VaultRequested}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListMultipartUploadParts",
+        "s3:AbortMultipartUpload"
+      ],
+      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/VaultRequested}/*"
+    }
+  ]
+}
+```
+
+</details>
+
+An STS request with token issued by a configured OpenID Connect Provider (defined by `url`, `client_id`, `thumbprint`) returns credentials from Role Policies
+attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
+
+* *Bucket creation*: allows to create a new bucket within a certain prefix and to upload the vault template incl. the `vault.uvf` file, and to set bucket
+  versioning.
+* *Vault Access*:
+    * First call in chain: credentials allow to assume second role and
+      to [tag the session](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html) with a tag from the `https://aws.amazon.com/tags` claim in the
+      OIDC token.
+    * Second call in chain: allows reading and writing operations in the bucket
+      by [passing session tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html#id_session-tags_role-chaining) in the session of the
+      credentials from the first call.
+
+## Tokens with Inline Policy to Create S3 Bucket and Upload Vault Template
+
+:::tip[Katta Web]
+The following only applies to Katta Web. Katta Desktop is not subject to browser CORS restrictions.
+:::
+
+Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials of its own. The only moment it acts on storage is bucket creation for Katta Web in _STS Storage Access Mode_ — a browser cannot create a bucket and use it right away, as S3 does not offer bucket creation and setting CORS as a joint operation (see [Troubleshooting](../self-hosting-guide/troubleshooting.md)). For this single operation, Katta Web hands Katta Server temporary credentials that are:
+
+* **short-lived**: requested with the minimal `DurationSeconds` of 900 seconds,
+* **role-restricted**: issued for the create-bucket role of the storage profile, whose permission policy is limited to the configured bucket prefix
+  (see [Storage Profiles](../admin-guide/storage-profiles.md)),
+* **downscoped by an inline session policy** to exactly the new vault's bucket and the template objects.
+
+The effective permissions are the [intersection of the role's permission policy and the inline session policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session).
+Notably, the credentials contain no read permission on object contents (`s3:GetObject`) at all — even for the new bucket, Katta Server can only write the
+(client-side encrypted) vault template.
+
+### Create S3 Bucket
+
+#### STS Storage Access Mode
+
+The following steps describe how _Katta Web_ creates a new S3 bucket in [_STS Storage Access Mode_](../concepts.md#s3-storage):
+
+1. Katta Web calls [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) directly at the
+   STS endpoint of the storage profile ([AWS](../self-hosting-guide/aws.md) or [MinIO](../self-hosting-guide/minio.md)), with the user's OIDC access token as web identity, the storage profile's `stsRoleCreateBucketHub`
+   role ARN, `DurationSeconds: 900`, the vault ID as `RoleSessionName` — and the following inline session policy, with `<bucket>` replaced by the new vault's
+   bucket name (`<bucketPrefix><vaultId>`):
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": [
+           "s3:CreateBucket",
+           "s3:GetBucketPolicy",
+           "s3:PutBucketVersioning",
+           "s3:GetBucketVersioning"
+         ],
+         "Resource": "arn:aws:s3:::<bucket>"
+       },
+       {
+         "Effect": "Allow",
+         "Action": ["s3:PutObject"],
+         "Resource": [
+           "arn:aws:s3:::<bucket>/*.uvf",
+           "arn:aws:s3:::<bucket>/*/"
+         ]
+       }
+     ]
+   }
+   ```
+
+2. STS service returns temporary credentials whose permissions are the intersection of the create-bucket role's permission policy and this session policy.
+3. Katta Web sends the temporary credentials together with the client-side encrypted vault template (`vault.uvf`, root directory hash `dir.uvf`), the
+   region, and the storage profile reference to Katta Server (`PUT /api/storage/{vaultId}`).
+4. Katta Server creates the bucket using S3 API.
+
+:::note[Katta Desktop]
+_Katta Desktop_ assumes the `katta-create-bucket` role from the storage profile itself and creates the bucket and uploads the vault template directly.
+Here the create-bucket role's permission policy (bucket prefix) is the effective restriction. This is also why the storage profile carries two create-bucket
+role ARNs:
+- `stsRoleCreateBucketHub` (assumed by Katta Web, credentials passed to Katta Server)
+- `stsRoleCreateBucketClient` (assumed by the Katta Desktop directly).
+:::
+
+#### Static Storage Access Mode
+
+The bucket must already exist and requires the bucket CORS settings described in [Troubleshooting](../self-hosting-guide/troubleshooting.md))
+
+:::note[Katta Desktop]
+[Katta Desktop](../user-guide/desktop-setup.md#create-a-new-vault) creates the S3 bucket; does not require the bucket to exist or any bucket CORS settings.
+:::
+
+### Vault Template Upload
+
+The vault template is encrypted prior to upload.
+
+#### STS Storage Access Mode
+
+The upload uses the same credentials from creating the bucket described above. The session policy's `s3:PutObject` statement matches exactly the template objects (`vault.uvf`, `dir.uvf`, and the root directory placeholder ending in `/`) and nothing else.
+
+#### Static Storage Access Mode
+
+Katta Web uploads the template directly with the static credentials provided by the user.
+
+:::warning[CORS]
+This requires the bucket CORS settings described in [Troubleshooting](../self-hosting-guide/troubleshooting.md)).
+:::

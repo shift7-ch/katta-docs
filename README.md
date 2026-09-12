@@ -19,9 +19,11 @@ Opens dev server at `http://localhost:8000` with live reload.
 
 ## Structure
 
-- `docs/introduction/` Introduction - Get to know Katta.
-- `docs/arch/` - Architecture - Understand Katta.
-- `docs/setup/` - Setup - Step-by-step guides.
+- `docs/introduction.md`, `docs/concepts.md`, `docs/glossary.md` - the pages every reader needs.
+- `docs/user-guide/` - User Guide - for people who use Katta.
+- `docs/admin-guide/` - Admin Guide - for people who administer a Katta Server.
+- `docs/self-hosting-guide/` - Self-Hosting Guide - for people who run one.
+- `docs/architecture/` - Architecture - how Katta works internally.
 - `docs/img/` - Resources
 
 ## Scripts
