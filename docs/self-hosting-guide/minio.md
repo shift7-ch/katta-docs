@@ -11,7 +11,8 @@ trust Keycloak. Do this before you upload an STS storage profile, because the pr
 
 :::info
 _Static Storage Access Mode_ needs none of this. It reaches MinIO with long-lived access keys supplied at vault creation, thus you
-can go straight to [Storage Profiles](../admin-guide/storage-profiles.md).
+can go straight to [Storage Profiles](../admin-guide/storage-profiles.md). The [allowed origin](#allowed-origin-for-katta-web) below applies in both storage
+access modes.
 :::
 
 ## Policy and OIDC Provider
@@ -175,6 +176,30 @@ provider configuration and logs it on restart. Those three ARNs are what the sto
 A canned policy of the same name is replaced with the document above, so manual edits to it are lost. Passing a different
 `--createBucketPolicyName` or `--accessBucketPolicyName` adds a policy under the new name rather than renaming the old one, and
 existing provider configurations keep referring to the previous name until you re-run the printed `mc admin config set` commands.
+
+## Allowed Origin for Katta Web
+
+Katta Web talks to the MinIO endpoint directly from the browser, so MinIO has to return the Katta Web origin in its CORS response headers. This applies in
+both storage access modes.
+
+MinIO does not implement the bucket CORS API — see
+[MinIO — Unsupported S3 Bucket APIs](https://min.io/docs/minio/linux/operations/concepts/thresholds.html#unsupported-s3-bucket-apis) — so the allowed origin is
+a server-wide setting rather than a property of the bucket. Set it in the environment of the MinIO server:
+
+```bash
+export MINIO_API_CORS_ALLOW_ORIGIN=https://your-katta-server.example.com
+```
+
+The value takes a comma-separated list of origins. On a running server, the same setting can be applied without a restart:
+
+```bash
+mc admin config set <alias> api "cors_allow_origin=https://your-katta-server.example.com"
+```
+
+:::warning
+Avoid the wildcard `*` here. MinIO then echoes the requesting origin together with `Access-Control-Allow-Credentials: true`, unless
+`MINIO_API_CORS_ALLOW_CREDENTIALS_WITH_WILDCARD` is turned off.
+:::
 
 ## Reference
 
