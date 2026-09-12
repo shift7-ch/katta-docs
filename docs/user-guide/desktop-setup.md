@@ -37,6 +37,16 @@ Open the `.msix` package and follow the wizard.
 </TabItem>
 </Tabs>
 
+:::note[HTTP Connection Profile]
+To access with Katta Desktop over plain HTTP (no HTTPS/TLS required) in a development or test environment,
+copy [Katta Server (HTTP).cyberduckprofile](pathname:///profiles/Katta%20Server%20(HTTP).cyberduckprofile) to:
+
+- **macOS** `~/Library/Group Containers/KD9X6Y7KA2.cloud.katta.desktop/Library/Application Support/Katta/Profiles`
+- **Windows** `%APPDATA%\Katta\Profiles`
+
+Create the folder `Profiles` when missing.
+:::
+
 ## Authenticate with Katta Server
 
 Choose _Open in Katta_ from the Katta Web application of your Katta Server, or open the connection prompt manually with

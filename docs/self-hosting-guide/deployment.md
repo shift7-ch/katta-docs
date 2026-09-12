@@ -186,7 +186,10 @@ change:
 docker compose -f test/src/test/resources/docker-compose-hub-keycloak-minio.yml --profile local --env-file test/src/test/resources/.local.env up -d --force-recreate hub
 ```
 
+:::tip[Katta Desktop]
+An [optional connection profile](../user-guide/desktop-setup.md) is required to connect to Katta Server with no HTTPS/TLS.
+:::
+
 ## Configuration
 
 See [application.properties](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/backend/src/main/resources/application.properties)
-
