@@ -21,7 +21,7 @@ expected to operate yourself:
 
 [Terraform](#terraform-aws) and the [Helm chart](#helm-chart-kubernetes) are the maintained paths for production, so pick the one matching where you operate: Terraform if AWS is
 your target and you want the network and managed databases created for you, the Helm chart if you already run Kubernetes. The
-Docker Compose setup is a demo that ships with the test resources of the client library, with MinIO and storage profiles
+Docker Compose setup in [katta-compose](https://github.com/shift7-ch/katta-compose) is a demo with MinIO and storage profiles
 preseeded, to get a complete stack running on one machine in minutes.
 
 
@@ -44,7 +44,7 @@ export AWS_USE_DUALSTACK_ENDPOINT=false
 :::
 
 Deployment parameters are supplied either as `TF_VAR_*` environment variables or in a `terraform.tfvars` file copied from
-`terraform.tfvars.template`. The domain, the passwords and the client secrets have no usable defaults:
+`terraform.tfvars.template`. The domain, the passwords, and the client secrets have no usable defaults:
 
 ```bash
 export TF_VAR_region=$AWS_DEFAULT_REGION
@@ -162,17 +162,25 @@ including the Keycloak origin. Use it only when specifying all directives yourse
 
 ## Docker Compose
 
-For local testing, the `demo` profile in the [Docker Compose Configuration File](https://github.com/shift7-ch/katta-clientlib/blob/main/test/src/test/resources/docker-compose-hub-keycloak-minio.yml)
-brings up Katta Server, Keycloak, and MinIO together with a matching set of storage-profile and setup JSON files under
-[setup](https://github.com/shift7-ch/katta-clientlib/tree/main/test/src/test/resources/setup/).
+For local testing, the `demo` profile of [katta-compose](https://github.com/shift7-ch/katta-compose) brings up Katta Server,
+Keycloak, PostgreSQL, and MinIO, and creates storage profiles for MinIO with static and STS storage access from the files under
+[setup](https://github.com/shift7-ch/katta-compose/tree/main/setup):
 
-* [One-Stop Shop Demo with Docker Compose](https://github.com/shift7-ch/katta-clientlib#one-stop-shop-demo-with-docker-compose)
+```bash
+docker compose --profile demo up --wait
+```
+
+Open Katta Web at http://localhost:8280 and log in with username `admin` and password `admin`.
+
+:::info
+See the katta-compose [README](https://github.com/shift7-ch/katta-compose#usage) for the profiles, variables, provisioned
+users, and endpoints.
+:::
 
 ### Content Security Policy (CSP) Settings
 
-The local setup in [katta-clientlib](https://github.com/shift7-ch/katta-clientlib) appends
-`CSP_CONNECT_SRC_EXTRA` to the sources it derives from the MinIO and Keycloak addresses. Set it in
-`.local.env` next to the other variables:
+[katta-compose](https://github.com/shift7-ch/katta-compose) appends `CSP_CONNECT_SRC_EXTRA` to the
+sources it derives from the MinIO and Keycloak addresses. Set it in `.env` next to the other variables:
 
 ```bash
 CSP_CONNECT_SRC_EXTRA=*.amazonaws.com https://*.wasabisys.com
@@ -183,7 +191,7 @@ precedence over the env file, which is convenient for a one-off run. Recreate th
 change:
 
 ```bash
-docker compose -f test/src/test/resources/docker-compose-hub-keycloak-minio.yml --profile local --env-file test/src/test/resources/.local.env up -d --force-recreate hub
+docker compose --profile demo up -d --force-recreate hub
 ```
 
 :::tip[Katta Desktop]
