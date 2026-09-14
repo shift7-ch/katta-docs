@@ -88,12 +88,11 @@ organization connects an external identity provider (OpenID Connect, SAML, or LD
 
 After a successful sign-in the browser passes the authorization code back to Katta Desktop; you can then close the browser tab.
 
-## Set up your Account Key
+## Create your Account Key
 
-The first time you authenticate on a device, Katta Desktop handles your **Account Key** — a high-entropy secret that protects your
-personal key pair and lets you recover it on other apps, browsers, and devices. Katta Server never sees the Account Key. Refer to [User Keys](../architecture/user-keys.md).
+The first time you authenticate on a device, Katta Desktop creates your **Account Key** — a high-entropy secret that protects your personal key pair. It is never sent to Katta Server and allows you to retrieve your personal key pair in other apps and browsers on any device. Refer to [User Keys](../architecture/user-keys.md) for more information.
 
-**New user.** Katta Desktop generates the Account Key. Copy it to a safe place, for example a password manager. Then confirm the
+Copy the generated Account Key to a safe place, for example a password manager. Then confirm the
 dialog:
 
 <Tabs groupId="os" queryString>
@@ -113,7 +112,10 @@ Enter a device name. Keep **Save Password** ticked, then select **Login**.
 </TabItem>
 </Tabs>
 
-**New device.** If you already created your Account Key on another app or browser (for example when signing in to Katta Web), enter
+
+## Set up a new device
+
+If you already created your Account Key on another app or browser (for example when signing in to Katta Web), enter
 it here to unlock your key pair on this device.
 
 <Tabs groupId="os" queryString>
@@ -175,14 +177,13 @@ _Windows screenshot pending._
 </TabItem>
 </Tabs>
 
-**3. Enter the access keys.** If the storage profile uses [_Static Storage Access Mode_](../concepts.md#static-storage-access-mode), Katta Desktop
-asks for two Access Key ID and Secret Access Key pairs. 
+**3. Enter the access keys.** If the storage profile uses [_Static Storage Access Mode_](../concepts.md#static-storage-access-mode), Katta Desktop asks for two pairs of Access Key ID and Secret Access Key.
 
-* **Bucket access**, asked for first, is stored in the encrypted vault metadata and handed to every member of the vault.
-* **Bucket creation**, asked for second, is used once to create the bucket and upload the vault template.
+* **Bucket access** pair, asked for first, is stored in the encrypted vault metadata and handed to every member of the vault.
+* **Bucket creation** pair, asked for second, is used once to create the bucket and upload the vault template.
 
 Katta Desktop creates the storage bucket, uploads the encrypted vault template, and registers the vault keys with Katta Server
-(encrypted on your computer).
+(encrypted on your device).
 
 :::info[Share Vault]
 You become the vault owner and can share the vault with other Katta users from Katta Web.
@@ -197,6 +198,5 @@ bucket in the background; opening a file downloads and decrypts it on demand.
 ![Windows Explorer](../img/desktop/windows/desktop-windows-explorer.png)
 
 :::info[Zero-knowledge, end-to-end encrypted]
-Everything you put in a vault is encrypted on your computer before it is uploaded, and decrypted again only on the computer of a
-vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See [Security](../architecture/security.md) and [E2E-Encrypted Data Sync](../architecture/storage-access.md#e2e-encrypted-data-sync) for details.
+Everything you put in a vault is encrypted on your device before upload and decrypted only on the device of a vault member. File contents **and** file and folder names are encrypted; the S3 bucket holds only ciphertext. See [Security](../architecture/security.md) and [E2E-Encrypted Data Sync](../architecture/storage-access.md#e2e-encrypted-data-sync) for details.
 :::

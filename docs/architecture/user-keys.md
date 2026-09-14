@@ -7,7 +7,7 @@ description: How Katta Desktop obtains the user's key pair — first login, a ne
 # User Keys
 
 :::tip[Katta Desktop]
-See the [Katta Desktop Guide](../user-guide/desktop-setup.md#set-up-your-account-key) for user instructions.
+See the [Katta Desktop Guide](../user-guide/desktop-setup.md#create-your-account-key) for user instructions.
 :::
 
 This flow shows how the client obtains the user's private [user key pair](security.md) on a given device. The user key pair is

@@ -17,13 +17,13 @@ This page builds on concepts from the upstream documentation:
 
 ## Vaults
 
-In Katta, data is shared in units called vaults. Only members of the vault have access to the key material that allows to decrypt the data.
+In Katta, data is shared in units called vaults. Only members of the vault have access to the key material needed to decrypt data. All encryption is done locally on your device:
 
-* The vault keys are uploaded to Katta Server only after encryption on your machine.
-* Your data is uploaded to the storage providers only after encryption on your machine using the vault's content encryption keys.
+* The vault keys are uploaded to Katta Server only after encryption on your device.
+* Your data is uploaded to the storage providers only after encryption on your device using the vault's content encryption keys.
 
 :::info[S3 Bucket]
-One vault corresponds to a single bucket named `${bucketPrefix}${vaultId}` with a
+A vault corresponds to a single bucket named `${bucketPrefix}${vaultId}` with a
 random UUID. The number of vaults is therefore bounded by the number of buckets the provider allows per account or
 project. Several providers cap this in the low hundreds by default and raise it on request.
 :::
@@ -56,14 +56,14 @@ Use an existing S3 bucket and share the static credentials among vault users; th
 Beside AWS, you can use any [S3 Storage Provider](admin-guide/storage-profiles.md#generic-s3-provider).
 :::
 
-Creating a vault on a static storage profile with Katta Desktop asks for two Access Key ID and Secret Access Key pairs.
+Creating a vault on a static storage profile with Katta Desktop asks for two pairs of Access Key ID and Secret Access Key.
 They serve different purposes and need different permissions.
 
-* **Bucket access**, asked for first, is stored in the encrypted vault metadata. Every member of the vault receives this
+* **Bucket access** pair, asked for first, is stored in the encrypted vault metadata. Every member of the vault receives this
   pair and
   uses it to work with the vault. It needs `ListBucket`, `GetObject`, `PutObject` and `DeleteObject` permission on every
   bucket that is created referencing the storage profile.
-* **Bucket creation**, asked for second, is used once by the vault creator to create the bucket and upload the vault
+* **Bucket creation** pair, asked for second, is used once by the vault creator to create the bucket and upload the vault
   template. It
   needs permission to create buckets.
 
@@ -72,15 +72,14 @@ allows keys
 to be scoped, issue it without that permission.
 
 :::info[Katta Web]
-Creating a vault in Katta Web does use the same Access Key ID and Secret Access Key to create the bucket and vault
-template as stored in the vault metadata.
+Creating a vault in Katta Web uses the pair stored in the vault metadata for both creating the bucket and uploading the vault template.
 :::
 
 :::warning
 The access pair is handed to every member of the vault. Issue a dedicated pair per vault where the provider supports it
 and prefer [_STS Storage Access Mode_](#s3-storage) with AWS or MinIO when per-user credentials are required.
 :::
-  
+
 
 ### STS Storage Access Mode
 
