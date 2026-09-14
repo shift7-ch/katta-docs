@@ -108,7 +108,7 @@ Enter a device name. Keep **Save Password** ticked, then select **Login**.
 </Tabs>
 
 
-## Set up a new device
+## Set Up a New Device
 
 If you already created your Account Key on another app or browser (for example when signing in to Katta Web), enter
 it here to unlock your key pair on this device.
@@ -131,7 +131,7 @@ You can review the apps and devices authorized with your Account Key on your pro
 [User Keys](../architecture/user-keys.md) for what happens behind the scenes.
 :::
 
-## Create a new vault
+## Create a New Vault
 
 :::tip[Katta Web]
 Creating a new vault in Katta Web is also supported with [limitations](../architecture/vault-creation.md).
@@ -184,7 +184,7 @@ Katta Desktop creates the storage bucket, uploads the encrypted vault template, 
 You become the vault owner and can share the vault with other Katta users from Katta Web.
 :::
 
-## Add files to a vault
+## Add Files to a Vault
 
 The vault appears as a folder inside the Katta location. Work with it like any other folder: drag files and folders into it in
 Finder on macOS or File Explorer on Windows, or save into it from an application. Katta Desktop syncs the contents to the vault's S3
