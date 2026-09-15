@@ -7,7 +7,7 @@ description: Configure a Katta Server and its S3 storage backend from the comman
 # Admin CLI
 
 
-Use [Katta Admin CLI]( https://github.com/shift7-ch/katta-clientlib/tree/main/admin-cli#readme) to configure a Katta Server including its S3 storage backend. 
+Use [Katta Admin CLI](https://github.com/shift7-ch/katta-admin-cli#readme) to configure a Katta Server including its S3 storage backend. 
 
 ## Installation
 
@@ -26,14 +26,14 @@ Upgrade with `brew upgrade katta`.
 ### Linux (Debian/Ubuntu)
 
 ```bash
-curl -fsSLO https://github.com/shift7-ch/katta-clientlib/releases/latest/download/katta_amd64.deb
+curl -fsSLO https://github.com/shift7-ch/katta-admin-cli/releases/latest/download/katta_amd64.deb
 sudo apt install ./katta_amd64.deb
 ```
 
 ### Linux (Fedora/RHEL/openSUSE)
 
 ```bash
-sudo rpm -i https://github.com/shift7-ch/katta-clientlib/releases/latest/download/katta.x86_64.rpm
+sudo rpm -i https://github.com/shift7-ch/katta-admin-cli/releases/latest/download/katta.x86_64.rpm
 ```
 
 The `.deb` and `.rpm` packages install `katta` to `/usr/bin/katta` and a bash
