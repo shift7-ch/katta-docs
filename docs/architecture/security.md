@@ -43,7 +43,7 @@ flowchart TB
     devkey -- decrypts --> userkeys
     accoukey -- decrypts --> userkeys
     userkeys -- decrypts --> accoukey
-    userkeys -- decrypts --> memberkey
+    userkeys -- decrypts --> membekey
     userkeys -- decrypts --> recovkey
     userkeys -- "decrypts<br/>(Private Signer Key)" --> trusted
     membekey -- decrypts --> uvf
