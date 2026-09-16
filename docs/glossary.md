@@ -6,24 +6,27 @@ description: Katta terms, and how they map to their Cryptomator Hub and Mountain
 
 # Glossary
 
+## Components
+
+| Product         | Description                                                                                                                                                          |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Katta Server    | Katta API Server Backend based on Cryptomator Hub                                                                                                                    |
+| Katta Web       | Web application servced by Katta Server to configure users, storage profiles and vaults                                                                              |
+| Katta Desktop   | Desktop Sync Client available for Windows & macOS. The client [library](https://github.com/shift7-ch/katta-clientlib) is based on [Cyberduck](https://cyberduck.io/) |
+| Katta Admin CLI | CLI program to configure a Katta Server including its S3 storage backend                                                                                             |
+
 ## Terms
 
 | Term                         | Description                                                                                                                                                                                            |
 |------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Katta Server                 | Katta API Server Backend based on Cryptomator Hub                                                                                                                                                      |
-| Katta Web                    | Web application servced by Katta Server to configure users, storage profiles and vaults                                                                                                                |
-| Katta Desktop                | Desktop Sync Client available for Windows & macOS. The client [library](https://github.com/shift7-ch/katta-clientlib) is based on [Cyberduck](https://cyberduck.io/)                                   |
 | Katta Storage Profile        | Uploaded by a Katta Server admin initially for each storage provider endpoint and mode                                                                                                                 |
 | Unified Vault Format (UVF)   | A common vendor-independent [standard](https://github.com/encryption-alliance/unified-vault-format) for encrypted directories on a per-file basis, based on the proven Cryptomator Vault Format.       |
 | Vault Metadata               | A [JWE](https://datatracker.ietf.org/doc/html/rfc7516) containing all the vault metadata[^1] required to create a vault bookmark in the client (reference to storage profile, static credentials etc.) |
 | Vault Template               | Initial encrypted vault content consisting of the vault metadata `vault.uvf` file and the representation of the root folder                                                                            |
 | OIDC Token                   | Token retrieved after authenticating with Katta Server                                                                                                                                                 |
 | Security Token Service (STS) | AWS Security Token Service or MinIO Security Token Service to obtain temporary storage credentials from OIDC Tokens                                                                                    |
-| S3 Storage Access Tokens     | S3 `AccessKeyId` and `SecretAccessKey` to authenticate with S3 storage                                                                                                                                 |
-| S3 Static Access Tokens      | S3 `AccessKeyId` and `SecretAccessKey` obtained as static tokens from vault metadata                                                                                                                   |
-| S3 Temporary Access Tokens   | Temporary `AccessKeyId`, `SecretAccessKey`, and `SessionToken` obtained from the Security Token Service (STS)                                                                                          |
-| Static Storage Access Mode   | Access S3 storage using S3 Static Access Tokens                                                                                                                                                        |
-| STS Storage Access Mode      | Access S3 storage using S3 Temporary Access Tokens                                                                                                                                                     |
+| Static Storage Access Mode   | Access S3 storage using static S3 credentials obtained from vault metadata (`AccessKeyId` and `SecretAccessKey`)                                                                                       |
+| STS Storage Access Mode      | Access S3 storage using token-vended temporary credentials from Security Token Service (STS) (`AccessKeyId`, `SecretAccessKey`, and `SessionToken`)                                                    |
 
 [^1]: [Vault Metadata Specification](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md)
 

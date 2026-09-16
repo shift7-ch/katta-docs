@@ -28,7 +28,7 @@ Keycloak client.
    scoped access token. See [Tokens](tokens.md).
 6. **Temporary storage credentials (STS Storage Access Mode only).** The client calls `AssumeRoleWithWebIdentity` on the STS API with
    the exchanged, vault-scoped access token to obtain temporary S3 tokens, optionally followed by a second `AssumeRole` for role
-   chaining. In _Static Storage Access Mode_ this step is skipped and the S3 static access tokens come from the vault metadata instead.
+   chaining. In _Static Storage Access Mode_ this step is skipped and the static S3 credentials are obtained from the vault metadata instead.
 7. **Storage access.** The client talks to the S3 API directly, authenticating requests with AWS4-HMAC-SHA256.
 8. **Vault unlock.** The client retrieves the per-member vault access token
    (`GET /api/vaults/{vaultId}/access-token`, a JWE) and the vault UVF metadata (`GET /api/vaults/{vaultId}`). It decrypts the access
