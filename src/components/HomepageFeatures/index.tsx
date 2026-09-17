@@ -14,29 +14,29 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Introduction',
-    link: '/introduction/intro',
+    title: 'User Guide',
+    link: '/user-guide',
     description: (
       <>
-        Get to know Katta and learn how secure S3 access works for you and your team.
+        Install Katta Desktop on macOS or Windows, sign in, and create your first vault.
       </>
     ),
   },
   {
-    title: 'Architecture',
-    link: '/arch/architecture',
+    title: 'Admin Guide',
+    link: '/admin-guide',
     description: (
       <>
-        Understand how Katta combines Mountain Duck, client-side encryption, and Keycloak under the hood.
+        Define where your users can create vaults, and who is allowed to create them.
       </>
     ),
   },
   {
-    title: 'Setup',
-    link: '/setup/server-setup',
+    title: 'Self-Hosting Guide',
+    link: '/self-hosting-guide',
     description: (
       <>
-        Step-by-step guides for deploying the Katta server and connecting your S3 buckets.
+        Deploy Katta Server on your own infrastructure and connect it to AWS S3 or MinIO.
       </>
     ),
   },

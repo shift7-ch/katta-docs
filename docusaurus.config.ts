@@ -64,7 +64,9 @@ const config: Config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        redirects: [ ],
+        redirects: [
+          // pre-restructure URLs
+        ],
       },
     ],
     [
@@ -106,20 +108,32 @@ const config: Config = {
       items: [
         {
           label: 'Introduction',
-          to: 'introduction/intro',
-          activeBasePath: 'introduction/',
+          to: 'introduction',
+          activeBaseRegex: '^/(introduction|concepts)/?$',
+          position: 'left',
+        },
+        {
+          label: 'User Guide',
+          to: 'user-guide',
+          activeBasePath: 'user-guide/',
+          position: 'left',
+        },
+        {
+          label: 'Admin Guide',
+          to: 'admin-guide',
+          activeBasePath: 'admin-guide/',
+          position: 'left',
+        },
+        {
+          label: 'Self-Hosting Guide',
+          to: 'self-hosting-guide',
+          activeBasePath: 'self-hosting-guide/',
           position: 'left',
         },
         {
           label: 'Architecture',
-          to: 'arch/architecture',
-          activeBasePath: 'arch/',
-          position: 'left',
-        },
-        {
-          label: 'Setup',
-          to: 'setup/server-setup',
-          activeBasePath: 'setup/',
+          to: 'architecture',
+          activeBasePath: 'architecture/',
           position: 'left',
         },
         {
