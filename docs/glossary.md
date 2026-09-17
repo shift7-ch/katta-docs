@@ -11,7 +11,7 @@ description: Katta terms, and how they map to their Cryptomator Hub and Mountain
 | Product         | Description                                                                                                                                                          |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Katta Server    | Katta API Server Backend based on Cryptomator Hub                                                                                                                    |
-| Katta Web       | Web application servced by Katta Server to configure users, storage profiles and vaults                                                                              |
+| Katta Web       | Web application served by Katta Server to configure users, storage profiles and vaults                                                                               |
 | Katta Desktop   | Desktop Sync Client available for Windows & macOS. The client [library](https://github.com/shift7-ch/katta-clientlib) is based on [Cyberduck](https://cyberduck.io/) |
 | Katta Admin CLI | CLI program to configure a Katta Server including its S3 storage backend                                                                                             |
 
