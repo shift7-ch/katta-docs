@@ -26,10 +26,10 @@ Keycloak client.
 5. **Token refresh / exchange.** If the OIDC tokens have expired they are refreshed. When a vault-scoped token is required, the client
    asks Katta Server to perform an OAuth 2.0 Token Exchange with Keycloak (targeting the `cryptomatorvaults` client) and returns a
    scoped access token. See [Tokens](tokens.md).
-6. **Temporary storage credentials (STS Storage Access Mode only).** The client calls `AssumeRoleWithWebIdentity` on the STS API with
+6. **Temporary S3 credentials.** For scoped credentials, the client calls `AssumeRoleWithWebIdentity` on the STS API with
    the exchanged, vault-scoped access token to obtain temporary S3 tokens, optionally followed by a second `AssumeRole` for role
-   chaining. In _Static Storage Access Mode_ this step is skipped and the static S3 credentials are obtained from the vault metadata instead.
-7. **Storage access.** The client talks to the S3 API directly, authenticating requests with AWS4-HMAC-SHA256.
+   chaining. With static credentials, these are obtained from the vault metadata instead.
+7. **S3 Storage access.** The client talks to the S3 API directly, authenticating requests with AWS4-HMAC-SHA256.
 8. **Vault unlock.** The client retrieves the per-member vault access token
    (`GET /api/vaults/{vaultId}/access-token`, a JWE) and the vault UVF metadata (`GET /api/vaults/{vaultId}`). It decrypts the access
    token with the user's private key to recover the vault member key, unlocks the vault, and displays it to the user.
@@ -125,9 +125,9 @@ sequenceDiagram
 
 ## E2E-Encrypted Data Sync
 
-### Static Storage Access Mode
+### Static Credentials
 
-The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_Static Storage Access Mode_](../concepts.md#s3-storage):
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault to [_S3_](../concepts.md#s3-storage) with static credentials:
 * `vault.uvf` (vault metadata) contains the S3 access configuration (credentials `AccessKeyId` and `SecretKey` and bucket configuration (region, custom endpoint etc.)), as well as the encryption keys; it is stored encrypted in Katta Server.
 * With the encryption keys from `vault.uvf`, Katta Desktop encrypts and decrypts data on the fly before it leaves the local machine on the way to/from S3 bucket.
 
@@ -140,9 +140,9 @@ sequenceDiagram
     client ->> s3: get/upload encrypted data
 ```
 
-### STS Storage Access Mode
+### Scoped Credentials
 
-The following diagram illustrates the interactions when Katta Desktop syncs data in a vault in [_STS Storage Access Mode_](../concepts.md#s3-storage):
+The following diagram illustrates the interactions when Katta Desktop syncs data in a vault to [_S3_](../concepts.md#s3-storage) with scoped credentials:
 * `vault.uvf` (vault metadata) contains the S3 access configuration (e.g. roles to be used with STS and bucket configuration like region or custom
   endpoint), as
   well as the encryption keys; it is stored encrypted in Katta Server.
@@ -163,7 +163,7 @@ sequenceDiagram
     client ->> s3: get/upload encrypted data
 ```
 
-## Comparison of Flow to Access Vaults in both _Static_ and _STS Storage Access Modes_
+## Comparison of Flow to Access Vaults with Static or Scoped Credentials
 
 The following diagram illustrates the flow of actions to sync data in an end-to-end-encrypted way:
 * A user opens the vault in Katta Desktop.

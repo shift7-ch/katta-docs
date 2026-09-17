@@ -6,13 +6,11 @@ description: Prepare a MinIO server so Keycloak-issued tokens can be exchanged f
 
 # MinIO
 
-Prepare the MinIO configuration of _STS Storage Access Mode_: the two MinIO policies Katta needs, and the OIDC providers that
-trust Keycloak. Do this before you upload an STS storage profile, because the profile references the resulting role ARNs.
+Prepare the MinIO configuration for issuing _[Scoped Credentials](../concepts.md#s3-storage)_: the two MinIO policies Katta needs, and the OIDC providers that
+trust Keycloak. This setup is required before you upload a [storage profile](../admin-guide/storage-profiles.md) using _Scoped Credentials_ referencing the resulting role ARNs.
 
 :::info
-_Static Storage Access Mode_ needs none of this. It reaches MinIO with long-lived access keys supplied at vault creation, thus you
-can go straight to [Storage Profiles](../admin-guide/storage-profiles.md). The [allowed origin](#allowed-origin-for-katta-web) below applies in both storage
-access modes.
+Alternatively configure MinIO with long-lived access keys supplied at vault creation, continue with [Storage Profiles](../admin-guide/storage-profiles.md#generic-s3-provider).
 :::
 
 ## Policy and OIDC Provider

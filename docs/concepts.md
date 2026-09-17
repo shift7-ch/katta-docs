@@ -46,9 +46,11 @@ see [example directory structure](https://github.com/encryption-alliance/unified
 
 ## S3 Storage
 
-Katta currently supports both **Static Storage Access Mode** and **STS Storage Access Mode** for S3 providers.
+Katta currently supports connecting with **static credentials** and **scoped credentials** for S3 providers.
 
-### Static Storage Access Mode
+### Using Static Credentials
+
+Access S3 storage using static S3 credentials obtained from vault metadata.
 
 Use an existing S3 bucket and share the static credentials among vault users; the vault template is uploaded with static credentials provided in the frontend.
 
@@ -56,13 +58,13 @@ Use an existing S3 bucket and share the static credentials among vault users; th
 Beside AWS, you can use any [S3 Storage Provider](admin-guide/storage-profiles.md#generic-s3-provider).
 :::
 
-Creating a vault on a static storage profile with Katta Desktop asks for two pairs of Access Key ID and Secret Access Key.
+Creating a vault with Katta Desktop asks for two pairs of Access Key ID and Secret Access Key.
 They serve different purposes and need different permissions.
 
 * **Bucket access** pair, asked for first, is stored in the encrypted vault metadata. Every member of the vault receives this
   pair and
   uses it to work with the vault. It needs `ListBucket`, `GetObject`, `PutObject` and `DeleteObject` permission on every
-  bucket that is created referencing the storage profile.
+  bucket that is created referencing the [storage profile](admin-guide/storage-profiles.md).
 * **Bucket creation** pair, asked for second, is used once by the vault creator to create the bucket and upload the vault
   template. It
   needs permission to create buckets.
@@ -77,21 +79,23 @@ Creating a vault in Katta Web requires a pre-existing bucket with the required C
 
 :::warning
 The access pair is handed to every member of the vault. Issue a dedicated pair per vault where the provider supports it
-and prefer [_STS Storage Access Mode_](#s3-storage) with AWS or MinIO when per-user credentials are required.
+and prefer configuration using STS with AWS or MinIO when scoped per-user credentials are required.
 :::
 
 
-### STS Storage Access Mode
+### Use Scoped Credentials
+
+Access S3 storage by exchanging OIDC token for temporary credentials from Security Token Service (STS) scoped to a single S3 bucket containing the vault.
 
 Use STS to have fine-grained permissions:
 - **Vault Creation**: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
 - **Storage Access**: only vault users can access storage.
 
 :::note[In-Depth]
-Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about STS Storage Access Mode.
+Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about scoped credentials.
 :::
 
-Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use Katta _STS Storage Access Mode_, Katta currently supports two S3 object storage services:
+Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use scoped credentials, Katta currently supports two S3 object storage services:
 
 * [AWS](self-hosting-guide/aws.md)
 * [MinIO](self-hosting-guide/minio.md)
@@ -131,4 +135,4 @@ The following table captures the current state of implemented features:
 | Share vault with Members or Owners     | ✅        | ❌            | ❌        |
 | Archive Vaults                         | ✅        | ❌            | ❌        |
 
-[^1]: See [Troubleshooting](self-hosting-guide/troubleshooting.md#vault-creation-from-katta-web-fails-in-_static-storage-access-mode_) for CORS requirements.
+[^1]: See [Troubleshooting](self-hosting-guide/troubleshooting.md#failure-creating-vault-in-katta-web) for CORS requirements.

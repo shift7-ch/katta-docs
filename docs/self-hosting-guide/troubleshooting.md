@@ -6,9 +6,9 @@ description: Common setup pitfalls — CORS on the bucket, CSP on the server, an
 
 # Troubleshooting
 
-## Vault creation from Katta Web fails in _Static Storage Access Mode_
+## Failure Creating Vault in Katta Web
 
-In _Static Storage Access Mode_, Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
+Katta Web uploads the vault template to the S3 bucket directly from the browser. Two things must be configured for this to work:
 
 :::tip[Katta Desktop]
 The following only applies to Katta Web. Katta Desktop is not subject to browser CORS restrictions.
@@ -28,7 +28,7 @@ The following only applies to Katta Web. Katta Desktop is not subject to browser
   - Katta Server itself, covered by `'self'`
   - The Keycloak URL
   - The S3 endpoint of each storage profile
-  - The STS endpoint of each storage profile in _STS Storage Access Mode_
+  - The STS endpoint of each storage profile
 
   Refer to [Deployment](deployment.md) in the _Self-Hosting Guide_ for setup instructions.
 

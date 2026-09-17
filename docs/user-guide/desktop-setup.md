@@ -172,7 +172,7 @@ _Windows screenshot pending._
 </TabItem>
 </Tabs>
 
-**3. Enter the access keys.** If the storage profile uses [_Static Storage Access Mode_](../concepts.md#static-storage-access-mode), Katta Desktop asks for two pairs of Access Key ID and Secret Access Key.
+**3. Enter the access keys.** If the storage profile uses [_Static Credentials_](../concepts.md#using-static-credentials), Katta Desktop asks for two pairs of Access Key ID and Secret Access Key.
 
 * **Bucket access** pair, asked for first, is stored in the encrypted vault metadata and handed to every member of the vault.
 * **Bucket creation** pair, asked for second, is used once to create the bucket and upload the vault template.

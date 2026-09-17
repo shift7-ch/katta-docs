@@ -498,7 +498,7 @@ attached (`role-name`) to roles trusting the OIDC Provider (`Federated`):
 The following only applies to Katta Web. Katta Desktop is not subject to browser CORS restrictions.
 :::
 
-Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials of its own. The only moment it acts on storage is bucket creation for Katta Web in _STS Storage Access Mode_ — a browser cannot create a bucket and use it right away, as S3 does not offer bucket creation and setting CORS as a joint operation (see [Troubleshooting](../self-hosting-guide/troubleshooting.md)). For this single operation, Katta Web hands Katta Server temporary credentials that are:
+Zero-knowledge covers the vault data and keys. For *storage management*, Katta Server is almost zero trust as well: it holds no storage credentials of its own. The only moment it acts on storage is bucket creation for Katta Web with scoped credentials — a browser cannot create a bucket and use it right away, as S3 does not offer bucket creation and setting CORS as a joint operation (see [Troubleshooting](../self-hosting-guide/troubleshooting.md)). For this single operation, Katta Web hands Katta Server temporary credentials that are:
 
 * **short-lived**: requested with the minimal `DurationSeconds` of 900 seconds,
 * **role-restricted**: issued for the create-bucket role of the storage profile, whose permission policy is limited to the configured bucket prefix
@@ -511,9 +511,9 @@ Notably, the credentials contain no read permission on object contents (`s3:GetO
 
 ### Create S3 Bucket
 
-#### STS Storage Access Mode
+#### Scoped Credentials
 
-The following steps describe how _Katta Web_ creates a new S3 bucket in [_STS Storage Access Mode_](../concepts.md#s3-storage):
+The following steps describe how _Katta Web_ creates a new S3 bucket with [scoped credentials](../concepts.md#s3-storage).
 
 1. Katta Web calls [AssumeRoleWithWebIdentity](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) directly at the
    STS endpoint of the storage profile ([AWS](../self-hosting-guide/aws.md) or [MinIO](../self-hosting-guide/minio.md)), with the user's OIDC access token as web identity, the storage profile's `stsRoleCreateBucketHub`
@@ -559,7 +559,7 @@ role ARNs:
 - `stsRoleCreateBucketClient` (assumed by the Katta Desktop directly).
 :::
 
-#### Static Storage Access Mode
+#### Static Credentials
 
 The bucket must already exist and requires the bucket CORS settings described in [Troubleshooting](../self-hosting-guide/troubleshooting.md))
 
@@ -571,11 +571,11 @@ The bucket must already exist and requires the bucket CORS settings described in
 
 The vault template is encrypted prior to upload.
 
-#### STS Storage Access Mode
+#### Scoped Credentials
 
 The upload uses the same credentials from creating the bucket described above. The session policy's `s3:PutObject` statement matches exactly the template objects (`vault.uvf`, `dir.uvf`, and the root directory placeholder ending in `/`) and nothing else.
 
-#### Static Storage Access Mode
+#### Static Credentials
 
 Katta Web uploads the template directly with the static credentials provided by the user.
 

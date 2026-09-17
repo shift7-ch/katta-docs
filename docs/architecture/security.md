@@ -97,8 +97,7 @@ The retrieval flows for these keys (login, device setup, recovery) are shown in 
 
 Encrypted (cannot be read by the server or anyone with database access):
 
-* `vault.uvf` vault metadata — including the storage configuration in the `cloud.katta.storage` extension; in _Static Storage Access Mode_ this contains the S3 access
-  credentials, so **storage credentials are also end-to-end encrypted**
+* `vault.uvf` vault metadata — including the storage configuration in the `cloud.katta.storage` extension
 * Per-member access tokens (vault member key + recovery key, encrypted to each member's public key)
 * User private keys (encrypted per device and with the Account Key)
 
@@ -127,18 +126,18 @@ server-provided public keys; use `maxWotDepth` where key substitution by the ser
 
 Encryption protects confidentiality; storage access control additionally protects the ciphertext:
 
-* _Static Storage Access Mode_: access to the bucket is controlled by the static S3 credentials, which are shared only inside the end-to-end encrypted `vault.uvf` vault metadata.
-* _STS Storage Access Mode_: vault membership is mirrored to Keycloak, and clients exchange their OIDC tokens for temporary S3 access tokens scoped to a single vault's
-  bucket. No component holds standing storage credentials. See [Tokens](tokens.md) for the full flow.
+* _Static Credentials_: access to the bucket is controlled by the static S3 credentials, which are shared only inside the end-to-end encrypted `vault.uvf` vault metadata.
+* _Scoped Credentials_: vault membership is mirrored to Keycloak, and clients exchange their OIDC tokens for temporary S3 access tokens from STS scoped to a single vault's
+  S3 bucket. No component holds standing storage credentials. See [Tokens](tokens.md) for the full flow.
 
 ## Threat Model Summary
 
-| Party with access to …                 | Can see / do                                                                                                                                    | Cannot                                                                                   |
-|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| Storage provider (S3)                  | Ciphertext objects, object sizes, bucket names (containing the vault ID in _STS Storage Access Mode_), access patterns; delete or withhold data | Decrypt file contents or file names; tampering with ciphertext is detected on decryption |
-| Katta Server, its database, or backups | Vault names, membership graph, audit logs, public keys, encrypted blobs; deny service                                                           | Decrypt vault data, key material, or the storage credentials inside `vault.uvf`          |
-| Keycloak / identity provider           | Authenticate as any user towards the API; in _STS Storage Access Mode_, issue tokens granting access to the ciphertext in a vault's bucket      | Decrypt vault data; obtain vault member keys (access grants happen client-side)          |
-| A vault member                         | Everything in vaults they are a member of                                                                                                       | Other vaults; granting access requires a vault owner                                     |
+|   | Party with access to …             | Can see / do                                                                                                 | Cannot                                                                                   |
+|:--|------------------------------------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+|   | Storage Provider (S3)              | Ciphertext objects, object sizes, bucket names, access patterns; delete or withhold data                     | Decrypt file contents or file names; tampering with ciphertext is detected on decryption |
+|   | Katta Server (Database or Backups) | Vault names, membership graph, audit logs, public keys, encrypted blobs; deny service                        | Decrypt vault data, key material, or the storage credentials inside `vault.uvf`          |
+|   | Keycloak (Identity Provider)       | Authenticate as any user towards the API; issue tokens granting access to the ciphertext in a vault's bucket | Decrypt vault data; obtain vault member keys (access grants happen client-side)          |
+|   | A vault member                     | Everything in vaults they are a member of                                                                    | Other vaults; granting access requires a vault owner                                     |
 
 As with any end-to-end encrypted system, a compromised *client* (or user account together with its Account Key) has access to everything the user has
 access to — Katta's guarantees concern the server and infrastructure side.

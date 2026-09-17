@@ -6,11 +6,10 @@ description: Prepare an AWS account so Keycloak-issued tokens can be exchanged f
 
 # AWS S3
 
-Prepare the AWS configuration of [_STS Storage Access Mode_](../concepts.md#s3-storage): the OIDC trust between Keycloak and AWS IAM, and the roles Katta assumes. This setup is required before you upload an [STS storage profile](../admin-guide/storage-profiles.md), because the storage profile references these roles.
+Prepare AWS for issuing _[Scoped Credentials](../concepts.md#s3-storage)_: the OIDC trust between Keycloak and AWS IAM, and the roles Katta assumes. This setup is required before you upload a [storage profile](../admin-guide/storage-profiles.md) using _Scoped Credentials_ referencing the resulting role ARNs.
 
 :::info
-_Static Storage Access Mode_ needs none of this. It reaches S3 with long-lived access keys supplied at vault creation, thus you can
-go straight to [Storage Profiles](../admin-guide/storage-profiles.md).
+Alternatively configure S3 with long-lived access keys supplied at vault creation, continue with [Storage Profiles](../admin-guide/storage-profiles.md#generic-s3-provider).
 :::
 
 ## OIDC Provider and Roles

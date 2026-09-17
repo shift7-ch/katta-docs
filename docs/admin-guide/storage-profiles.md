@@ -1,20 +1,16 @@
 ---
 title: Storage Profiles
 sidebar_position: 2
-description: Define where users can create vaults — upload an AWS S3 or MinIO storage profile in Static or STS Storage Access Mode.
+description: Define where users can create vaults in S3 Storage.
 ---
 
 # Storage Profiles
 
-This guide shows how to create a storage profile using the [Admin CLI](cli.md). Katta Storage Profiles are created by administrators to define the available storage locations for users to create vaults in, e.g.
-
-* STS or Static [Storage Access Mode](../concepts.md#s3-storage)
-* S3 endpoint
-* Default region and available regions
+This guide shows how to create a storage profile using the [Admin CLI](cli.md). Katta Storage Profiles are created by administrators to define 
+the available storage locations for users to create vaults in including S3 endpoint and available regions.
 
 Administrators can define the storage profiles according to their infrastructure, e.g. a company uses AWS and restricts vault creation to some zones,
-another company uses a low-cost S3 provider supporting only _Static Storage Access Mode_,
-and yet another company has their own [MinIO](../self-hosting-guide/minio.md) deployment.
+another company uses a low-cost S3 provider, and yet another company has their own [MinIO](../self-hosting-guide/minio.md) deployment.
 
 :::warning
 Configuring a storage profile requires the `admin` role.
@@ -22,11 +18,11 @@ Configuring a storage profile requires the `admin` role.
 
 
 ## AWS S3
-### STS Storage Access Mode
+### Scoped Credentials
 
 :::info[Before you start]
-An _STS Storage Access Mode_ profile references IAM roles that must already exist. Prepare them first — see
-[AWS S3](../self-hosting-guide/aws.md). _Static Storage Access Mode_ needs no such preparation.
+A storage profile using _Scoped Credentials_ references IAM roles that must already exist. Prepare them first — see
+[AWS S3](../self-hosting-guide/aws.md).
 :::
 
 :::warning[Environment]
@@ -62,7 +58,7 @@ Authentication uses the browser-based Authorization Code flow unless `--accessTo
 katta storageprofile aws sts --tokenUrl "${TOKEN_URL}" --authUrl "${AUTH_URL}" --hubUrl "${HUB_URL}" --name "AWS S3 STS" --awsAccountId "${AWS_ACCOUNT_ID}" --region "eu-central-1" --regions "eu-central-1"
 ```
 
-### Static Storage Access Mode
+### Static Credentials
 
 :::warning[Environment]
 The example below assumes the following variables set in your environment:
@@ -71,7 +67,7 @@ export HUB_URL=[your Katta Server URL, e.g. https://katta.example.com]
 ```
 :::
 
-Uploads a static storage profile to Katta Server. _Static Storage Access Mode_ needs no OIDC provider or
+Uploads a storage profile to Katta Server with no OIDC provider or
 IAM roles — S3 is reached with long-lived access keys that the vault creator supplies when creating the vault. Use this for an
 existing bucket, or when STS is not an option. `--region`/`--regions` and `--bucketPrefix` have the same meaning as for the STS
 profile. The command prints the created profile as JSON.
@@ -85,11 +81,11 @@ For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 sta
 :::
 
 ## MinIO
-### STS Storage Access Mode
+### Scoped Credentials
 
 :::info[Before you start]
-An _STS Storage Access Mode_ profile references IAM roles that must already exist. Prepare them first — see
-[MinIO](../self-hosting-guide/minio.md). _Static Storage Access Mode_ needs no such preparation.
+Storage profiles reference IAM roles that must already exist. Prepare them first — see
+[MinIO](../self-hosting-guide/minio.md).
 :::
 
 :::warning[Environment]
@@ -113,9 +109,9 @@ katta storageprofile minio sts --hubUrl "${HUB_URL}" --name "MinIO S3 STS" --end
 ```
 
 ## Generic S3 Provider
-### Static Storage Access Mode
+### Static Credentials
 
-Any provider with an S3-compatible API can be used to store vaults in _Static Storage Access Mode_. The vault creator
+Any provider with an S3-compatible API can be used to store vaults accessed with _Static Credentials_. The vault creator
 supplies long-lived access keys, and no OpenID Connect identity provider (OIDC) or role setup is required on the storage
 side.
 
