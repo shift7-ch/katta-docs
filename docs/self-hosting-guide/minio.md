@@ -166,7 +166,7 @@ two policies above:
 |-------------------------------------------|------------------------------------|----------------------------|-----------------------------|
 | `identity_openid:katta-cryptomator`       | `cryptomator` (Katta Desktop)      | `katta-createbucketpolicy` | `stsRoleCreateBucketClient` |
 | `identity_openid:katta-cryptomatorhub`    | `cryptomatorhub` (Katta Web)       | `katta-createbucketpolicy` | `stsRoleCreateBucketHub`    |
-| `identity_openid:katta-cryptomatorvaults` | `cryptomatorvaults` (vault access) | `katta-accessbucketpolicy` | `stsRoleAccessBucket`       |
+| `identity_openid:katta-cryptomatorvaults` | `cryptomatorvaults` (Vault Access) | `katta-accessbucketpolicy` | `stsRoleAccessBucket`       |
 
 The `client_secret` is a placeholder. MinIO requires the field, and the Katta clients are public. MinIO derives one `RoleARN` per
 provider configuration and logs it on restart. Those three ARNs are what the storage profile references.
