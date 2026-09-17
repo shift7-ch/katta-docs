@@ -23,10 +23,10 @@ description: Katta terms, and how they map to their Cryptomator Hub and Mountain
 | Unified Vault Format (UVF)   | A common vendor-independent [standard](https://github.com/encryption-alliance/unified-vault-format) for encrypted directories on a per-file basis, based on the proven Cryptomator Vault Format.       |
 | Vault Metadata               | A [JWE](https://datatracker.ietf.org/doc/html/rfc7516) containing all the vault metadata[^1] required to create a vault bookmark in the client (reference to storage profile, static credentials etc.) |
 | Vault Template               | Initial encrypted vault content consisting of the vault metadata `vault.uvf` file and the representation of the root folder                                                                            |
-| OIDC Token                   | Token retrieved after authenticating with Katta Server                                                                                                                                                 |
-| Security Token Service (STS) | AWS Security Token Service or MinIO Security Token Service to obtain temporary storage credentials from OIDC Tokens                                                                                    |
-| Static Storage Access Mode   | Access S3 storage using static S3 credentials obtained from vault metadata (`AccessKeyId` and `SecretAccessKey`)                                                                                       |
-| STS Storage Access Mode      | Access S3 storage using token-vended temporary credentials from Security Token Service (STS) (`AccessKeyId`, `SecretAccessKey`, and `SessionToken`)                                                    |
+| OIDC Token                   | Token retrieved after authenticating with _Katta Server_                                                                                                                                               |
+| Security Token Service (STS) | AWS Security Token Service or MinIO Security Token Service to obtain temporary storage credentials from _OIDC Token_                                                                                   |
+| Static Storage Access Mode   | Access S3 storage using static S3 credentials obtained from vault metadata (`AccessKeyId` and `SecretAccessKey`). Defined in the _Katta Storage Profile_                                               |
+| STS Storage Access Mode      | Access S3 storage using token-vended temporary credentials from Security Token Service (STS) (`AccessKeyId`, `SecretAccessKey`, and `SessionToken`). Defined in the _Katta Storage Profile_            |
 
 [^1]: [Vault Metadata Specification](https://github.com/encryption-alliance/unified-vault-format/blob/develop/vault%20metadata/README.md)
 
