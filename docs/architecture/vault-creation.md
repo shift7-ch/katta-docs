@@ -70,7 +70,7 @@ In words:
 * In Katta Web, the temporary S3 credentials are sent to Katta Server, which calls S3 to create the corresponding bucket on the user's behalf. This is
   necessary because a browser cannot create a bucket and use it right away (CORS restrictions). The Desktop Client is not bound by CORS and creates the bucket
   itself, without involving Katta Server.
-* Finally, Katta Desktop then uploads the `vault.uvf` with the access configuration, and the vault members are synced to Keycloak.
+* Finally, the `vault.uvf` is uploaded with the access configuration, and the vault members are synced to Keycloak.
 
 
 :::info[Why does Katta Server create the bucket for Katta Web in STS Storage Access Mode?]
