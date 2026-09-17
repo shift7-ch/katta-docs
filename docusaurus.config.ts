@@ -66,18 +66,6 @@ const config: Config = {
       {
         redirects: [
           // pre-restructure URLs
-          { from: '/introduction/intro', to: '/introduction' },
-          { from: '/introduction/comparison', to: '/introduction' },
-          { from: '/introduction/glossary', to: '/glossary' },
-          { from: '/arch', to: '/architecture' },
-          { from: '/arch/overview', to: '/concepts' },
-          { from: '/arch/architecture', to: '/architecture' },
-          { from: '/arch/security', to: '/architecture/security' },
-          { from: '/arch/tokens', to: '/architecture/tokens' },
-          { from: '/setup', to: '/self-hosting-guide' },
-          { from: '/setup/server-setup', to: '/self-hosting-guide' },
-          { from: '/setup/desktop-client-setup', to: '/user-guide/desktop-setup' },
-          { from: '/setup/troubleshooting', to: '/self-hosting-guide/troubleshooting' },
         ],
       },
     ],
