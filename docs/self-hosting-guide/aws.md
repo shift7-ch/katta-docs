@@ -57,12 +57,12 @@ provider and three roles, each with a single inline policy of the same name as t
 
 An IAM OpenID Connect identity provider for the Keycloak realm:
 
-|              |                                                                                                                                                |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| ARN          | `arn:aws:iam::<account-id>:oidc-provider/keycloak.example.com/realms/cryptomator`                                                              |
-| Provider URL | the value of `--realmUrl`, without trailing slash                                                                                              |
-| Audiences    | `cryptomator` (Katta Desktop), `cryptomatorhub` (Katta Web), `cryptomatorvaults` (bucket creation from Katta Web) — override with `--clientId` |
-| Thumbprint   | SHA-1 fingerprint of the last certificate in the TLS chain served by the realm URL                                                             |
+|              |                                                                                                 |
+|--------------|-------------------------------------------------------------------------------------------------|
+| ARN          | `arn:aws:iam::<account-id>:oidc-provider/keycloak.example.com/realms/cryptomator`               |
+| Provider URL | the value of `--realmUrl`, without trailing slash                                               |
+| Audiences    | `cryptomator` (Katta Desktop), `cryptomatorhub` (Katta Web), `cryptomatorvaults` (Vault Access) |
+| Thumbprint   | SHA-1 fingerprint of the last certificate in the TLS chain served by the realm URL              |
 
 If a provider for the same URL already exists and its audience list covers all requested client IDs, only the thumbprint is
 refreshed. If the audience list differs, the provider is deleted and recreated with the full list. The ARN is derived from the
