@@ -74,7 +74,7 @@ allows keys
 to be scoped, issue it without that permission.
 
 :::info[Katta Web]
-Creating a vault in Katta Web requires a pre-existing bucket with the required CORS settings; the supplied access pair is used to upload the vault template.
+Creating a vault in Katta Web requires a pre-existing bucket with the required [CORS settings](admin-guide/storage-profiles.md#s3-bucket-cors-settings); the supplied access pair is used to upload the vault template.
 :::
 
 :::warning
@@ -91,15 +91,14 @@ Use STS to have fine-grained permissions:
 - **Vault Creation**: the user passes a temporary token with limited permissions to the backend, Katta Server or _Katta Desktop_ creates the bucket and uploads the vault template;
 - **Storage Access**: only vault users can access storage.
 
-:::note[In-Depth]
-Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about scoped credentials.
-:::
-
 Not all S3 providers implement the [STS API](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). If you want to use scoped credentials, Katta currently supports two S3 object storage services:
 
 * [AWS](self-hosting-guide/aws.md)
 * [MinIO](self-hosting-guide/minio.md)
 
+:::note[In-Depth]
+Refer to [Scoped Tokens for S3 Storage Access](architecture/tokens.md#scoped-tokens-for-s3-storage-access) for more technical details about scoped credentials.
+:::
 
 ## Unified Vault Format (UVF)
 
