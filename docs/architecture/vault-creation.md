@@ -37,7 +37,7 @@ In words:
   or [AWS CLI](https://aws.amazon.com/cli/)) with the correct bucket CORS settings (see [Troubleshooting](../self-hosting-guide/troubleshooting.md)).
 * A Katta user (role `create-vaults`) can create vaults based on the storage profile and the bucket and access credentials. The vault creator becomes the first
   Vault Owner.
-* Finally, Katta Desktop verifies the configuration and uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
+* Finally, uploads the `vault.uvf` (vault metadata) to the S3 bucket and to Katta Server.
 
 
 ## STS Storage Access Mode
