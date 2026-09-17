@@ -72,7 +72,7 @@ allows keys
 to be scoped, issue it without that permission.
 
 :::info[Katta Web]
-Creating a vault in Katta Web uses the pair stored in the vault metadata for both creating the bucket and uploading the vault template.
+Creating a vault in Katta Web requires a pre-existing bucket with the required CORS settings; the supplied access pair is used to upload the vault template.
 :::
 
 :::warning
