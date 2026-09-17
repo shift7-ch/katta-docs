@@ -98,7 +98,7 @@ flowchart TB
     mode2{" "}
     staticUpload("upload<br/>vault template to empty bucket<br/>with bucket credentials<br/><i>S3</i>")
     stsToken("fetch<br/>temporary token<br/>with inline policy<br/><i>STS</i>")
-    stsUpload("create bucket<br/>and uploads vault template<br/>using temporary token<br/>from inline policy<br/><i>S3</i>")
+    stsUpload("create bucket<br/>and upload vault template<br/>using temporary token<br/>from inline policy<br/><i>S3</i>")
     join{" "}
     final("upload<br/>encrypted <code>vault.uvf</code><br/><i>Katta Server</i>")
     stop((( )))
