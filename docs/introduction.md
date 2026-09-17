@@ -37,7 +37,7 @@ Organizations run Katta instead of a hosted file-sync service:
   (AES-256-GCM and AES-SIV-512, per the open [Unified Vault Format](https://github.com/encryption-alliance/unified-vault-format)). A
   compromise of Katta Server, its database, its backups, or the storage bucket exposes only ciphertext and organizational metadata —
   never plaintext or key material. When using _Static Credentials_, these are end-to-end encrypted inside the vault
-  metadata. And when using _Scoped Credentials_, only temporary tokens scoped to a single S3 bucket are issued. *See the threat model in [Security](architecture/security.md).
+  metadata. And when using _Scoped Credentials_, only temporary tokens scoped to a single S3 bucket are issued. See the threat model in [Security](architecture/security.md).
 * **Self-hosted, no third-party processor.** Katta Server (backend, Keycloak, and PostgreSQL, with an optional bundled MinIO for
   evaluation) ships as a Helm chart and runs in your own Kubernetes cluster or cloud account. Nothing outside your infrastructure
   sits in the path of your plaintext, and there is no external service to depend on for availability.
