@@ -52,6 +52,7 @@ export TF_VAR_dns_suffix=example.net
 export TF_VAR_keycloak_db_password=
 export TF_VAR_keycloak_admin_password=
 export TF_VAR_hub_db_password=
+export TF_VAR_hub_admin_password=
 export TF_VAR_hub_keycloak_system_client_secret=
 export TF_VAR_hub_keycloak_oidc_cryptomator_vaults_client_secret=
 ```
@@ -73,6 +74,9 @@ terraform validate
 terraform plan
 terraform apply --auto-approve
 ```
+
+Open Katta Web at `https://hub.katta.example.net` and log in with username `admin` (set with `TF_VAR_hub_admin_username`) and
+the password of `TF_VAR_hub_admin_password`. You must change the password on first login.
 
 :::info
 See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full variable reference and for example CSP and
