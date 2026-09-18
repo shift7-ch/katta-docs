@@ -97,7 +97,7 @@ Inline permission policy:
         "s3:CreateBucket",
         "s3:GetBucketPolicy"
       ],
-      "Resource": "arn:aws:s3:::{}"
+      "Resource": "arn:aws:s3:::katta-*"
     },
     {
       "Effect": "Allow",
@@ -105,9 +105,8 @@ Inline permission policy:
         "s3:PutObject"
       ],
       "Resource": [
-        "arn:aws:s3:::{}/*.uvf",
-        "arn:aws:s3:::{}/*/"
-      ]
+        "arn:aws:s3:::katta-*/*.uvf",
+        "arn:aws:s3:::katta-*/*/"      ]
     }
   ]
 }

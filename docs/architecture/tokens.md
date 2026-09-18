@@ -103,8 +103,8 @@ Note over Katta Client: { "aud": "cryptomatorvaults", "https://aws.amazon.com/ta
 Katta Client ->> STS: (9) AssumeRoleWithWebIdentity(exchanged_access_token)
 STS -->> Katta Client: (10) AccessKeyId, SecretKey
 Note over Katta Client: { Action: [sts:AssumeRole, sts:TagSession], Resource: "arn:aws:iam::...:role/katta-access-bucket-tagged-session-role"}
-Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta-access-bucket-tagged-session-role", tag.name=VaultRequested, tag.value=<vaultId>)
-Note over STS: "Condition": { "ForAnyValue:StringEquals": { "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}" } }
+Katta Client ->> STS: (11) AssumeRole(AccessKeyId, SecretKey, roleArn="arn:aws:iam::...:role/katta-access-bucket-tagged-session-role", tag.name=Vault, tag.value=<vaultId>)
+Note over STS: "Condition": { "ForAnyValue:StringEquals": { "sts:TransitiveTagKeys": "${aws:RequestTag/Vault}" } }
 STS -->> Katta Client: (12) AccessKeyId, SecretKey
 Note over Katta Client: { Action: s3:PutObject, ..., Resource: "arn:aws:s3:::katta-<vaultId>/*"}
 end
@@ -377,7 +377,7 @@ Trust policy for the second role in the chain, requiring the tag to be transitiv
       ],
       "Condition": {
         "ForAnyValue:StringEquals": {
-          "sts:TransitiveTagKeys": "${aws:RequestTag/VaultRequested}"
+          "sts:TransitiveTagKeys": "${aws:RequestTag/Vault}"
         }
       }
     }
@@ -460,7 +460,7 @@ Permission policy for vault access, scoped by the session tag:
         "s3:ListBucketMultipartUploads",
         "s3:GetBucketVersioning"
       ],
-      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/VaultRequested}"
+      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/Vault}"
     },
     {
       "Effect": "Allow",
@@ -471,7 +471,7 @@ Permission policy for vault access, scoped by the session tag:
         "s3:ListMultipartUploadParts",
         "s3:AbortMultipartUpload"
       ],
-      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/VaultRequested}/*"
+      "Resource": "arn:aws:s3:::katta-${aws:PrincipalTag/Vault}/*"
     }
   ]
 }
