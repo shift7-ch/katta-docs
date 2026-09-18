@@ -83,7 +83,9 @@ In this way, only users with the corresponding client role get the claims requir
 ## Keycloak Realm Diff to Cryptomator Hub (aka. Upstream)
 
 The realm deployed by Katta Server is rendered from the Helm chart's
-[realm template](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/templates/_realm.tpl). It has several differences to the
+[realm template](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/templates/_realm.tpl), which is the single source of
+truth for the default realm: the Helm chart imports it on install, and [katta-terraform](https://github.com/shift7-ch/katta-terraform) and
+[katta-compose](https://github.com/shift7-ch/katta-compose) render it from the published chart. It has several differences to the
 corresponding [upstream realm template](https://github.com/cryptomator/hub/blob/develop/chart/templates/_realm.tpl):
 
 | Diff                                                                                                                                                          | Motivation                                                                                                                                                                                                                                                                            |
