@@ -1,5 +1,9 @@
 # Katta Documentation
 
+[![Check build](https://github.com/shift7-ch/katta-docs/actions/workflows/checks.yml/badge.svg)](https://github.com/shift7-ch/katta-docs/actions/workflows/checks.yml)
+
+> [Katta](https://katta.cloud/): transform your S3 storage into a secure, team-friendly workspace with client-side encryption.
+
 Official documentation site for Katta. Built with [Docusaurus](https://docusaurus.io/).
 
 ## Contributing
