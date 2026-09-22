@@ -58,6 +58,32 @@ Authentication uses the browser-based Authorization Code flow unless `--accessTo
 katta storageprofile aws sts --tokenUrl "${TOKEN_URL}" --authUrl "${AUTH_URL}" --hubUrl "${HUB_URL}" --name "AWS S3 STS" --awsAccountId "${AWS_ACCOUNT_ID}" --region "eu-central-1" --regions "eu-central-1"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "3f8a1c52-6b0e-4d7a-9c21-5e4b7d2f9a10",
+  "name": "AWS S3 STS",
+  "protocol": "S3STS",
+  "archived": false,
+  "pathStyleAccessEnabled": false,
+  "storageClass": "STANDARD",
+  "region": "eu-central-1",
+  "regions": [
+    "eu-central-1"
+  ],
+  "bucketPrefix": "katta-",
+  "stsRoleCreateBucketClient": "arn:aws:iam::123456789012:role/katta-create-bucket",
+  "stsRoleCreateBucketHub": "arn:aws:iam::123456789012:role/katta-create-bucket",
+  "stsRoleAccessBucketAssumeRoleWithWebIdentity": "arn:aws:iam::123456789012:role/katta-access-bucket-web-identity-role",
+  "stsRoleAccessBucketAssumeRoleTaggedSession": "arn:aws:iam::123456789012:role/katta-access-bucket-tagged-session-role",
+  "stsSessionTag": "Vault"
+}
+```
+
+</details>
+
 ### Static Credentials
 
 :::warning[Environment]
@@ -75,6 +101,29 @@ profile. The command prints the created profile as JSON.
 ```bash
 katta storageprofile aws static --hubUrl "${HUB_URL}" --name "AWS S3 Static" --region "eu-west-1" --regions "eu-west-1" --regions "eu-west-2" --regions "eu-west-3"
 ```
+
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "c7e20f95-4b1a-4c3d-a8f6-12d5e9b04c77",
+  "name": "AWS S3 Static",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "pathStyleAccessEnabled": false,
+  "storageClass": "STANDARD",
+  "region": "eu-west-1",
+  "regions": [
+    "eu-west-1",
+    "eu-west-2",
+    "eu-west-3"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
 
 :::tip
 For a generic S3-compatible (non-AWS) endpoint, use `katta storageprofile s3 static` instead, which additionally requires `--endpointUrl`.
@@ -107,6 +156,32 @@ katta storageprofile minio sts --hubUrl "${HUB_URL}" --name "MinIO S3 STS" --end
   --stsRoleCreateBucketHub "arn:minio:iam:::role/…" \
   --stsRoleAccessBucket "arn:minio:iam:::role/…"
 ```
+
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "a1d4e7b0-2c93-4f68-8e15-7b9c0d3a6f42",
+  "name": "MinIO S3 STS",
+  "protocol": "S3STS",
+  "archived": false,
+  "endpoint": "http://localhost:9000",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "us-east-1",
+  "regions": [
+    "us-east-1"
+  ],
+  "bucketPrefix": "katta-",
+  "stsRoleCreateBucketClient": "arn:minio:iam:::role/IjCnVb3Wm0h7fCMhLMHzUPaFFXw",
+  "stsRoleCreateBucketHub": "arn:minio:iam:::role/dfLJLie5Bf1FFbQgYHd0PLr4ZSU",
+  "stsEndpoint": "http://localhost:9000",
+  "stsRoleAccessBucketAssumeRoleWithWebIdentity": "arn:minio:iam:::role/Hk4mPsdxYWm3eQ9vDgLQo2TnRc8"
+}
+```
+
+</details>
 
 ## Generic S3 Provider
 ### Static Credentials
@@ -210,6 +285,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --region "eu-central-1"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "0b6f3d18-9e24-4a57-b1c0-8d7e2f5a3c69",
+  "name": "Wasabi (eu-central-1)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://s3.eu-central-1.wasabisys.com",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "eu-central-1",
+  "regions": [
+    "eu-central-1"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
+
 Available regions: `us-east-1`, `us-east-2`, `us-central-1`, `us-west-1`, `us-west-2`, `ca-central-1`, `eu-west-1`,
 `eu-west-2`,
 `eu-west-3`, `eu-central-1`, `eu-central-2`, `eu-south-1`, `ap-northeast-1`, `ap-northeast-2`, `ap-southeast-1`,
@@ -228,6 +325,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --region "fr-par"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "5d92a7e4-1f6b-4e08-9c3a-6b1f0e8d2a55",
+  "name": "Scaleway Object Storage (fr-par)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://s3.fr-par.scw.cloud",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "fr-par",
+  "regions": [
+    "fr-par"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
+
 Available regions: `fr-par` (Paris), `nl-ams` (Amsterdam), `pl-waw` (Warsaw).
 
 * [Scaleway Object Storage Endpoints](https://www.scaleway.com/en/docs/object-storage/api-cli/object-storage-aws-cli/)
@@ -244,6 +363,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --endpointUrl "https://fra1.digitaloceanspaces.com" \
   --region "fra1"
 ```
+
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "e4c1b8a3-7d25-4f90-b6e2-3a9d5c0f7b18",
+  "name": "DigitalOcean Spaces (fra1)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://fra1.digitaloceanspaces.com",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "fra1",
+  "regions": [
+    "fra1"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
 
 Available regions: `nyc3`, `sfo2`, `sfo3`, `ams3`, `sgp1`, `fra1`, `blr1`, `syd1`.
 
@@ -267,6 +408,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --region "eu-central-003"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "92f07c6d-3a8e-4b15-a4d9-0e6c1b7f5d23",
+  "name": "Backblaze B2 (eu-central-003)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://s3.eu-central-003.backblazeb2.com",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "eu-central-003",
+  "regions": [
+    "eu-central-003"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
+
 * [Backblaze B2 S3-Compatible API](https://www.backblaze.com/docs/cloud-storage-s3-compatible-api)
 
 ### Cloudflare R2
@@ -283,6 +446,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --region "auto"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "6a3e9d1c-8b47-4f2e-9d05-c2b8a4e71f36",
+  "name": "Cloudflare R2",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "auto",
+  "regions": [
+    "auto"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
+
 * [Cloudflare R2 S3 API Compatibility](https://developers.cloudflare.com/r2/api/s3/api/)
 
 ### Exoscale
@@ -295,6 +480,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --endpointUrl "https://sos-ch-gva-2.exo.io" \
   --region "ch-gva-2"
 ```
+
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "1c5b8e2f-4d93-4a6c-b7e0-9f3a6d2c8e41",
+  "name": "Exoscale SOS (ch-gva-2)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://sos-ch-gva-2.exo.io",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "ch-gva-2",
+  "regions": [
+    "ch-gva-2"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
 
 Available zones: `ch-gva-2`, `ch-dk-2`, `at-vie-1`, `at-vie-2`, `de-fra-1`, `de-muc-1`, `bg-sof-1`, `hr-zag-1`.
 
@@ -323,6 +530,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --region "us-east-1"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "d8a2f6c0-5e17-4b39-8c4d-7a1e3b9f0d62",
+  "name": "Infomaniak Public Cloud",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://s3.pub1.infomaniak.cloud",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "us-east-1",
+  "regions": [
+    "us-east-1"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
+
 Public Cloud endpoints are `https://s3.pub1.infomaniak.cloud` and `https://s3.pub2.infomaniak.cloud`. Swiss Backup
 endpoints follow
 `https://s3.swiss-backup0N.infomaniak.com`, where the number is shown in the Infomaniak manager for the subscribed
@@ -342,6 +571,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --region "fsn1"
 ```
 
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "47e9b1a5-2c6d-4f83-a0e8-5b3c9d7f1a24",
+  "name": "Hetzner Object Storage (fsn1)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://fsn1.your-objectstorage.com",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "fsn1",
+  "regions": [
+    "fsn1"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
+
 Available locations: `fsn1` (Falkenstein), `nbg1` (Nuremberg), `hel1` (Helsinki).
 
 * [Hetzner Object Storage](https://docs.hetzner.com/storage/object-storage/overview)
@@ -358,6 +609,28 @@ katta storageprofile s3 static --hubUrl "${HUB_URL}" \
   --endpointUrl "https://s3.gra.io.cloud.ovh.net" \
   --region "gra"
 ```
+
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "b3d6f9a2-8e1c-4a75-9f04-2c7e5a8b1d93",
+  "name": "OVHcloud Object Storage (gra)",
+  "protocol": "S3STATIC",
+  "archived": false,
+  "endpoint": "https://s3.gra.io.cloud.ovh.net",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "gra",
+  "regions": [
+    "gra"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
 
 Available regions include `gra`, `sbg`, `rbx`, `bhs`, `de`, `uk`, `waw`, `sgp`, `eu-west-par`, `eu-south-mil`,
 `ca-east-tor`, `ap-south-mum` and `ap-southeast-syd`.
@@ -386,8 +659,30 @@ example.
 The command prints the created profile as JSON, including the `id` assigned by Katta Server. Storage profiles are
 immutable. To
 correct one, archive it and upload a replacement. Archiving hides the profile from vault creation and leaves existing
-vaults intact.
+vaults intact. The command prints the archived profile as JSON.
 
 ```bash
 katta storageprofile archive --hubUrl "${HUB_URL}" --uuid "[profile id from the JSON output]"
 ```
+
+<details>
+<summary>Sample output</summary>
+
+```json
+{
+  "id": "0b6f3d18-9e24-4a57-b1c0-8d7e2f5a3c69",
+  "name": "Wasabi (eu-central-1)",
+  "protocol": "S3STATIC",
+  "archived": true,
+  "endpoint": "https://s3.eu-central-1.wasabisys.com",
+  "pathStyleAccessEnabled": true,
+  "storageClass": "STANDARD",
+  "region": "eu-central-1",
+  "regions": [
+    "eu-central-1"
+  ],
+  "bucketPrefix": "katta-"
+}
+```
+
+</details>
