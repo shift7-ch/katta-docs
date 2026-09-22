@@ -106,6 +106,10 @@ export TF_VAR_hub_csp_additional_connect_src="https://*.wasabisys.com"
 S3 and STS endpoints on AWS are already covered by `*.amazonaws.com`, so only providers outside AWS need
 to be listed.
 
+:::tip[Next Step]
+Once the deployment is running, continue with [AWS S3](aws.md) to set up the OIDC provider and IAM roles required for _Scoped Credentials_.
+:::
+
 ## Helm Chart (Kubernetes)
 
 The [katta-server](https://github.com/shift7-ch/katta-server) repository ships a Helm chart, published as an OCI artifact at

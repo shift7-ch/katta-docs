@@ -8,6 +8,10 @@ description: Prepare an AWS account so Keycloak-issued tokens can be exchanged f
 
 Prepare AWS for issuing _[Scoped Credentials](../concepts.md#s3-storage)_: the OIDC trust between Keycloak and AWS IAM, and the roles Katta assumes. This setup is required before you upload a [storage profile](../admin-guide/storage-profiles.md) using _Scoped Credentials_ referencing the resulting role ARNs.
 
+:::warning[Prerequisites]
+This setup assumes Katta is already deployed and running on AWS, including the Keycloak realm referenced below. Set up the deployment first using [Terraform (AWS)](deployment.md#terraform-aws).
+:::
+
 :::info
 Alternatively configure S3 with long-lived access keys supplied at vault creation, continue with [Storage Profiles](../admin-guide/storage-profiles.md#generic-s3-provider).
 :::
