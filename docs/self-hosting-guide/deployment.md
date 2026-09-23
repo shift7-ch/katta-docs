@@ -112,25 +112,25 @@ Once the deployment is running, continue with [AWS S3](aws.md) to set up the OID
 
 ## Helm Chart (Kubernetes)
 
-The [katta-server](https://github.com/shift7-ch/katta-server) repository ships a Helm chart, published as an OCI artifact at
-`ghcr.io/shift7-ch/charts/katta-server`. It deploys the Katta Server (required) and, enabled by default, Keycloak and
+The [katta-helm](https://github.com/shift7-ch/katta-helm) repository contains the Helm chart for Katta Server, published as an OCI
+artifact at `ghcr.io/shift7-ch/katta-helm/katta-server`. It deploys the Katta Server (required) and, enabled by default, Keycloak and
 PostgreSQL; a bundled MinIO can optionally be enabled for demos. Chart signatures can be verified with `cosign`.
 
-Local demo on a single-node cluster (kind, minikube, k3d, Docker Desktop) with the bundled MinIO, using the `values-demo.yaml` from
-a checkout of the repository:
+Local demo on a single-node cluster (kind, minikube, k3d, Docker Desktop) with the bundled MinIO, from
+a checkout of the [katta-helm](https://github.com/shift7-ch/katta-helm) repository:
 
 ```bash
 minikube addons enable ingress
-helm install katta chart \
+helm install katta . \
   --namespace katta \
   --create-namespace \
-  -f chart/values-demo.yaml
+  -f values-demo.yaml
 ```
 
 Production deployment behind an existing ingress controller:
 
 ```bash
-helm install katta oci://ghcr.io/shift7-ch/charts/katta-server \
+helm install katta oci://ghcr.io/shift7-ch/katta-helm/katta-server \
   --namespace katta \
   --create-namespace \
   --wait --timeout 5m \
@@ -145,7 +145,7 @@ at the root), `ingress` (`nginx` or `traefik`, TLS), `hub` (database connection,
 bootstrap), `postgres` and `minio` (can be disabled to use external services, e.g. via `hub.database.jdbcUrl`). 
 
 :::info
-See the chart [README](https://github.com/shift7-ch/katta-server/blob/feature/cipherduck-uvf/chart/README.md) for the complete values reference.
+See the chart [README](https://github.com/shift7-ch/katta-helm/blob/main/README.md) for the complete values reference.
 :::
 
 ### Content Security Policy (CSP) Settings
