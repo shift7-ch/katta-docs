@@ -171,6 +171,10 @@ helm install katta . \
   -f values-demo.yaml
 ```
 
+:::tip
+Open Katta Web at http://hub.localhost:9090 and log in with username `admin` and password `admin`.
+:::
+
 Production deployment behind an existing ingress controller:
 
 ```bash
@@ -183,6 +187,11 @@ helm install katta oci://ghcr.io/shift7-ch/katta-helm/katta-server \
   --set ingress.controller=traefik \
   --set hub.admin.password=changeme
 ```
+
+:::tip
+Open Katta Web at `urls.hub.public` and log in with username `admin` (set with `hub.admin.username`) and the password of
+`hub.admin.password`. You must change the password on first login.
+:::
 
 Key values sections: `urls` (public hostnames for Hub, Keycloak, and the S3 API — `urls.s3.public` must be a dedicated host served
 at the root), `ingress` (`nginx` or `traefik`, TLS), `hub` (database connection, admin credentials, telemetry), `keycloak` (realm
@@ -252,7 +261,9 @@ The `local` profile starts and configures the same services but creates no stora
 docker compose --profile demo up --wait
 ```
 
+:::tip
 Open Katta Web at http://hub.localhost:8280 and log in with username `admin` and password `admin`.
+:::
 
 The endpoints of Katta Server, Keycloak and MinIO are the subdomains `hub.localhost`, `keycloak.localhost` and
 `minio.localhost`, so the same URLs work in the browser on the host and inside the Docker network. Browsers resolve subdomains
