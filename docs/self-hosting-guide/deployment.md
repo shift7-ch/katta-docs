@@ -91,8 +91,10 @@ terraform plan
 terraform apply --auto-approve
 ```
 
+:::tip
 Open Katta Web at `https://hub.katta.example.net` and log in with username `admin` (set with `TF_VAR_hub_admin_username`) and
 the password of `TF_VAR_hub_admin_password`. You must change the password on first login.
+:::
 
 :::info
 See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full variable reference and for example CSP and
