@@ -252,7 +252,16 @@ The `local` profile starts and configures the same services but creates no stora
 docker compose --profile demo up --wait
 ```
 
-Open Katta Web at http://localhost:8280 and log in with username `admin` and password `admin`.
+Open Katta Web at http://hub.localhost:8280 and log in with username `admin` and password `admin`.
+
+The endpoints of Katta Server, Keycloak and MinIO are the subdomains `hub.localhost`, `keycloak.localhost` and
+`minio.localhost`, so the same URLs work in the browser on the host and inside the Docker network. Browsers resolve subdomains
+of `localhost` to the loopback address, but the system resolver of macOS does not. For other clients on the host, such as
+Katta Desktop, add them to `/etc/hosts`:
+
+```text
+127.0.0.1 hub.localhost keycloak.localhost minio.localhost
+```
 
 :::info
 See the katta-compose [README](https://github.com/shift7-ch/katta-compose#usage) for the profiles, variables and endpoints.
