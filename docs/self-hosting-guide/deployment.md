@@ -255,8 +255,7 @@ docker compose --profile demo up --wait
 Open Katta Web at http://localhost:8280 and log in with username `admin` and password `admin`.
 
 :::info
-See the katta-compose [README](https://github.com/shift7-ch/katta-compose#usage) for the profiles, variables, provisioned
-users, and endpoints.
+See the katta-compose [README](https://github.com/shift7-ch/katta-compose#usage) for the profiles, variables and endpoints.
 :::
 
 ### Content Security Policy (CSP) Settings
