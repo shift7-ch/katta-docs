@@ -9,6 +9,13 @@ description: Prepare a MinIO server so Keycloak-issued tokens can be exchanged f
 Prepare the MinIO configuration for issuing _[Scoped Credentials](../concepts.md#s3-storage)_: the two MinIO policies Katta needs, and the OIDC providers that
 trust Keycloak. This setup is required before you upload a [storage profile](../admin-guide/storage-profiles.md) using _Scoped Credentials_ referencing the resulting role ARNs.
 
+:::tip[Bundled MinIO]
+The MinIO bundled with [Docker Compose](deployment.md#docker-compose), and with the
+[Helm chart](deployment.md#default-storage-profiles-minio) when `minio.openid.enabled=true`, is already configured with these
+policies and OIDC providers, and storage profiles for it are uploaded on deployment. Follow this page for a MinIO server you
+operate yourself.
+:::
+
 :::info
 Alternatively configure MinIO with long-lived access keys supplied at vault creation, continue with [Storage Profiles](../admin-guide/storage-profiles.md#generic-s3-provider).
 :::

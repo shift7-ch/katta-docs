@@ -12,6 +12,13 @@ Prepare AWS for issuing _[Scoped Credentials](../concepts.md#s3-storage)_: the O
 This setup assumes Katta is already deployed and running on AWS, including its Keycloak realm. Set up the deployment first using [Terraform (AWS)](deployment.md#terraform-aws).
 :::
 
+:::tip[Terraform]
+A deployment with [Terraform (AWS)](deployment.md#terraform-aws) already runs `katta setup aws` and uploads a matching storage
+profile, see [Default Storage Profile](deployment.md#default-storage-profile-aws-s3). Follow this page only if you disabled it
+with `storage_profile_aws_enabled = false`, or to set up additional roles. The Terraform deployment names the roles with the
+prefix `<workspace>-` instead of `katta-`.
+:::
+
 :::info
 Alternatively configure S3 with long-lived access keys supplied at vault creation, continue with [Storage Profiles](../admin-guide/storage-profiles.md#generic-s3-provider).
 :::
@@ -218,4 +225,4 @@ stays as it is, and AWS defaults to one hour for a role created without the opti
 
 ## Next step
 
-Upload a matching storage profile — see [Storage Profiles](../admin-guide/storage-profiles.md) in the Admin Guide.
+Unless the storage profile was uploaded by the [Terraform deployment](deployment.md#default-storage-profile-aws-s3), upload a matching storage profile — see [Storage Profiles](../admin-guide/storage-profiles.md) in the Admin Guide.
