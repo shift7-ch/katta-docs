@@ -14,9 +14,7 @@ This setup assumes Katta is already deployed and running on AWS, including its K
 
 :::tip[Terraform]
 A deployment with [Terraform (AWS)](deployment.md#terraform-aws) already runs `katta setup aws` and uploads a matching storage
-profile, see [Default Storage Profile](deployment.md#default-storage-profile-aws-s3). Follow this page only if you disabled it
-with `storage_profile_aws_enabled = false`, or to set up additional roles. The Terraform deployment names the roles with the
-prefix `<workspace>-` instead of `katta-`.
+profile, see [Default Storage Profile](deployment.md#default-storage-profile-aws-s3).
 :::
 
 :::info
