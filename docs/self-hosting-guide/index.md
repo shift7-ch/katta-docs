@@ -13,6 +13,6 @@ This guide is for everyone who runs a Katta Server instance on their own infrast
 A managed Katta Server, hosted and maintained by shift7 GmbH, is not currently available. You must self-host Katta Server.
 :::
 
-Once the server runs and its storage provider is prepared, the [Admin Guide](../admin-guide/index.md) covers the storage profiles that put it to use.
+Each [deployment option](deployment.md) configures a default storage profile — AWS S3 with Terraform, the bundled MinIO with the Helm chart and Docker Compose — so vaults can be created right after deployment. To add further storage providers, the [Admin Guide](../admin-guide/index.md) covers the storage profiles that put them to use.
 
 <DocCardList />

@@ -15,14 +15,27 @@ expected to operate yourself:
 
 | Option                               | Best for                                     | Brings along                                                  | You provide                                 |
 |--------------------------------------|----------------------------------------------|---------------------------------------------------------------|---------------------------------------------|
-| [Terraform](#terraform-aws)          | Production on AWS, from scratch              | VPC, load balancers, ECS, RDS, Route53, ACM, ECR              | AWS account, Route53 domain                 |
-| [Helm chart](#helm-chart-kubernetes) | Production on an existing Kubernetes cluster | Katta Server, Keycloak and PostgreSQL, optionally MinIO       | Cluster, ingress controller, TLS, hostnames |
-| [Docker Compose](#docker-compose)    | Local testing and demos                      | Katta Server, Keycloak, MinIO, preconfigured storage profiles | Docker on a single machine                  |
+| [Terraform](#terraform-aws)          | Production on AWS, from scratch              | VPC, load balancers, ECS, RDS, Route53, ACM, ECR, AWS S3 storage profile           | AWS account, Route53 domain                 |
+| [Helm chart](#helm-chart-kubernetes) | Production on an existing Kubernetes cluster | Katta Server, Keycloak and PostgreSQL, optionally MinIO with its storage profiles | Cluster, ingress controller, TLS, hostnames |
+| [Docker Compose](#docker-compose)    | Local testing and demos                      | Katta Server, Keycloak, MinIO, preconfigured storage profiles                      | Docker on a single machine                  |
 
 [Terraform](#terraform-aws) and the [Helm chart](#helm-chart-kubernetes) are the maintained paths for production, so pick the one matching where you operate: Terraform if AWS is
 your target and you want the network and managed databases created for you, the Helm chart if you already run Kubernetes. The
 Docker Compose setup in [katta-compose](https://github.com/shift7-ch/katta-compose) is a demo with MinIO and storage profiles
 preseeded, to get a complete stack running on one machine in minutes.
+
+All three options configure a default [storage profile](../admin-guide/storage-profiles.md) with the
+[Katta Admin CLI](../admin-guide/cli.md) once Katta Server is up, so vaults can be created right after the deployment:
+
+| Option                               | Storage                  | Storage profiles                                                  |
+|--------------------------------------|--------------------------|-------------------------------------------------------------------|
+| [Terraform](#terraform-aws)          | AWS S3                   | _Scoped Credentials_                                              |
+| [Helm chart](#helm-chart-kubernetes) | Bundled MinIO (optional) | _Static Credentials_, and _Scoped Credentials_ if OIDC is enabled |
+| [Docker Compose](#docker-compose)    | Bundled MinIO            | _Static Credentials_ and _Scoped Credentials_                     |
+
+The storage profiles are uploaded with `--skipIfExists`: a storage profile with the same name already in Katta Server is left
+untouched, so re-running the deployment neither duplicates nor updates it. Add storage profiles for further storage providers
+as described in [Storage Profiles](../admin-guide/storage-profiles.md).
 
 
 ## Terraform (AWS)
@@ -41,6 +54,9 @@ export AWS_SESSION_TOKEN=
 export AWS_DEFAULT_REGION=
 export AWS_USE_DUALSTACK_ENDPOINT=false
 ```
+
+Install the [Katta Admin CLI](../admin-guide/cli.md) `katta` used to set up the
+[default storage profile](#default-storage-profile-aws-s3) for AWS S3.
 :::
 
 Deployment parameters are supplied either as `TF_VAR_*` environment variables or in a `terraform.tfvars` file copied from
@@ -75,8 +91,10 @@ terraform plan
 terraform apply --auto-approve
 ```
 
+:::tip
 Open Katta Web at `https://hub.katta.example.net` and log in with username `admin` (set with `TF_VAR_hub_admin_username`) and
 the password of `TF_VAR_hub_admin_password`. You must change the password on first login.
+:::
 
 :::info
 See [katta-terraform](https://github.com/shift7-ch/katta-terraform) for the full variable reference and for example CSP and
@@ -93,6 +111,33 @@ terraform destroy --auto-approve
 There is a 7-day grace period on AWS Secrets Manager deletions.
 :::
 
+### Default Storage Profile (AWS S3)
+
+Once Katta Server is reachable, `terraform apply` sets up AWS S3 with _[Scoped Credentials](../concepts.md#s3-storage)_ as
+the default storage backend:
+
+* `katta setup aws` creates the OIDC identity provider for the Keycloak realm and the IAM roles
+  `<workspace>-create-bucket`, `<workspace>-access-bucket-web-identity-role` and
+  `<workspace>-access-bucket-tagged-session-role`, as described in [AWS S3](aws.md#resources-created-in-aws). AWS credentials
+  are read from the environment or the profile `$AWS_PROFILE`.
+* `katta storageprofile aws sts` uploads a storage profile referencing these roles, using an access token of the service account
+  of client `cryptomatorhub-system`.
+
+| Variable                               | Default                                                    | Description                                                                                  |
+|----------------------------------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| `storage_profile_aws_enabled`          | `true`                                                     | Set to `false` to skip the setup and upload a storage profile yourself.                      |
+| `storage_profile_aws_role_name_prefix` | `<workspace>-`                                             | Prefix of the IAM role names.                                                                |
+| `storage_profile_aws_bucket_prefix`    | `<project>-<workspace>-`                                   | Prefix of the vault bucket names, at most 27 characters.                                     |
+| `storage_profile_aws_regions`          | Regions enabled by default in AWS accounts (not opt-in)    | Regions users may choose for vault buckets. `region` is always included and is the default. |
+
+```bash
+export TF_VAR_storage_profile_aws_regions='["eu-central-1","eu-west-1"]'
+```
+
+The storage profile is named after its regions. Changing only the role or bucket prefix therefore does not update an existing
+storage profile. The identity provider and roles are not managed as Terraform resources but are removed with `terraform destroy`.
+S3 buckets created for vaults are not deleted.
+
 ### Content Security Policy (CSP) Settings
 
 The [katta-terraform](https://github.com/shift7-ch/katta-terraform/blob/main/ecs.tf) deployment assembles
@@ -107,7 +152,8 @@ S3 and STS endpoints on AWS are already covered by `*.amazonaws.com`, so only pr
 to be listed.
 
 :::tip[Next Step]
-Once the deployment is running, continue with [AWS S3](aws.md) to set up the OIDC provider and IAM roles required for _Scoped Credentials_.
+With the [default storage profile](#default-storage-profile-aws-s3), vaults can be created in AWS S3 right away. Continue with
+[AWS S3](aws.md) only if you disabled it with `storage_profile_aws_enabled = false` or need roles with different prefixes.
 :::
 
 ## Helm Chart (Kubernetes)
@@ -127,6 +173,10 @@ helm install katta . \
   -f values-demo.yaml
 ```
 
+:::tip
+Open Katta Web at http://hub.localhost:9090 and log in with username `admin` and password `admin`.
+:::
+
 Production deployment behind an existing ingress controller:
 
 ```bash
@@ -140,6 +190,11 @@ helm install katta oci://ghcr.io/shift7-ch/katta-helm/katta-server \
   --set hub.admin.password=changeme
 ```
 
+:::tip
+Open Katta Web at `urls.hub.public` and log in with username `admin` (set with `hub.admin.username`) and the password of
+`hub.admin.password`. You must change the password on first login.
+:::
+
 Key values sections: `urls` (public hostnames for Hub, Keycloak, and the S3 API — `urls.s3.public` must be a dedicated host served
 at the root), `ingress` (`nginx` or `traefik`, TLS), `hub` (database connection, admin credentials, telemetry), `keycloak` (realm
 bootstrap), `postgres` and `minio` (can be disabled to use external services, e.g. via `hub.database.jdbcUrl`). 
@@ -147,6 +202,27 @@ bootstrap), `postgres` and `minio` (can be disabled to use external services, e.
 :::info
 See the chart [README](https://github.com/shift7-ch/katta-helm/blob/main/README.md) for the complete values reference.
 :::
+
+### Default Storage Profiles (MinIO)
+
+With the bundled MinIO enabled (`minio.enabled=true`), a `post-install,post-upgrade` hook Job configures MinIO and uploads
+storage profiles for it with the [Katta Admin CLI](../admin-guide/cli.md), using an access token of the service account of
+client `cryptomatorhub-system`:
+
+| Value                                 | Default               | Storage profile                                                                                                                                             |
+|---------------------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `storageProfileSeed.static.enabled`   | `true`                | `Bundled MinIO` with _Static Credentials_ (`katta storageprofile s3 static`).                                                                               |
+| `storageProfileSeed.sts.enabled`      | `false`               | `Bundled MinIO (STS)` with _Scoped Credentials_ (`katta storageprofile minio sts`). Requires `minio.openid.enabled=true`.                                     |
+| `storageProfileSeed.*.bucketPrefix`   | `katta-`              | Prefix of the vault bucket names.                                                                                                                           |
+| `storageProfileSeed.*.profileName`    | see above             | Name of the storage profile.                                                                                                                                |
+
+`values-demo.yaml` enables both. For _Scoped Credentials_, the Job creates the MinIO policies `katta-createbucketpolicy` and
+`katta-accessbucketpolicy` and the OIDC providers for the Keycloak clients, as described in
+[MinIO](minio.md#resources-created-in-minio), and reads the resulting role ARNs from MinIO. The endpoint of both storage
+profiles is `urls.s3.public`, which must therefore be reachable from the Katta Server pod and from clients.
+
+Without the bundled MinIO, no storage profile is created. Prepare your storage provider with [AWS S3](aws.md) or
+[MinIO](minio.md) and upload a storage profile as described in [Storage Profiles](../admin-guide/storage-profiles.md).
 
 ### Content Security Policy (CSP) Settings
 
@@ -171,18 +247,37 @@ including the Keycloak origin. Use it only when specifying all directives yourse
 ## Docker Compose
 
 For local testing, the `demo` profile of [katta-compose](https://github.com/shift7-ch/katta-compose) brings up Katta Server,
-Keycloak, PostgreSQL, and MinIO, and creates storage profiles for MinIO with static and STS storage access from the files under
-[setup](https://github.com/shift7-ch/katta-compose/tree/main/setup):
+Keycloak, PostgreSQL, and MinIO, configures MinIO with the policies under
+[setup](https://github.com/shift7-ch/katta-compose/tree/main/setup), and creates two storage profiles for MinIO with the
+[Katta Admin CLI](../admin-guide/cli.md):
+
+| Storage profile   | Storage access           | Bucket prefix |
+|-------------------|--------------------------|---------------|
+| `MinIO S3 STS`    | _Scoped Credentials_     | `katta-`      |
+| `MinIO S3 static` | _Static Credentials_     | `katta-`      |
+
+The `local` profile starts and configures the same services but creates no storage profiles. Upload one as described in
+[Storage Profiles](../admin-guide/storage-profiles.md#minio).
 
 ```bash
 docker compose --profile demo up --wait
 ```
 
-Open Katta Web at http://localhost:8280 and log in with username `admin` and password `admin`.
+:::tip
+Open Katta Web at http://hub.localhost:8280 and log in with username `admin` and password `admin`.
+:::
+
+The endpoints of Katta Server, Keycloak and MinIO are the subdomains `hub.localhost`, `keycloak.localhost` and
+`minio.localhost`, so the same URLs work in the browser on the host and inside the Docker network. Browsers resolve subdomains
+of `localhost` to the loopback address, but the system resolver of macOS does not. For other clients on the host, such as
+Katta Desktop, add them to `/etc/hosts`:
+
+```text
+127.0.0.1 hub.localhost keycloak.localhost minio.localhost
+```
 
 :::info
-See the katta-compose [README](https://github.com/shift7-ch/katta-compose#usage) for the profiles, variables, provisioned
-users, and endpoints.
+See the katta-compose [README](https://github.com/shift7-ch/katta-compose#usage) for the profiles, variables and endpoints.
 :::
 
 ### Content Security Policy (CSP) Settings
