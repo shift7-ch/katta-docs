@@ -36,7 +36,7 @@ flowchart TB
     userkeys["Private User Key<br/>Private Signer Key"]
     accoukey["Account Key"]@{shape: paper-tape}
     membekey["Vault Member Key"]
-    recovkey["Private Vault Recovery Key"]
+    recovkey["Private Vault Recovery Key"]@{shape: paper-tape}
     trusted["Public Keys<br/>of trusted users"]@{shape: procs}
     uvf["vault.uvf payload<br/><i>Katta Server and S3 bucket</i>"]
 
