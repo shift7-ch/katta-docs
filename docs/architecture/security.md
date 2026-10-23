@@ -50,7 +50,7 @@ flowchart TB
     recovkey -- decrypts --> uvf
 ```
 
-A dashed border marks a key the user also holds outside Katta, in word form. The Account Key sits on both ends of an
+The wavy rect denotes "paper keys", i.e. keys the user also holds outside Katta, in word form. The Account Key sits on both ends of an
 arrow because either form opens the other: the word form decrypts the user keys, and the private user key decrypts the
 copy held on Katta Server.
 
