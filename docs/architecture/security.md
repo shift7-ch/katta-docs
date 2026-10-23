@@ -34,10 +34,10 @@ flowchart TB
     end
 
     userkeys["Private User Key<br/>Private Signer Key"]
-    accoukey["Account Key"]
+    accoukey["Account Key"]@{shape: paper-tape}
     membekey["Vault Member Key"]
-    recovkey["Private Vault Recovery Key"]
-    trusted["Public User Key / Public Signer Key<br/>of a trusted user"]
+    recovkey["Private Vault Recovery Key"]@{shape: paper-tape}
+    trusted["Public Keys<br/>of trusted users"]@{shape: procs}
     uvf["vault.uvf payload<br/><i>Katta Server and S3 bucket</i>"]
 
     devkey -- decrypts --> userkeys
@@ -45,15 +45,12 @@ flowchart TB
     userkeys -- decrypts --> accoukey
     userkeys -- decrypts --> membekey
     userkeys -- decrypts --> recovkey
-    userkeys -- "decrypts<br/>(Private Signer Key)" --> trusted
+    userkeys -- signs --> trusted
     membekey -- decrypts --> uvf
     recovkey -- decrypts --> uvf
-
-    classDef outside stroke-dasharray:5 5
-    class accoukey,recovkey outside
 ```
 
-A dashed border marks a key the user also holds outside Katta, in word form. The Account Key sits on both ends of an
+The wavy rect denotes "paper keys", i.e. keys the user also holds outside Katta, in word form. The Account Key sits on both ends of an
 arrow because either form opens the other: the word form decrypts the user keys, and the private user key decrypts the
 copy held on Katta Server.
 
