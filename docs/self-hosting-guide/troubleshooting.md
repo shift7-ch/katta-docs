@@ -21,11 +21,12 @@ The following only applies to Katta Web. Katta Desktop is not subject to browser
 - **Content Security Policy (CSP) Settings**. The Content Security Policy (CSP) settings of Katta Server must include the S3 endpoints of the storage profile. If a host is missing, vault creation fails with `This Katta Server's Content Security Policy blocks connections to your-storage-provider.example.com` naming the blocked endpoint. The browser blocks the request before it is sent and logs the violation to the console:
 
   ```text
-  Connecting to 'https://your-storage-provider.example.com' violates the following Content Security Policy directive: "connect-src 'self' minio.localhost:9100 http://keycloak.localhost:8380". The action has been blocked.
+  Connecting to 'https://your-storage-provider.example.com' violates the following Content Security Policy directive: "connect-src 'self' api.cryptomator.org api.katta.cloud localhost:8380 minio.localhost:9100". The action has been blocked.
   ```
 
   The `connect-src` directive must list every host the browser talks to directly:
   - Katta Server itself, covered by `'self'`
+  - `api.cryptomator.org` and `api.katta.cloud`, for the license API and the update check
   - The Keycloak URL
   - The S3 endpoint of each storage profile
   - The STS endpoint of each storage profile

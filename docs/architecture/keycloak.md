@@ -82,10 +82,11 @@ In this way, only users with the corresponding client role get the claims requir
 
 ## Keycloak Realm Diff to Cryptomator Hub (aka. Upstream)
 
-The realm deployed by Katta Server is rendered from the Helm chart's
-[realm template](https://github.com/shift7-ch/katta-helm/blob/main/templates/_realm.tpl), which is the single source of
-truth for the default realm: the Helm chart imports it on install, and [katta-terraform](https://github.com/shift7-ch/katta-terraform) and
-[katta-compose](https://github.com/shift7-ch/katta-compose) render it from the published chart. It has several differences to the
+The realm deployed by Katta Server is rendered from the
+[realm template](https://github.com/shift7-ch/katta-server/blob/develop/chart/templates/_realm.tpl) of the Helm chart in
+katta-server, the single source of truth for the default realm. The Helm chart imports it on install. The Terraform deployment
+and the Docker Compose setups in [`deploy/`](https://github.com/shift7-ch/katta-server/tree/develop/deploy) render it from the
+chart, except `deploy/compose/dev`, which uses the development realm. The realm template has several differences to the
 corresponding [upstream realm template](https://github.com/cryptomator/hub/blob/develop/chart/templates/_realm.tpl):
 
 | Diff                                                                                                                                                          | Motivation                                                                                                                                                                                                                                                                            |

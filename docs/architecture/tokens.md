@@ -158,8 +158,8 @@ mc idp openid add myminio cryptomator \
 Attached to **MinIO Policy** — the canned policies the providers bind to:
 
 ```bash
-mc admin policy create myminio katta-createbucketpolicy setup/minio_sts/createbucketpolicy.json
-mc admin policy create myminio katta-accessbucketpolicy setup/minio_sts/accessbucketpolicy.json
+mc admin policy create myminio katta-createbucketpolicy deploy/compose/local/minio/policies/katta-createbucketpolicy.json
+mc admin policy create myminio katta-accessbucketpolicy deploy/compose/local/minio/policies/katta-accessbucketpolicy.json
 ```
 
 `createbucketpolicy.json`, the `statement` of the bucket creation policy:
@@ -177,7 +177,7 @@ mc admin policy create myminio katta-accessbucketpolicy setup/minio_sts/accessbu
         "s3:GetBucketVersioning"
       ],
       "Resource": [
-        "arn:aws:s3:::katta-*/"
+        "arn:aws:s3:::katta-*"
       ]
     },
     {
@@ -187,7 +187,7 @@ mc admin policy create myminio katta-accessbucketpolicy setup/minio_sts/accessbu
       ],
       "Resource": [
         "arn:aws:s3:::katta-*/*/",
-        "arn:aws:s3:::katta-*/vault.uvf"
+        "arn:aws:s3:::katta-*/*.uvf"
       ]
     }
   ]
@@ -206,7 +206,8 @@ mc admin policy create myminio katta-accessbucketpolicy setup/minio_sts/accessbu
         "s3:GetBucketLocation",
         "s3:GetBucketVersioning",
         "s3:ListBucket",
-        "s3:ListBucketMultipartUploads"
+        "s3:ListBucketMultipartUploads",
+        "s3:ListBucketVersions"
       ],
       "Resource": [
         "arn:aws:s3:::katta-${jwt:client_id}"
