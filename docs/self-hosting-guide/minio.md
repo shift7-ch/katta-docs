@@ -10,7 +10,7 @@ Prepare the MinIO configuration for issuing _[Scoped Credentials](../concepts.md
 trust Keycloak. This setup is required before you upload a [storage profile](../admin-guide/storage-profiles.md) using _Scoped Credentials_ referencing the resulting role ARNs.
 
 :::tip[Bundled MinIO]
-The MinIO bundled with [Docker Compose](deployment.md#docker-compose), and with the
+The MinIO bundled with the local [Docker Compose](deployment.md#local-testing) setups, and with the
 [Helm chart](deployment.md#default-storage-profiles-minio) when `minio.openid.enabled=true`, is already configured with these
 policies and OIDC providers, and storage profiles for it are uploaded on deployment. Follow this page for a MinIO server you
 operate yourself.

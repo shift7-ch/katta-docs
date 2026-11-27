@@ -1,7 +1,7 @@
 ---
 title: Deployment
 sidebar_position: 1
-description: Deploy Katta Server with Terraform on AWS, the Helm chart on Kubernetes, or Docker Compose for local testing.
+description: Deploy Katta Server with Terraform on AWS, the Helm chart on Kubernetes, or Docker Compose on a single Docker host.
 ---
 
 # Deployment
@@ -17,27 +17,27 @@ expected to operate yourself:
 |--------------------------------------|----------------------------------------------|---------------------------------------------------------------|---------------------------------------------|
 | [Terraform](#terraform-aws)          | Production on AWS, from scratch              | VPC, load balancers, ECS, RDS, Route53, ACM, ECR, AWS S3 storage profile           | AWS account, Route53 domain                 |
 | [Helm chart](#helm-chart-kubernetes) | Production on an existing Kubernetes cluster | Katta Server, Keycloak and PostgreSQL, optionally MinIO with its storage profiles | Cluster, ingress controller, TLS, hostnames |
-| [Docker Compose](#docker-compose)    | Local testing and demos                      | Katta Server, Keycloak, MinIO, preconfigured storage profiles                      | Docker on a single machine                  |
+| [Docker Compose](#docker-compose)    | Production on a single Docker host, and local testing | Katta Server, Keycloak, PostgreSQL, Traefik with Let's Encrypt; MinIO and preconfigured storage profiles for local testing | Docker host, hostnames                      |
 
-[Terraform](#terraform-aws) and the [Helm chart](#helm-chart-kubernetes) are the maintained paths for production, so pick the one matching where you operate: Terraform if AWS is
-your target and you want the network and managed databases created for you, the Helm chart if you already run Kubernetes. The
-Docker Compose setup is a demo with MinIO and storage profiles preseeded, to get a complete stack running on one machine in
-minutes.
+All three are maintained paths for production, so pick the one matching where you operate: Terraform if AWS is your target and
+you want the network and managed databases created for you, the Helm chart if you already run Kubernetes, and Docker Compose if a
+single Docker host is enough. Docker Compose also comes as a local demo with MinIO and storage profiles preseeded, to get a
+complete stack running on one machine in minutes.
 
 All three live in the [katta-server](https://github.com/shift7-ch/katta-server) repository: Terraform and Docker Compose in
 [`deploy/`](https://github.com/shift7-ch/katta-server/tree/develop/deploy), the Helm chart in
-[`chart/`](https://github.com/shift7-ch/katta-server/tree/develop/chart). Except for a Helm install from the chart registry, run
-them from a checkout of katta-server, because they render the
+[`chart/`](https://github.com/shift7-ch/katta-server/tree/develop/chart). Except for a Helm install from the chart registry and
+the production Docker Compose setup, run them from a checkout of katta-server, because they render the
 [Keycloak realm](../architecture/keycloak.md#keycloak-realm-diff-to-cryptomator-hub-aka-upstream) from the chart in it.
 
-All three options configure a default [storage profile](../admin-guide/storage-profiles.md) with the
+Each option can configure a default [storage profile](../admin-guide/storage-profiles.md) with the
 [Katta Admin CLI](../admin-guide/cli.md) once Katta Server is up, so vaults can be created right after the deployment:
 
 | Option                               | Storage                  | Storage profiles                                                  |
 |--------------------------------------|--------------------------|-------------------------------------------------------------------|
 | [Terraform](#terraform-aws)          | AWS S3                   | _Scoped Credentials_                                              |
 | [Helm chart](#helm-chart-kubernetes) | Bundled MinIO (optional) | _Static Credentials_, and _Scoped Credentials_ if OIDC is enabled |
-| [Docker Compose](#docker-compose)    | Bundled MinIO            | _Static Credentials_ and _Scoped Credentials_                     |
+| [Docker Compose](#docker-compose)    | Bundled MinIO (demo)     | _Static Credentials_ and _Scoped Credentials_ in the local demo   |
 
 The storage profiles are uploaded with `--skipIfExists`: a storage profile with the same name already in Katta Server is left
 untouched, so re-running the deployment neither duplicates nor updates it. Add storage profiles for further storage providers
@@ -294,6 +294,41 @@ including the Keycloak origin. Use it only when specifying all directives yourse
 
 ## Docker Compose
 
+### Production
+
+[`deploy/compose/prod`](https://github.com/shift7-ch/katta-server/tree/develop/deploy/compose/prod) runs Katta Server with
+Keycloak and PostgreSQL on a single Docker host, behind [Traefik](https://traefik.io/) with Let's Encrypt certificates.
+`compose.yaml` is the only file needed: it renders the Keycloak realm from the published Helm chart, so no checkout of
+katta-server is required. The comments in it explain how to swap in an existing reverse proxy, PostgreSQL, or Keycloak.
+
+:::warning[Prerequisites]
+Docker Compose 2.23.1 or later, a host reachable from the internet on ports 80 and 443, and DNS records for the hostnames of
+Katta Server and Keycloak.
+:::
+
+Replace the placeholders in `compose.yaml` — the hostnames `hub.example.com` and `kc.example.com`, the Let's Encrypt contact
+`admin@example.com`, and the `CHANGE-ME-*` passwords and client secrets — as listed in the
+[README](https://github.com/shift7-ch/katta-server/blob/develop/deploy/compose/prod/README.md). Most values occur more than once,
+and all occurrences must be identical. Generate secrets with `openssl rand -hex 32`. Then start the stack:
+
+```bash
+docker compose up -d
+```
+
+:::tip
+Once `docker compose ps` shows all services as `healthy`, open Katta Web at `https://hub.example.com` and log in with username
+`admin` and the password that replaced `CHANGE-ME-HUB-ADMIN-PASSWORD`. You must change the password on first login.
+:::
+
+Keycloak imports the realm on its first start only. Hostnames and secrets changed afterwards must also be changed in the Keycloak
+admin console.
+
+No storage profile is created. Prepare your storage provider with [AWS S3](aws.md) or [MinIO](minio.md) and upload a storage
+profile as described in [Storage Profiles](../admin-guide/storage-profiles.md). Allow its S3 and STS endpoints in the
+[Content Security Policy](#content-security-policy-csp-settings-2).
+
+### Local Testing
+
 For local testing, [`deploy/compose/demo`](https://github.com/shift7-ch/katta-server/tree/develop/deploy/compose/demo) brings
 up Katta Server, Keycloak, PostgreSQL, and MinIO, configures MinIO as described in
 [MinIO](minio.md#resources-created-in-minio), and creates two storage profiles for MinIO with the
@@ -337,8 +372,9 @@ how to create them with `mc`.
 
 ### Content Security Policy (CSP) Settings
 
-Both setups append `CSP_CONNECT_SRC_EXTRA` to `'self'`, `api.cryptomator.org`, `api.katta.cloud` and the Keycloak and MinIO
-addresses. Set it in `.env` in the directory you run `docker compose` from, created owner-only from
+All Docker Compose setups append `CSP_CONNECT_SRC_EXTRA` to `'self'`, `api.cryptomator.org`, `api.katta.cloud` and the Keycloak
+address, the local setups also the MinIO address. Set it in `.env` in the directory you run `docker compose` from. For the local
+setups, create it owner-only from
 [`deploy/compose/local/.env.template`](https://github.com/shift7-ch/katta-server/blob/develop/deploy/compose/local/.env.template),
 which also lists the variables for ports, secrets and the license:
 
@@ -371,7 +407,6 @@ them.
 
 | Example                                                                     | Directory                                                                                                               |
 |-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| A single Docker host behind Traefik with Let's Encrypt                      | [`deploy/compose/prod`](https://github.com/shift7-ch/katta-server/tree/develop/deploy/compose/prod)                     |
 | Katta Server and PostgreSQL locally, against a Keycloak that runs elsewhere | [`deploy/compose/hybrid`](https://github.com/shift7-ch/katta-server/tree/develop/deploy/compose/hybrid)                 |
 | A locally built Katta Server image against the development realm            | [`deploy/compose/dev`](https://github.com/shift7-ch/katta-server/tree/develop/deploy/compose/dev)                       |
 | The published chart behind Traefik with cert-manager                        | [`deploy/helm/prod`](https://github.com/shift7-ch/katta-server/tree/develop/deploy/helm/prod)                           |
